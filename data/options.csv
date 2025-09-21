@@ -1,0 +1,13 @@
+Stock,Type,Outcome,Date of Trade,Expiry ,Days,Premium ($),Premium,Stock Price,Strike,Contracts,Capital,Return on Stock,Annualized Return,% Return,Income/day,Notes,Options ID
+SOFI,Call,Assigned,September 10 2025,September 12 2025,2,$48,0.48,$25.57,$26.00,1,"$2,557.00",$43.00,342.59%,1.88%,$24,"First ever trade, recommendation from John",1
+PTLR,Call,Assigned,September 10 2025,September 12 2025,2,$280,2.8,$164.79,$165.00,1,"$16,479.00",$21.00,310.09%,1.70%,$140,"Was a little scared on this as it was $16,500, first large stock purchase",2
+F,Call,Assigned,September 10 2025,September 19 2025,9,$12,0.12,$11.34,$11.50,1,"$1,134.00",$16.00,42.92%,1.06%,$1,Test trade to get comfortable with things,3
+SOFI,Call,Assigned,September 11 2025,September 12 2025,1,$44,0.44,$25.75,$26.00,1,"$2,575.00",$25.00,623.69%,1.71%,$44,"Already had SOFI, but the Annualized return was insane on this",4
+AMD,Call,Assigned,September 11 2025,September 12 2025,1,$91,0.91,$155.71,$157.50,1,"$15,571.00",$179.00,213.31%,0.58%,$91,"Had trouble getting filled, did a market order and lost $29 on the price",5
+SOFI,Call,Assigned,September 15 2025,September 19 2025,4,$81,0.81,$27.46,$27.50,1,"$2,746.00",$4.00,269.16%,2.95%,$20,"Doing a trade before the fed rate cut announcement to understand how the volatility works, good return overall",6
+AAL,Call,Ongoing,September 16 2025,October 10 2025,24,$55,0.55,$12.19,$12.50,1,"$1,219.00",,68.62%,4.51%,$2,"Struggled to get filled, did a market order, maybe should consider real time market data. Did a longer option call just as a test ",7
+OXY,Call,Expired,September 16 2025,September 19 2025,3,$63,0.63,$47.42,$47.50,1,"$4,742.00",,161.64%,1.33%,$21,Wanted to test energy sector and see how it works with diversification this week,8
+SOFI,Put,Expired,September 18 2025,September 19 2025,1,$23,0.23,$27.48,$27.00,1,"$2,700.00",,305.49%,0.85%,$23,First ever Put!,9
+MNRA,Put,Assigned,September 18 2025,September 19 2025,1,$60,0.6,$25.66,$25.50,1,"$2,550.00",,853.47%,2.35%,$60,"Second Put, but not sure I would want to own MRNA in the long term, it feels like its a long term downtrending stock",10
+AMD,Call,Expired,September 18 2025,September 19 2025,1,$191,1.91,$157.30,$157.50,1,"$15,730.00",,443.20%,1.21%,$191,Only Good call option I could find for end of this week that was not on a stock that I already own or PLTR which I felt was too volatile,11
+AAL,Call,Ongoing,September 19 2025,September 25 2025,6,$92,0.23,$12.42,$12.50,4,"$4,968.00",,112.65%,1.85%,$15,"Wanted to try out an over-the-weekend weekly, and I want to check how much this is on Monday, as I think we get good theta decay on the weekend without much price movement. And this fit nicely, almost 2% for the week.",13

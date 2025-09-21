@@ -1,0 +1,131 @@
+{{define "content"}}
+<div class="space-y-6">
+    <h2 class="text-2xl font-bold text-gray-900">Analytics</h2>
+    
+    <!-- Portfolio Summary Section -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Summary</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Portfolio Value -->
+            <div class="bg-white rounded-lg px-6 py-4 shadow-sm">
+                <p class="text-sm font-medium text-gray-600">Total Portfolio Value</p>
+                <p class="mt-2 text-3xl font-bold text-gray-900">{{.TotalPortfolioValueFormatted}}</p>
+            </div>
+            
+            <!-- Total Portfolio Profit -->
+            <div class="bg-white rounded-lg px-6 py-4 shadow-sm">
+                <p class="text-sm font-medium text-gray-600">Total Profit</p>
+                <p class="mt-2 text-3xl font-bold text-green-600">{{.TotalPortfolioProfitFormatted}}</p>
+            </div>
+            
+            <!-- Portfolio Return Percentage -->
+            <div class="bg-white rounded-lg px-6 py-4 shadow-sm">
+                <p class="text-sm font-medium text-gray-600">Portfolio Return</p>
+                <p class="mt-2 text-3xl font-bold text-blue-600">{{.TotalPortfolioProfitPercentageFormatted}}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white">
+        <div class="mx-auto">
+            <div class="grid grid-cols-1 gap-px bg-gray-900/5 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Total Premiums Collected -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total Premiums Collected</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalPremiumsFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Total Capital Deployed -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total Capital Deployed</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalCapitalFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Total Active Capital -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total Active Capital</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalActiveCapitalFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Premium Per Day -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Premium Per Day</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.PremiumPerDayFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- ROI Percentage -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total ROI</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.ROIPercentageFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Average Return Per Trade -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Avg Return Per Trade</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.AvgReturnPerTradeFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Largest Premium -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Largest Premium</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.LargestPremiumFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Smallest Premium -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Smallest Premium</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.SmallestPremiumFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Average Premium -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Average Premium</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.AveragePremiumFormatted}}</span>
+                    </p>
+                </div>
+                
+                <!-- Number of Option Trades -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Number of Option Trades</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.OptionTradesCount}}</span>
+                    </p>
+                </div>
+                
+                <!-- Number of Stock Trades -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Number of Stock Trades</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.StockTradesCount}}</span>
+                    </p>
+                </div>
+                
+                <!-- Total Number of Trades -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total Number of Trades</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalTradesCount}}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

@@ -1,0 +1,271 @@
+{{define "content"}}
+<div class="space-y-6" x-data="{
+    sortBy: 'dateOfTrade',
+    sortOrder: 'asc',
+    typeFilter: 'all',
+    outcomeFilter: 'all',
+    trades: [
+        {{range .Trades}}
+        {
+            stock: '{{.Stock}}',
+            type: '{{.Type}}',
+            outcome: '{{.Outcome}}',
+            dateOfTrade: '{{.DateOfTrade}}',
+            expiry: '{{.Expiry}}',
+            days: '{{.Days}}',
+            premiumDollar: '{{.PremiumDollar}}',
+            premium: '{{.Premium}}',
+            stockPrice: '{{.StockPrice}}',
+            strike: '{{.Strike}}',
+            contracts: '{{.Contracts}}',
+            capital: '{{.Capital}}',
+            percentReturn: '{{.PercentReturn}}',
+            incomePerDay: '{{.IncomePerDay}}'
+        },
+        {{end}}
+    ],
+    sortData(field) {
+        if (this.sortBy === field) {
+            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortBy = field;
+            this.sortOrder = 'asc';
+        }
+    },
+    get filteredAndSortedTrades() {
+        let filtered = [...this.trades];
+        
+        // Apply type filter
+        if (this.typeFilter !== 'all') {
+            filtered = filtered.filter(trade => trade.type === this.typeFilter);
+        }
+        
+        // Apply outcome filter
+        if (this.outcomeFilter !== 'all') {
+            filtered = filtered.filter(trade => trade.outcome === this.outcomeFilter);
+        }
+        
+        // Apply sorting
+        return filtered.sort((a, b) => {
+            let aVal = a[this.sortBy];
+            let bVal = b[this.sortBy];
+            
+            // Handle date sorting
+            if (this.sortBy === 'dateOfTrade' || this.sortBy === 'expiry') {
+                aVal = new Date(aVal);
+                bVal = new Date(bVal);
+            }
+            // Handle numeric sorting
+            else if (['days', 'strike', 'contracts'].includes(this.sortBy)) {
+                aVal = parseFloat(aVal) || 0;
+                bVal = parseFloat(bVal) || 0;
+            }
+            // Handle currency/percentage sorting
+            else if (['premiumDollar', 'percentReturn', 'incomePerDay', 'capital'].includes(this.sortBy)) {
+                aVal = parseFloat(aVal.replace(/[$,%,]/g, '')) || 0;
+                bVal = parseFloat(bVal.replace(/[$,%,]/g, '')) || 0;
+            }
+            
+            if (this.sortOrder === 'asc') {
+                return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+            } else {
+                return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+            }
+        });
+    }
+}">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Your Options Trades</h2>
+        
+        <div class="flex space-x-4">
+            <!-- Type Filter Dropdown -->
+            <div x-data="{ open: false }" class="relative inline-block text-left">
+                <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    <span x-text="typeFilter === 'all' ? 'All Types' : (typeFilter === 'Call' ? 'Calls Only' : 'Puts Only')"></span>
+                    <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                
+                <div x-show="open" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div class="py-1">
+                        <a @click="typeFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="typeFilter === 'all' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">All Types</a>
+                        <a @click="typeFilter = 'Call'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="typeFilter === 'Call' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Calls Only</a>
+                        <a @click="typeFilter = 'Put'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="typeFilter === 'Put' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Puts Only</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Outcome Filter Dropdown -->
+            <div x-data="{ open: false }" class="relative inline-block text-left">
+                <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    <span x-text="outcomeFilter === 'all' ? 'All Outcomes' : outcomeFilter"></span>
+                    <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div class="py-1">
+                        <a @click="outcomeFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="outcomeFilter === 'all' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">All Outcomes</a>
+                        <a @click="outcomeFilter = 'Assigned'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="outcomeFilter === 'Assigned' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Assigned</a>
+                        <a @click="outcomeFilter = 'Ongoing'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="outcomeFilter === 'Ongoing' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Ongoing</a>
+                        <a @click="outcomeFilter = 'Expired'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="outcomeFilter === 'Expired' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Expired</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th @click="sortData('stock')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Stock</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'stock', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('type')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Type</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'type', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('outcome')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Outcome</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'outcome', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('dateOfTrade')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Trade Date</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'dateOfTrade', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('expiry')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Expiry</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'expiry', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('days')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Days</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'days', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('premiumDollar')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Premium</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'premiumDollar', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('strike')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Strike</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'strike', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('contracts')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Contracts</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'contracts', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Capital</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'capital', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('percentReturn')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>Return %</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'percentReturn', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('incomePerDay')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span>$/Day</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'incomePerDay', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <template x-for="trade in filteredAndSortedTrades" :key="trade.stock + trade.dateOfTrade">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="trade.stock"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                  :class="trade.type === 'Call' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'"
+                                  x-text="trade.type">
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                  :class="{
+                                      'bg-green-100 text-green-800': trade.outcome === 'Assigned',
+                                      'bg-gray-100 text-gray-800': trade.outcome === 'Expired',
+                                      'bg-yellow-100 text-yellow-800': trade.outcome === 'Ongoing'
+                                  }"
+                                  x-text="trade.outcome">
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="trade.dateOfTrade"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="trade.expiry"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="trade.days"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="trade.premiumDollar"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="trade.strike"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="trade.contracts"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="trade.capital.replace(/\.\d{2}$/, '')"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600" x-text="trade.percentReturn"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="trade.incomePerDay"></td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

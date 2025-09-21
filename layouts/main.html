@@ -1,0 +1,58 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Tailwind CSS 4 Alpha -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#64748b',
+                        success: '#16a34a',
+                        danger: '#dc2626',
+                        warning: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <div x-data="{ sidebarOpen: false }" class="min-h-screen flex">
+        <!-- Sidebar -->
+        {{template "sidebar" .}}
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Top Bar -->
+            {{template "header" .}}
+            
+            <!-- Page Content -->
+            <main class="flex-1 p-6">
+                {{template "content" .}}
+            </main>
+        </div>
+    </div>
+    
+    <!-- Overlay for mobile sidebar -->
+    <div x-show="sidebarOpen" 
+         @click="sidebarOpen = false"
+         x-cloak
+         class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"></div>
+</body>
+</html>
+{{end}}
