@@ -11,3 +11,8 @@ SOFI,Put,Expired,September 18 2025,September 19 2025,1,$23,0.23,$27.48,$27.00,1,
 MNRA,Put,Assigned,September 18 2025,September 19 2025,1,$60,0.6,$25.66,$25.50,1,"$2,550.00",,853.47%,2.35%,$60,"Second Put, but not sure I would want to own MRNA in the long term, it feels like its a long term downtrending stock",10
 AMD,Call,Expired,September 18 2025,September 19 2025,1,$191,1.91,$157.30,$157.50,1,"$15,730.00",,443.20%,1.21%,$191,Only Good call option I could find for end of this week that was not on a stock that I already own or PLTR which I felt was too volatile,11
 AAL,Call,Ongoing,September 19 2025,September 25 2025,6,$92,0.23,$12.42,$12.50,4,"$4,968.00",,112.65%,1.85%,$15,"Wanted to try out an over-the-weekend weekly, and I want to check how much this is on Monday, as I think we get good theta decay on the weekend without much price movement. And this fit nicely, almost 2% for the week.",13
+AMD,Call,Ongoing,September 22 2025,September 26 2025,4,$360,3.60,$160.00,$160.00,1,"$16,000.00",,205.31%,2.25%,$90,Sold covered call,14
+HIMS,Put,Ongoing,September 22 2025,September 26 2025,4,$119,1.19,$55.00,$55.00,1,"$5,500.00",,197.43%,2.16%,$30,Sold cash secured put,15
+MRNA,Call,Ongoing,September 22 2025,September 25 2025,3,$72,0.72,$25.50,$25.50,1,"$2,550.00",,343.53%,2.82%,$24,Sold covered call,16
+OXY,Call,Ongoing,September 22 2025,November 21 2025,60,$181,1.81,$47.50,$47.50,1,"$4,750.00",,23.18%,3.81%,$3,Sold covered call,17
+BAC,Call,Ongoing,September 22 2025,September 26 2025,4,$55,0.55,$52.04,$52.00,1,"$5,204.00",,96.44%,1.06%,$14,Sold covered call at strike 52,18

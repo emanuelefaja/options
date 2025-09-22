@@ -58,8 +58,9 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 		if c, err := strconv.ParseFloat(capital, 64); err == nil {
 			analytics.TotalCapital += c
 			
-			// Add to active capital if ongoing
-			if trade.Outcome == "Ongoing" {
+			// Add to active capital only for ongoing Puts (cash-secured puts)
+			// Calls are covered calls, so that capital is already in stock positions
+			if trade.Outcome == "Ongoing" && trade.Type == "Put" {
 				analytics.TotalActiveCapital += c
 			}
 		}
@@ -116,13 +117,16 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	analytics.TotalDeposits = CalculateTotalDeposits(transactions)
 	
 	// Calculate total stock profit/loss from all positions
-	// Load stock transactions to get closed positions
+	// Load stock transactions to get closed positions and open positions' cost basis
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
 	if len(stockTransactions) > 0 {
 		positions := CalculateAllPositions(stockTransactions)
 		for _, pos := range positions {
 			if pos.Type == "closed" {
 				analytics.TotalStockProfitLoss += pos.RealizedPnL
+			} else if pos.Type == "open" {
+				// Add open stock positions' cost basis to active capital
+				analytics.TotalActiveCapital += pos.CostBasis
 			}
 		}
 	}
