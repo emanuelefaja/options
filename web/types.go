@@ -10,7 +10,6 @@ type PageData struct {
 	TotalCapital       float64
 	TotalActiveCapital float64
 	PremiumPerDay      float64
-	ROIPercentage      float64
 	AvgReturnPerTrade  float64
 	LargestPremium     float64
 	SmallestPremium    float64
@@ -22,7 +21,6 @@ type PageData struct {
 	TotalCapitalFormatted       string
 	TotalActiveCapitalFormatted string
 	PremiumPerDayFormatted      string
-	ROIPercentageFormatted      string
 	AvgReturnPerTradeFormatted  string
 	LargestPremiumFormatted     string
 	SmallestPremiumFormatted    string

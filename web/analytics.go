@@ -12,7 +12,6 @@ type Analytics struct {
 	TotalCapital       float64
 	TotalActiveCapital float64
 	PremiumPerDay      float64
-	ROIPercentage      float64
 	AvgReturnPerTrade  float64
 	LargestPremium     float64
 	SmallestPremium    float64
@@ -88,10 +87,6 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 		}
 	}
 	
-	// Calculate ROI percentage
-	if analytics.TotalCapital > 0 {
-		analytics.ROIPercentage = (analytics.TotalPremiums / analytics.TotalCapital) * 100
-	}
 	
 	// Calculate average return per trade
 	if returnCount > 0 {
