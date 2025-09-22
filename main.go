@@ -108,9 +108,11 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:          analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
+		TotalStockProfit:             analytics.TotalStockProfitLoss,
 		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalStockProfitFormatted:    web.FormatCurrency(analytics.TotalStockProfitLoss),
 	})
 }
 

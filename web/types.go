@@ -36,7 +36,9 @@ type PageData struct {
 	TotalPortfolioValue          float64
 	TotalPortfolioProfit         float64
 	TotalPortfolioProfitPercentage float64
+	TotalStockProfit             float64
 	TotalPortfolioValueFormatted  string
 	TotalPortfolioProfitFormatted string
 	TotalPortfolioProfitPercentageFormatted string
+	TotalStockProfitFormatted    string
 }
