@@ -38,6 +38,13 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		Title:       "Options Tracker",
 		CurrentPage: "home",
 		Trades:      trades,
+		// Options page specific metrics
+		OpenOptionsCount:     analytics.OpenOptionsCount,
+		ClosedOptionsCount:   analytics.ClosedOptionsCount,
+		OptionsActiveCapital: analytics.OptionsActiveCapital,
+		CollectedPremiums:    analytics.CollectedPremiums,
+		OptionsActiveCapitalFormatted: web.FormatCurrency(analytics.OptionsActiveCapital),
+		CollectedPremiumsFormatted:    web.FormatCurrency(analytics.CollectedPremiums),
 		// Portfolio values for header
 		TotalPortfolioValue:          analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,

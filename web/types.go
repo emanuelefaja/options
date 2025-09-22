@@ -17,6 +17,13 @@ type PageData struct {
 	OptionTradesCount  int
 	StockTradesCount   int
 	TotalTradesCount   int
+	// Options page specific
+	OpenOptionsCount     int
+	ClosedOptionsCount   int
+	OptionsActiveCapital float64
+	CollectedPremiums    float64
+	OptionsActiveCapitalFormatted string
+	CollectedPremiumsFormatted    string
 	TotalPremiumsFormatted      string
 	TotalCapitalFormatted       string
 	TotalActiveCapitalFormatted string

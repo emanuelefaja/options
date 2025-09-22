@@ -131,6 +131,26 @@
         </div>
     </div>
     
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Open Options</p>
+            <p class="text-2xl font-bold text-gray-900">{{.OpenOptionsCount}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Closed Options</p>
+            <p class="text-2xl font-bold text-gray-900">{{.ClosedOptionsCount}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Open Capital</p>
+            <p class="text-2xl font-bold text-blue-600">{{.OptionsActiveCapitalFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Collected Premiums</p>
+            <p class="text-2xl font-bold text-green-600">{{.CollectedPremiumsFormatted}}</p>
+        </div>
+    </div>
+    
     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">

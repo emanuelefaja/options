@@ -19,6 +19,11 @@ type Analytics struct {
 	OptionTradesCount  int
 	StockTradesCount   int
 	TotalTradesCount   int
+	// Options specific calculations
+	OpenOptionsCount   int
+	ClosedOptionsCount int
+	OptionsActiveCapital float64
+	CollectedPremiums  float64
 	// Portfolio calculations
 	TotalDeposits                float64
 	TotalStockProfitLoss         float64
@@ -36,10 +41,18 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	analytics.SmallestPremium = 999999 // Initialize to large number
 	
 	for _, trade := range trades {
+		// Count open vs closed options
+		if trade.Outcome == "Ongoing" {
+			analytics.OpenOptionsCount++
+		} else {
+			analytics.ClosedOptionsCount++
+		}
+		
 		// Parse premium (remove $ and convert to float)
 		premium := strings.TrimPrefix(trade.PremiumDollar, "$")
 		if p, err := strconv.ParseFloat(premium, 64); err == nil {
 			analytics.TotalPremiums += p
+			analytics.CollectedPremiums += p  // All premiums are collected
 			premiumCount++
 			
 			// Track largest and smallest premiums
@@ -56,6 +69,11 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 		capital = strings.ReplaceAll(capital, ",", "")
 		if c, err := strconv.ParseFloat(capital, 64); err == nil {
 			analytics.TotalCapital += c
+			
+			// Add to options active capital for ongoing options
+			if trade.Outcome == "Ongoing" {
+				analytics.OptionsActiveCapital += c
+			}
 			
 			// Add to active capital only for ongoing Puts (cash-secured puts)
 			// Calls are covered calls, so that capital is already in stock positions
