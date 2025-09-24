@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -30,6 +31,16 @@ type Analytics struct {
 	TotalPortfolioValue          float64
 	TotalPortfolioProfit         float64
 	TotalPortfolioProfitPercentage float64
+	// Daily returns data
+	DailyReturns       []DailyReturn
+	DailyReturnsJSON   string
+}
+
+type DailyReturn struct {
+	Date          string  `json:"date"`
+	Premiums      float64 `json:"premiums"`
+	StockGains    float64 `json:"stockGains"`
+	TotalReturns  float64 `json:"totalReturns"`
 }
 
 func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transaction) Analytics {
@@ -153,6 +164,21 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 		analytics.TotalPortfolioProfitPercentage = (analytics.TotalPortfolioProfit / analytics.TotalDeposits) * 100
 	}
 	
+	// Calculate daily returns
+	analytics.DailyReturns = CalculateDailyReturns(trades, stockTransactions)
+	
+	// Convert daily returns to JSON for use in JavaScript
+	if analytics.DailyReturns == nil {
+		analytics.DailyReturns = []DailyReturn{}
+	}
+	
+	jsonData, err := json.Marshal(analytics.DailyReturns)
+	if err != nil {
+		analytics.DailyReturnsJSON = "[]"
+	} else {
+		analytics.DailyReturnsJSON = string(jsonData)
+	}
+	
 	return analytics
 }
 
@@ -175,4 +201,74 @@ func FormatCurrency(amount float64) string {
 	}
 	
 	return "$" + strings.Join(parts, ",")
+}
+
+func CalculateDailyReturns(trades []Trade, stockTransactions []StockTransaction) []DailyReturn {
+	dailyMap := make(map[string]*DailyReturn)
+	
+	// Process option premiums
+	for _, trade := range trades {
+		// Parse trade date
+		tradeDate, err := time.Parse("January 2 2006", trade.DateOfTrade)
+		if err != nil {
+			continue
+		}
+		
+		dateStr := tradeDate.Format("2006-01-02")
+		
+		// Parse premium
+		premium := strings.TrimPrefix(trade.PremiumDollar, "$")
+		premiumValue, err := strconv.ParseFloat(premium, 64)
+		if err != nil {
+			continue
+		}
+		
+		// Initialize or update daily return
+		if _, exists := dailyMap[dateStr]; !exists {
+			dailyMap[dateStr] = &DailyReturn{
+				Date: dateStr,
+			}
+		}
+		
+		dailyMap[dateStr].Premiums += premiumValue
+	}
+	
+	// Process stock transactions for realized gains
+	positions := CalculateAllPositions(stockTransactions)
+	for _, pos := range positions {
+		if pos.Type == "closed" {
+			// Use the close date (sell date) for realized gains
+			dateStr := pos.CloseDate
+			if parsedDate, err := time.Parse("2006-01-02", pos.CloseDate); err == nil {
+				dateStr = parsedDate.Format("2006-01-02")
+			}
+			
+			if _, exists := dailyMap[dateStr]; !exists {
+				dailyMap[dateStr] = &DailyReturn{
+					Date: dateStr,
+				}
+			}
+			
+			// Use the already calculated realized P&L from the position
+			dailyMap[dateStr].StockGains += pos.RealizedPnL
+		}
+	}
+	
+	// Convert map to sorted slice
+	var dailyReturns []DailyReturn
+	for _, dr := range dailyMap {
+		dr.TotalReturns = dr.Premiums + dr.StockGains
+		dailyReturns = append(dailyReturns, *dr)
+	}
+	
+	// Sort by date
+	for i := 0; i < len(dailyReturns)-1; i++ {
+		for j := i + 1; j < len(dailyReturns); j++ {
+			if dailyReturns[i].Date > dailyReturns[j].Date {
+				dailyReturns[i], dailyReturns[j] = dailyReturns[j], dailyReturns[i]
+			}
+		}
+	}
+	
+	return dailyReturns
 }
