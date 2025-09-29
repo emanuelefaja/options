@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -139,7 +140,12 @@ func CalculateOptionPositions(transactions []OptionTransaction) []OptionPosition
 			pos.PremiumPaid += math.Abs(tx.Premium)
 			pos.Commissions += tx.Commission
 			pos.CloseDate = tx.Date
-			pos.Status = "Closed Early"
+			// Check if this is a roll by looking for "roll" in the notes
+			if strings.Contains(strings.ToLower(tx.Notes), "roll") {
+				pos.Status = "Rolled"
+			} else {
+				pos.Status = "Closed Early"
+			}
 
 		case "Expired":
 			pos.CloseDate = tx.Date
