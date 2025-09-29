@@ -134,26 +134,32 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	
 	// Count trades
 	analytics.OptionTradesCount = len(trades)
-	analytics.StockTradesCount = len(stocks)
-	analytics.TotalTradesCount = analytics.OptionTradesCount + analytics.StockTradesCount
-	
+
 	// Calculate total deposits from transactions
 	analytics.TotalDeposits = CalculateTotalDeposits(transactions)
-	
+
 	// Calculate total stock profit/loss from all positions
 	// Load stock transactions to get closed positions and open positions' cost basis
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
 	if len(stockTransactions) > 0 {
 		positions := CalculateAllPositions(stockTransactions)
+		openStockCount := 0
+		closedStockCount := 0
 		for _, pos := range positions {
 			if pos.Type == "closed" {
 				analytics.TotalStockProfitLoss += pos.RealizedPnL
+				closedStockCount++
 			} else if pos.Type == "open" {
 				// Add open stock positions' cost basis to active capital
 				analytics.TotalActiveCapital += pos.CostBasis
+				openStockCount++
 			}
 		}
+		// Count total stock trades as open + closed positions
+		analytics.StockTradesCount = openStockCount + closedStockCount
 	}
+
+	analytics.TotalTradesCount = analytics.OptionTradesCount + analytics.StockTradesCount
 	
 	// Calculate portfolio totals
 	analytics.TotalPortfolioValue = analytics.TotalDeposits + analytics.TotalPremiums + analytics.TotalStockProfitLoss
