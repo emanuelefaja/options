@@ -113,6 +113,10 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalStockProfitFormatted:    web.FormatCurrency(analytics.TotalStockProfitLoss),
+		TotalDepositsFormatted:       web.FormatCurrency(analytics.TotalDeposits),
+		// Daily returns data
+		DailyReturns:     analytics.DailyReturns,
+		DailyReturnsJSON: analytics.DailyReturnsJSON,
 	})
 }
 

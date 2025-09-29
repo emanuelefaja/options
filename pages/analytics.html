@@ -1,8 +1,186 @@
 {{define "content"}}
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ 
+    activeTab: 'general', 
+    chartFilter: 'both', 
+    chart: null,
+    dailyData: {{.DailyReturnsJSON}} || [],
+    initChart() {
+        if (!this.chart && this.dailyData.length > 0) {
+            const ctx = document.getElementById('dailyReturnsChart').getContext('2d');
+            
+            // Format labels
+            const labels = this.dailyData.map(d => {
+                // Parse date string and add time to ensure correct date
+                const [year, month, day] = d.date.split('-');
+                const date = new Date(year, month - 1, day);
+                const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+                return monthName + ' ' + date.getDate();
+            });
+            
+            this.chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Premiums',
+                            data: this.dailyData.map(d => d.premiums),
+                            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                            borderColor: 'rgb(34, 197, 94)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Stock Gains',
+                            data: this.dailyData.map(d => d.stockGains),
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+    },
+    updateChart() {
+        if (!this.chart || this.dailyData.length === 0) return;
+        
+        // Format labels
+        const labels = this.dailyData.map(d => {
+            const date = new Date(d.date);
+            const month = date.toLocaleDateString('en-US', { month: 'short' });
+            const day = date.getDate();
+            return month + ' ' + day;
+        });
+        
+        // Destroy and recreate the chart to avoid update issues
+        this.chart.destroy();
+        const ctx = document.getElementById('dailyReturnsChart').getContext('2d');
+        
+        let datasets = [];
+        if (this.chartFilter === 'premiums') {
+            datasets = [{
+                label: 'Premiums',
+                data: this.dailyData.map(d => d.premiums),
+                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                borderColor: 'rgb(34, 197, 94)',
+                borderWidth: 1
+            }];
+        } else if (this.chartFilter === 'stocks') {
+            datasets = [{
+                label: 'Stock Gains',
+                data: this.dailyData.map(d => d.stockGains),
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: 'rgb(59, 130, 246)',
+                borderWidth: 1
+            }];
+        } else {
+            datasets = [
+                {
+                    label: 'Premiums',
+                    data: this.dailyData.map(d => d.premiums),
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Stock Gains',
+                    data: this.dailyData.map(d => d.stockGains),
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1
+                }
+            ];
+        }
+        
+        this.chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: (this.chartFilter === 'both')
+                    },
+                    y: {
+                        stacked: (this.chartFilter === 'both'),
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+}">
     <h2 class="text-2xl font-bold text-gray-900">Analytics</h2>
     
-    <div class="bg-white">
+    <!-- Tab Navigation -->
+    <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <button @click="activeTab = 'general'"
+                    :class="activeTab === 'general' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
+                    class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                General
+            </button>
+            <button @click="activeTab = 'daily'; $nextTick(() => initChart())"
+                    :class="activeTab === 'daily' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
+                    class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                Daily
+            </button>
+        </nav>
+    </div>
+    
+    <!-- General Tab Content -->
+    <div x-show="activeTab === 'general'" class="bg-white">
         <div class="mx-auto">
             <div class="grid grid-cols-1 gap-px bg-gray-900/5 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Portfolio Value -->
@@ -12,7 +190,7 @@
                         <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalPortfolioValueFormatted}}</span>
                     </p>
                 </div>
-                
+
                 <!-- Total Active Capital -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Total Active Capital</p>
@@ -20,7 +198,23 @@
                         <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalActiveCapitalFormatted}}</span>
                     </p>
                 </div>
-                
+
+                <!-- Total Capital Deployed -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total Capital Deployed</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalCapitalFormatted}}</span>
+                    </p>
+                </div>
+
+                <!-- Total Deposits -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Total Deposits</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalDepositsFormatted}}</span>
+                    </p>
+                </div>
+
                 <!-- Total Portfolio Profit -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Total Profit</p>
@@ -28,7 +222,7 @@
                         <span class="text-4xl font-semibold tracking-tight text-green-600">{{.TotalPortfolioProfitFormatted}}</span>
                     </p>
                 </div>
-                
+
                 <!-- Portfolio Return Percentage -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Portfolio Return</p>
@@ -36,7 +230,7 @@
                         <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalPortfolioProfitPercentageFormatted}}</span>
                     </p>
                 </div>
-                
+
                 <!-- Total Premiums Collected -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Total Premiums Collected</p>
@@ -44,20 +238,12 @@
                         <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalPremiumsFormatted}}</span>
                     </p>
                 </div>
-                
+
                 <!-- Total Stock Profit -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Total Stock Profit</p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalStockProfitFormatted}}</span>
-                    </p>
-                </div>
-                
-                <!-- Total Capital Deployed -->
-                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
-                    <p class="text-sm/6 font-medium text-gray-500">Total Capital Deployed</p>
-                    <p class="mt-2 flex items-baseline gap-x-2">
-                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalCapitalFormatted}}</span>
                     </p>
                 </div>
                 
@@ -127,5 +313,40 @@
             </div>
         </div>
     </div>
+    
+    <!-- Daily Tab Content -->
+    <div x-show="activeTab === 'daily'" class="bg-white p-6">
+        <!-- Filter Buttons -->
+        <div class="mb-4 flex space-x-2">
+            <button @click="chartFilter = 'both'; updateChart()" 
+                    :class="chartFilter === 'both' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                    class="px-4 py-2 rounded-md text-sm font-medium">
+                Both
+            </button>
+            <button @click="chartFilter = 'premiums'; updateChart()" 
+                    :class="chartFilter === 'premiums' ? 'bg-green-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                    class="px-4 py-2 rounded-md text-sm font-medium">
+                Premiums Only
+            </button>
+            <button @click="chartFilter = 'stocks'; updateChart()" 
+                    :class="chartFilter === 'stocks' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                    class="px-4 py-2 rounded-md text-sm font-medium">
+                Stocks Only
+            </button>
+        </div>
+        
+        <!-- Chart Container -->
+        <div class="relative h-96">
+            <canvas id="dailyReturnsChart"></canvas>
+        </div>
+        
+        <!-- No Data Message -->
+        <div x-show="dailyData.length === 0" class="text-center text-gray-500 mt-8">
+            No daily returns data available yet.
+        </div>
+    </div>
 </div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {{end}}

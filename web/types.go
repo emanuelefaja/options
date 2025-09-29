@@ -41,4 +41,8 @@ type PageData struct {
 	TotalPortfolioProfitFormatted string
 	TotalPortfolioProfitPercentageFormatted string
 	TotalStockProfitFormatted    string
+	TotalDepositsFormatted       string
+	// Daily returns data
+	DailyReturns     []DailyReturn
+	DailyReturnsJSON string
 }
