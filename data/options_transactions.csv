@@ -1,0 +1,55 @@
+Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commission,PositionID,Notes
+2025-09-10,Sell to Open,SOFI,Call,26.00,2025-09-12,1,48.00,25.57,0.00,P1,"First ever trade, recommendation from John"
+2025-09-12,Assigned,SOFI,Call,26.00,2025-09-12,1,0.00,,0.00,P1,
+2025-09-10,Sell to Open,PTLR,Call,165.00,2025-09-12,1,280.00,164.79,0.00,P2,"Was a little scared on this as it was $16,500, first large stock purchase"
+2025-09-12,Assigned,PTLR,Call,165.00,2025-09-12,1,0.00,,0.00,P2,
+2025-09-10,Sell to Open,F,Call,11.50,2025-09-19,1,12.00,11.34,0.00,P3,Test trade to get comfortable with things
+2025-09-19,Assigned,F,Call,11.50,2025-09-19,1,0.00,,0.00,P3,
+2025-09-11,Sell to Open,SOFI,Call,26.00,2025-09-12,1,44.00,25.75,0.00,P4,"Already had SOFI, but the Annualized return was insane on this"
+2025-09-12,Assigned,SOFI,Call,26.00,2025-09-12,1,0.00,,0.00,P4,
+2025-09-11,Sell to Open,AMD,Call,157.50,2025-09-12,1,91.00,155.71,0.00,P5,"Had trouble getting filled, did a market order and lost $29 on the price"
+2025-09-12,Assigned,AMD,Call,157.50,2025-09-12,1,0.00,,0.00,P5,
+2025-09-15,Sell to Open,SOFI,Call,27.50,2025-09-19,1,81.00,27.46,0.00,P6,"Doing a trade before the fed rate cut announcement to understand how the volatility works, good return overall"
+2025-09-19,Assigned,SOFI,Call,27.50,2025-09-19,1,0.00,,0.00,P6,
+2025-09-16,Sell to Open,AAL,Call,12.50,2025-10-10,1,55.00,12.19,0.00,P7,"Struggled to get filled, did a market order, maybe should consider real time market data. Did a longer option call just as a test "
+2025-09-16,Sell to Open,OXY,Call,47.50,2025-09-19,1,63.00,47.42,0.00,P8,Wanted to test energy sector and see how it works with diversification this week
+2025-09-19,Expired,OXY,Call,47.50,2025-09-19,1,0.00,,0.00,P8,
+2025-09-18,Sell to Open,SOFI,Put,27.00,2025-09-19,1,23.00,27.48,0.00,P9,First ever Put!
+2025-09-19,Expired,SOFI,Put,27.00,2025-09-19,1,0.00,,0.00,P9,
+2025-09-18,Sell to Open,MNRA,Put,25.50,2025-09-19,1,60.00,25.66,0.00,P10,"Second Put, but not sure I would want to own MRNA in the long term, it feels like its a long term downtrending stock"
+2025-09-19,Assigned,MNRA,Put,25.50,2025-09-19,1,0.00,,0.00,P10,
+2025-09-18,Sell to Open,AMD,Call,157.50,2025-09-19,1,191.00,157.30,0.00,P11,Only Good call option I could find for end of this week that was not on a stock that I already own or PLTR which I felt was too volatile
+2025-09-19,Expired,AMD,Call,157.50,2025-09-19,1,0.00,,0.00,P11,
+2025-09-19,Sell to Open,AAL,Call,12.50,2025-09-25,4,92.00,12.42,0.00,P12,"Wanted to try out an over-the-weekend weekly, and I want to check how much this is on Monday, as I think we get good theta decay on the weekend without much price movement. And this fit nicely, almost 2% for the week."
+2025-09-25,Expired,AAL,Call,12.50,2025-09-25,4,0.00,,0.00,P12,
+2025-09-22,Sell to Open,AMD,Call,160.00,2025-09-26,1,360.00,160.00,0.00,P13,Nice preium collection on AMD I think it was very good for the week
+2025-09-26,Expired,AMD,Call,160.00,2025-09-26,1,0.00,,0.00,P13,
+2025-09-22,Sell to Open,HIMS,Put,55.00,2025-09-26,1,119.00,55.00,0.00,P14,Wanted to try HIMS put as John recommended this was considering lower strike price around 50 for 1 month with around 4% returnt
+2025-09-26,Expired,HIMS,Put,55.00,2025-09-26,1,0.00,,0.00,P14,
+2025-09-22,Sell to Open,MRNA,Call,25.50,2025-09-25,1,72.00,25.50,0.00,P15," I had this assigned from last week so I sold a call on it and quite happy with the return"
+2025-09-25,Expired,MRNA,Call,25.50,2025-09-25,1,0.00,,0.00,P15,
+2025-09-22,Sell to Open,OXY,Call,47.50,2025-11-21,1,181.00,47.50,0.00,P16,wanted to have a safe stock like OXY on the portfolio as I already had it assigned last week
+2025-09-22,Sell to Open,BAC,Call,52.00,2025-09-26,1,55.00,52.04,0.00,P17,Same as OXY I was already assigned BAC so sold more calls 52
+2025-09-26,Assigned,BAC,Call,52.00,2025-09-26,1,0.00,,0.00,P17,
+2025-09-23,Sell to Open,SOFI,Put,29.50,2025-09-26,1,55.00,29.87,0.00,P18,SOFI had a good premium and was getting to an ATH so I sold a put to collect more premium
+2025-09-26,Assigned,SOFI,Put,29.50,2025-09-26,1,0.00,,0.00,P18,
+2025-09-23,Sell to Open,IBKR,Put,65.00,2025-09-26,1,75.00,66.50,0.00,P19,I liked the irony of trading IBKR put when trading on IBKR
+2025-09-26,Expired,IBKR,Put,65.00,2025-09-26,1,0.00,,0.00,P19,
+2025-09-24,Sell to Open,SOFI,Put,28.00,2025-09-26,2,74.00,28.44,0.00,P20,felt it was good to double down on SOFI put
+2025-09-26,Assigned,SOFI,Put,28.00,2025-09-26,2,0.00,,0.00,P20,
+2025-09-24,Sell to Open,UBER,Put,97.00,2025-09-26,1,109.00,97.18,0.00,P21,Wanted to try a new stock ticker to branch out a bit as I need more stocks to diversify
+2025-09-26,Expired,UBER,Put,97.00,2025-09-26,1,0.00,,0.00,P21,
+2025-09-25,Sell to Open,F,Put,11.50,2025-10-03,3,42.00,11.50,0.00,P22,Looking to deploy some capital on something relatively safe as positions have been moving quite a bit today and there was not much premium for 1 day expiry so went to next week to capture theta over the weekend even though annualized return was not 100%
+2025-09-25,Sell to Open,HOOD,Put,122.00,2025-09-26,1,62.00,124.40,0.00,P23,Wanted to try a 0.25 delta roughly for one day so while this is quite a small return I do not expect to be assigned most of the time
+2025-09-26,Assigned,HOOD,Put,122.00,2025-09-26,1,0.00,,0.00,P23,
+2025-09-25,Sell to Open,RIVN,Put,15.50,2025-09-26,2,22.00,15.92,0.00,P24,Small position to test EV sector with good capital efficiency and meets annualized threshold
+2025-09-26,Expired,RIVN,Put,15.50,2025-09-26,2,0.00,,0.00,P24,
+2025-09-29,Sell to Open,AAL,Call,12.50,2025-10-31,4,129.00,11.26,0.00,P25,Longer dated call to capture more premium over time
+2025-09-29,Sell to Open,AMD,Put,160.00,2025-10-03,1,275.00,160.00,0.00,P26,Put on AMD at the money to collect good premium
+2025-09-29,Sell to Open,HIMS,Put,58.00,2025-10-03,2,385.00,58.00,0.00,P27,Double position on HIMS put for higher premium income
+2025-09-29,Sell to Open,HOOD,Put,125.00,2025-10-03,1,304.00,125.00,0.00,P28,Put on HOOD to collect premium on high volatility stock
+2025-09-29,Sell to Open,SOFI,Put,27.50,2025-10-03,3,200.00,27.50,0.00,P29,Triple position on SOFI put to capitalize on volatility
+2025-09-29,Sell to Open,MRNA,Call,25.00,2025-10-03,1,52.00,24.58,0.00,P30,Covered call on existing MRNA position
+2025-09-29,Sell to Open,UBER,Put,99.00,2025-10-03,1,145.00,99.00,0.00,P31,Cash secured put on UBER
+2025-09-29,Buy to Close,HOOD,Put,125.00,2025-10-03,1,-71.00,125.00,0.00,P28,Closed early to roll to higher strike
+2025-09-29,Sell to Open,HOOD,Put,132.00,2025-10-03,1,216.00,125.00,0.00,P32,Rolled from P28 to higher strike for additional premium

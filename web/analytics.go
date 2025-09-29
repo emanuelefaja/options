@@ -44,70 +44,72 @@ type DailyReturn struct {
 }
 
 func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transaction) Analytics {
+	// Load and calculate option positions from new transaction system
+	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
+	optionPositions := CalculateOptionPositions(optionTransactions)
+
 	var analytics Analytics
 	var earliestDate *time.Time
 	var totalReturns float64
 	var returnCount int
 	var premiumCount int
 	analytics.SmallestPremium = 999999 // Initialize to large number
-	
-	for _, trade := range trades {
+
+	// Process option positions instead of trades
+	for _, pos := range optionPositions {
 		// Count open vs closed options
-		if trade.Outcome == "Ongoing" {
+		if pos.Status == "Open" {
 			analytics.OpenOptionsCount++
 		} else {
 			analytics.ClosedOptionsCount++
 		}
-		
-		// Parse premium (remove $ and convert to float)
-		premium := strings.TrimPrefix(trade.PremiumDollar, "$")
-		if p, err := strconv.ParseFloat(premium, 64); err == nil {
-			analytics.TotalPremiums += p
-			analytics.CollectedPremiums += p  // All premiums are collected
+
+		// Track premiums
+		netPremium := pos.NetPremium
+		if netPremium > 0 {
+			analytics.TotalPremiums += netPremium
+			analytics.CollectedPremiums += pos.PremiumCollected
 			premiumCount++
-			
+
 			// Track largest and smallest premiums
-			if p > analytics.LargestPremium {
-				analytics.LargestPremium = p
+			if netPremium > analytics.LargestPremium {
+				analytics.LargestPremium = netPremium
 			}
-			if p < analytics.SmallestPremium {
-				analytics.SmallestPremium = p
-			}
-		}
-		
-		// Parse capital (remove $ and commas, then convert to float)
-		capital := strings.TrimPrefix(trade.Capital, "$")
-		capital = strings.ReplaceAll(capital, ",", "")
-		if c, err := strconv.ParseFloat(capital, 64); err == nil {
-			analytics.TotalCapital += c
-			
-			// Add to options active capital for ongoing options
-			if trade.Outcome == "Ongoing" {
-				analytics.OptionsActiveCapital += c
-			}
-			
-			// Add to active capital only for ongoing Puts (cash-secured puts)
-			// Calls are covered calls, so that capital is already in stock positions
-			if trade.Outcome == "Ongoing" && trade.Type == "Put" {
-				analytics.TotalActiveCapital += c
+			if netPremium < analytics.SmallestPremium {
+				analytics.SmallestPremium = netPremium
 			}
 		}
-		
-		// Parse return percentage for average calculation
-		returnStr := strings.TrimSuffix(trade.PercentReturn, "%")
-		if r, err := strconv.ParseFloat(returnStr, 64); err == nil {
-			totalReturns += r
+
+		// Track capital
+		if pos.Capital > 0 {
+			analytics.TotalCapital += pos.Capital
+
+			// Add to options active capital for open options
+			if pos.Status == "Open" {
+				analytics.OptionsActiveCapital += pos.Capital
+
+				// Add to active capital only for open Puts (cash-secured puts)
+				// Calls are covered calls, so that capital is already in stock positions
+				if pos.OptionType == "Put" {
+					analytics.TotalActiveCapital += pos.Capital
+				}
+			}
+		}
+
+		// Track returns
+		if pos.PercentReturn != 0 {
+			totalReturns += pos.PercentReturn
 			returnCount++
 		}
-		
-		// Parse trade date to find the earliest
-		if tradeDate, err := time.Parse("January 2 2006", trade.DateOfTrade); err == nil {
-			if earliestDate == nil || tradeDate.Before(*earliestDate) {
-				earliestDate = &tradeDate
+
+		// Parse position open date to find the earliest
+		if openDate, err := time.Parse("2006-01-02", pos.OpenDate); err == nil {
+			if earliestDate == nil || openDate.Before(*earliestDate) {
+				earliestDate = &openDate
 			}
 		}
 	}
-	
+
 	// Calculate premium per day
 	if earliestDate != nil {
 		daysSinceFirst := time.Since(*earliestDate).Hours() / 24
@@ -115,25 +117,24 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 			analytics.PremiumPerDay = analytics.TotalPremiums / daysSinceFirst
 		}
 	}
-	
-	
-	// Calculate average return per trade
+
+	// Calculate average return per position
 	if returnCount > 0 {
 		analytics.AvgReturnPerTrade = totalReturns / float64(returnCount)
 	}
-	
+
 	// Calculate average premium
 	if premiumCount > 0 {
 		analytics.AveragePremium = analytics.TotalPremiums / float64(premiumCount)
 	}
-	
+
 	// Handle case where no premiums were found
 	if analytics.SmallestPremium == 999999 {
 		analytics.SmallestPremium = 0
 	}
-	
-	// Count trades
-	analytics.OptionTradesCount = len(trades)
+
+	// Count option positions (not raw trades)
+	analytics.OptionTradesCount = len(optionPositions)
 
 	// Calculate total deposits from transactions
 	analytics.TotalDeposits = CalculateTotalDeposits(transactions)
@@ -171,7 +172,7 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	}
 	
 	// Calculate daily returns
-	analytics.DailyReturns = CalculateDailyReturns(trades, stockTransactions)
+	analytics.DailyReturns = CalculateDailyReturnsNew(optionPositions, stockTransactions)
 	
 	// Convert daily returns to JSON for use in JavaScript
 	if analytics.DailyReturns == nil {
@@ -209,6 +210,67 @@ func FormatCurrency(amount float64) string {
 	return "$" + strings.Join(parts, ",")
 }
 
+func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransactions []StockTransaction) []DailyReturn {
+	dailyMap := make(map[string]*DailyReturn)
+
+	// Process option positions
+	for _, pos := range optionPositions {
+		// Use open date for premium collection
+		if pos.OpenDate != "" {
+			dateStr := pos.OpenDate
+
+			if _, exists := dailyMap[dateStr]; !exists {
+				dailyMap[dateStr] = &DailyReturn{
+					Date: dateStr,
+				}
+			}
+
+			// Add net premium to the open date
+			dailyMap[dateStr].Premiums += pos.NetPremium
+		}
+	}
+
+	// Process stock transactions for realized gains
+	positions := CalculateAllPositions(stockTransactions)
+	for _, pos := range positions {
+		if pos.Type == "closed" {
+			// Use the close date (sell date) for realized gains
+			dateStr := pos.CloseDate
+			if parsedDate, err := time.Parse("2006-01-02", pos.CloseDate); err == nil {
+				dateStr = parsedDate.Format("2006-01-02")
+			}
+
+			if _, exists := dailyMap[dateStr]; !exists {
+				dailyMap[dateStr] = &DailyReturn{
+					Date: dateStr,
+				}
+			}
+
+			// Use the already calculated realized P&L from the position
+			dailyMap[dateStr].StockGains += pos.RealizedPnL
+		}
+	}
+
+	// Convert map to sorted slice
+	var dailyReturns []DailyReturn
+	for _, dr := range dailyMap {
+		dr.TotalReturns = dr.Premiums + dr.StockGains
+		dailyReturns = append(dailyReturns, *dr)
+	}
+
+	// Sort by date
+	for i := 0; i < len(dailyReturns)-1; i++ {
+		for j := i + 1; j < len(dailyReturns); j++ {
+			if dailyReturns[i].Date > dailyReturns[j].Date {
+				dailyReturns[i], dailyReturns[j] = dailyReturns[j], dailyReturns[i]
+			}
+		}
+	}
+
+	return dailyReturns
+}
+
+// Keep the old function for backward compatibility
 func CalculateDailyReturns(trades []Trade, stockTransactions []StockTransaction) []DailyReturn {
 	dailyMap := make(map[string]*DailyReturn)
 	

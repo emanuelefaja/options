@@ -4,6 +4,7 @@ type PageData struct {
 	Title              string
 	CurrentPage        string
 	Trades             []Trade
+	OptionPositions    []OptionPosition
 	Stocks             []Stock
 	ClosedStocks       []Stock
 	TotalPremiums      float64

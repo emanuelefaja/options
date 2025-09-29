@@ -29,15 +29,21 @@ func main() {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
+	// Load option positions from new transaction system
+	optionTransactions := web.LoadOptionTransactions("data/options_transactions.csv")
+	optionPositions := web.CalculateOptionPositions(optionTransactions)
+
+	// Keep loading old trades for now to ensure compatibility
 	trades := web.LoadTradesFromCSV("data/options.csv")
 	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(trades, stocks, transactions)
-	
+
 	renderPage(w, "index", web.PageData{
-		Title:       "Options Tracker",
-		CurrentPage: "home",
-		Trades:      trades,
+		Title:           "Options Tracker",
+		CurrentPage:     "home",
+		Trades:          trades, // Keep for now, will be replaced by OptionPositions in template update
+		OptionPositions: optionPositions,
 		// Options page specific metrics
 		OpenOptionsCount:     analytics.OpenOptionsCount,
 		ClosedOptionsCount:   analytics.ClosedOptionsCount,
