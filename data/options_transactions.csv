@@ -48,7 +48,7 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-09-29,Sell to Open,AMD,Put,160.00,2025-10-03,1,275.00,160.00,0.00,P26,Put on AMD at the money to collect good premium
 2025-09-29,Sell to Open,HIMS,Put,58.00,2025-10-03,2,385.00,58.00,0.00,P27,Double position on HIMS put for higher premium income
 2025-09-29,Sell to Open,HOOD,Put,125.00,2025-10-03,1,304.00,125.00,0.00,P28,Put on HOOD to collect premium on high volatility stock
-2025-09-29,Sell to Open,SOFI,Put,27.50,2025-10-03,3,200.00,27.50,0.00,P29,Triple position on SOFI put to capitalize on volatility
+2025-09-29,Sell to Open,SOFI,Put,27.50,2025-10-03,3,201.00,27.50,0.00,P29,Triple position on SOFI put to capitalize on volatility
 2025-09-29,Sell to Open,MRNA,Call,25.00,2025-10-03,1,52.00,24.58,0.00,P30,Covered call on existing MRNA position
 2025-09-29,Sell to Open,UBER,Put,99.00,2025-10-03,1,145.00,99.00,0.00,P31,Cash secured put on UBER
 2025-09-29,Buy to Close,HOOD,Put,125.00,2025-10-03,1,-71.00,125.00,0.00,P28,Closed early to roll to higher strike
