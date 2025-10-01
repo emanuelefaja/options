@@ -1,9 +1,11 @@
 {{define "content"}}
-<div class="space-y-6" x-data="{ 
-    activeTab: 'general', 
-    chartFilter: 'both', 
+<div class="space-y-6" x-data="{
+    activeTab: 'general',
+    chartFilter: 'both',
     chart: null,
+    netWorthChart: null,
     dailyData: {{.DailyReturnsJSON}} || [],
+    netWorthData: {{.NetWorthDataJSON}} || [],
     initChart() {
         if (!this.chart && this.dailyData.length > 0) {
             const ctx = document.getElementById('dailyReturnsChart').getContext('2d');
@@ -159,6 +161,100 @@
                 }
             }
         });
+    },
+    initNetWorthChart() {
+        if (!this.netWorthChart && this.netWorthData.length > 0) {
+            const ctx = document.getElementById('netWorthChart').getContext('2d');
+
+            // Format labels (month names)
+            const labels = this.netWorthData.map(d => {
+                const [year, month] = d.month.split('-');
+                const date = new Date(year, month - 1, 1);
+                return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            });
+
+            // Create stacked bar chart
+            this.netWorthChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Savings',
+                            data: this.netWorthData.map(d => d.savingsBalance),
+                            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                            borderColor: 'rgb(34, 197, 94)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Brokerage',
+                            data: this.netWorthData.map(d => d.brokerageBalance),
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                },
+                                footer: function(tooltipItems) {
+                                    let total = 0;
+                                    tooltipItems.forEach(function(tooltipItem) {
+                                        total += tooltipItem.parsed.y;
+                                    });
+                                    return 'Total: $' + total.toLocaleString();
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        // Plugin to display total above bars
+                        datalabels: false
+                    }
+                },
+                plugins: [{
+                    id: 'totalLabel',
+                    afterDatasetsDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets[0].data.forEach(function(value, index) {
+                            const dataset1 = chart.data.datasets[0].data[index];
+                            const dataset2 = chart.data.datasets[1].data[index];
+                            const total = dataset1 + dataset2;
+
+                            const meta = chart.getDatasetMeta(1);
+                            const bar = meta.data[index];
+
+                            ctx.fillStyle = 'black';
+                            ctx.font = 'bold 12px sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('$' + total.toLocaleString(), bar.x, bar.y - 5);
+                        });
+                    }
+                }]
+            });
+        }
     }
 }">
     <h2 class="text-2xl font-bold text-gray-900">Analytics</h2>
@@ -175,6 +271,11 @@
                     :class="activeTab === 'daily' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
                     class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
                 Daily
+            </button>
+            <button @click="activeTab = 'networth'; $nextTick(() => initNetWorthChart())"
+                    :class="activeTab === 'networth' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
+                    class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                Net Worth
             </button>
         </nav>
     </div>
@@ -343,6 +444,19 @@
         <!-- No Data Message -->
         <div x-show="dailyData.length === 0" class="text-center text-gray-500 mt-8">
             No daily returns data available yet.
+        </div>
+    </div>
+
+    <!-- Net Worth Tab Content -->
+    <div x-show="activeTab === 'networth'" class="bg-white p-6">
+        <!-- Chart Container -->
+        <div class="relative h-96">
+            <canvas id="netWorthChart"></canvas>
+        </div>
+
+        <!-- No Data Message -->
+        <div x-show="netWorthData.length === 0" class="text-center text-gray-500 mt-8">
+            No net worth data available yet.
         </div>
     </div>
 </div>

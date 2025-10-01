@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"html/template"
 	"log"
 	"mnmlsm/web"
@@ -183,6 +184,16 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+
+	// Calculate net worth data
+	netWorthData := web.CalculateNetWorth(analytics.TotalPortfolioValue)
+	netWorthJSON := "[]"
+	if len(netWorthData) > 0 {
+		if jsonData, err := json.Marshal(netWorthData); err == nil {
+			netWorthJSON = string(jsonData)
+		}
+	}
+
 	renderPage(w, "analytics", web.PageData{
 		Title:              "Analytics - Options Tracker",
 		CurrentPage:        "analytics",
@@ -219,6 +230,9 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		// Daily returns data
 		DailyReturns:     analytics.DailyReturns,
 		DailyReturnsJSON: analytics.DailyReturnsJSON,
+		// Net worth data
+		NetWorthData:     netWorthData,
+		NetWorthDataJSON: netWorthJSON,
 	})
 }
 

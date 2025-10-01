@@ -53,3 +53,4 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-09-29,Sell to Open,UBER,Put,99.00,2025-10-03,1,145.00,99.00,0.00,P31,Cash secured put on UBER
 2025-09-29,Buy to Close,HOOD,Put,125.00,2025-10-03,1,-71.00,125.00,0.00,P28,Closed early to roll to higher strike
 2025-09-29,Sell to Open,HOOD,Put,132.00,2025-10-03,1,216.00,125.00,0.00,P32,Rolled from P28 to higher strike for additional premium
+2025-10-01,Sell to Open,PLTR,Put,180.00,2025-10-03,1,140.00,183.44,0.00,P33,Delta ~0.26 suggests market doesn't expect PLTR below $180 by Friday

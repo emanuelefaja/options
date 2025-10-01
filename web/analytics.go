@@ -1,8 +1,10 @@
 package web
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -395,4 +397,51 @@ func CalculateStockPerformance(stockTransactions []StockTransaction) StockPerfor
 	perf.AvgLossFormatted = FormatCurrency(perf.AvgLoss)
 
 	return perf
+}
+
+func CalculateNetWorth(totalPortfolioValue float64) []NetWorthMonth {
+	// Load wise.csv
+	file, err := os.Open("data/wise.csv")
+	if err != nil {
+		return []NetWorthMonth{}
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return []NetWorthMonth{}
+	}
+
+	var netWorthData []NetWorthMonth
+
+	// Skip header and process each row
+	for i, record := range records {
+		if i == 0 {
+			continue // Skip header
+		}
+
+		if len(record) < 2 {
+			continue
+		}
+
+		month := record[0]
+		savingsBalance, err := strconv.ParseFloat(record[1], 64)
+		if err != nil {
+			continue
+		}
+
+		// For the current month (2025-10), use the live portfolio value
+		// For future months, we'll need to add logic to get historical values
+		brokerageBalance := totalPortfolioValue
+
+		netWorthData = append(netWorthData, NetWorthMonth{
+			Month:            month,
+			SavingsBalance:   savingsBalance,
+			BrokerageBalance: brokerageBalance,
+			TotalNetWorth:    savingsBalance + brokerageBalance,
+		})
+	}
+
+	return netWorthData
 }

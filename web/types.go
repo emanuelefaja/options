@@ -54,6 +54,16 @@ type PageData struct {
 	SymbolOptions   []OptionPosition  // Filtered options for this symbol
 	// Stock performance data
 	StockPerformance StockPerformance
+	// Net worth data
+	NetWorthData     []NetWorthMonth
+	NetWorthDataJSON string
+}
+
+type NetWorthMonth struct {
+	Month            string  `json:"month"`
+	SavingsBalance   float64 `json:"savingsBalance"`
+	BrokerageBalance float64 `json:"brokerageBalance"`
+	TotalNetWorth    float64 `json:"totalNetWorth"`
 }
 
 type SymbolSummary struct {
