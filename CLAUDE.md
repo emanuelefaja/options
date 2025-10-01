@@ -53,3 +53,102 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - CSV files serve as the database (no external DB dependencies)
 - Template functions handle conditional styling (positive/negative values)
 - Portfolio totals calculated across options premiums and stock positions
+
+
+# Trade Strategy: Premium Harvesting via Covered Calls
+
+- Sell 4-day to 0-day OTM or slightly ATM calls with >100% annualized returns on stocks I would happily own, then let math and time work for me. 
+- Aiming for 52% capital growth per year overall, so 1% per week.
+- This is a positive expectancy rate strategy. 
+- No problem with getting assigned, we will just buy back the stock and sell again.
+- I am Panama permanent foreign resident, so I pay 0% tax on foreign sourced income including capital gains and option premiums. US does NOT tax me on this.
+
+## Testing
+
+- I have currently sold 12 covered calls.
+- I am planning to sell 50 calls in total as a testing period to refine my strategy.
+
+## Trade Decision Framework
+
+```
+| **Criteria** | **Requirement** | **Status** |
+|-------------|----------------|------------|
+| Annualized Return | > 100% | ✅/❌ |
+| Events Check | No earnings/dividend in period | ✅/❌ |
+| Liquidity | Tight bid/ask spread | ✅/❌ |
+| Position Size | < 10% of portfolio | ✅/❌ |
+```
+
+**IMPORTANT: Always create this table when evaluating any trade**
+
+**Decision:**
+- ✅ **ALL GREEN = EXECUTE**
+- ❌ **ANY RED = SKIP**
+
+
+**Quick Math:**
+- Annual Return = (Premium % / Days) × 365
+- Example: 1.2% in 2 days = (1.2/2) × 365 = 219% annualized ✅
+
+**Stock Priority (when multiple pass):**
+1. Highest annualized return
+2. Better liquidity (tighter spread)
+3. Lower correlation to existing positions
+
+**Event Check Requirements:**
+- **Check earnings date** - Avoid if earnings within 5 days
+- **Check ex-dividend date** - Avoid if ex-div during holding period
+- **Check company events** - Product launches, FDA approvals, court cases
+- **Check Fed meetings** - FOMC can move entire market
+- **Check sector events** - OPEC for oil stocks, CPI for rate-sensitive
+
+
+## Risk Management
+
+- No margin
+- Only sell covered calls or cash secured puts
+- No buying back calls to "defend" positions
+- All positions should be small enough that I do not lose sleep over them.
+- No single position is more than 10% of portfolio. So a 20% drop in a stock is a 2% drop in the portfolio.
+- Avoid crazy meme stock (i.e. PLTR, GME, AMC, BBBY) where stock price has nothing to do with fundamentals.
+
+## Stock Categories & Selection
+
+**Tier 1: Juice Machines (300-400% annualized)**
+- Core picks: SOFI, MARA, RIOT, CVNA, HOOD, DKNG
+- Alternatives: COIN, UPST, AFRM, RBLX, BYND, OPEN
+- *Allocate 2 positions max, avoid correlation*
+
+**Tier 2: Moderate Volatility (150-250% annualized)**
+- Core picks: TSLA, AMD, NVDA
+- Alternatives: META, NFLX, SQ, PYPL, ROKU, NIO, ARKK, , UBER, MRNA, SNAP
+- *Allocate 2 positions - tech/growth but less wild*
+
+**Tier 3: Boring Anchors (100-150% annualized)**
+- Core picks: XOM, OXY, BAC, TGT, F, AA
+- Alternatives: WFC, CVX, WMT, KO, PFE, T, VZ, GE
+- *Allocate 1-2 positions for stability*
+
+**Correlation Groups to AVOID Stacking:**
+- Crypto proxies: MARA, RIOT, COIN, CLSK
+- Fintech: SOFI, UPST, AFRM, SQ, HOOD
+- EV plays: TSLA, NIO, RIVN, LCID
+- Meme stocks: GME, AMC, BBBY
+- AI plays: AI, BBAI, C3.AI
+- High-growth tech: AMD, NVDA, SMCI, MU
+- **Risk-on/Risk-off warning:** SOFI, AMD, TSLA, COIN all crash together when market fears rise
+
+**Optimal 5-Position Spread Example:**
+1. One growth/tech (SOFI, or AMD - pick ONE)
+2. One financials/banks (BAC, WFC, or JPM)
+3. One energy/commodities (XOM, OXY, or CVX)
+4. One consumer/defensive (TGT, WMT, or KO)
+5. One wildcard/other sector (F, DKNG, or healthcare)
+
+**Maximum 40% exposure to growth/tech stocks** - they all crash together
+
+## Strategy when underwater (when cost basis is higher than stock price)
+  - When holding stock below cost basis, accept >50% annualized returns (vs >100% for normal trades)
+  - Extend duration to 1-4 weeks to capture more premium while waiting for recovery
+  - Set strike at or near cost basis to avoid locking in losses (unless you want to exit)
+  - This is defensive income generation, not aggressive premium harvesting - don't confuse the two strategies
