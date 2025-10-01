@@ -46,4 +46,42 @@ type PageData struct {
 	// Daily returns data
 	DailyReturns     []DailyReturn
 	DailyReturnsJSON string
+	// Symbol-specific data
+	Symbol          string            // Current symbol for detail pages
+	SymbolSummaries []SymbolSummary   // For stocks index table
+	SymbolDetails   SymbolDetails     // For individual stock detail page
+	SymbolStocks    []Stock           // Filtered stocks for this symbol
+	SymbolOptions   []OptionPosition  // Filtered options for this symbol
+}
+
+type SymbolSummary struct {
+	Symbol            string
+	TotalPL           float64 // Premium + Stock P/L
+	PremiumsCollected float64 // Sum of option net premiums
+	StockPL           float64 // Realized stock P/L
+	TotalCapital      float64 // Peak or current capital deployed
+	TotalPLFormatted  string
+	PremiumsFormatted string
+	StockPLFormatted  string
+	CapitalFormatted  string
+}
+
+type SymbolDetails struct {
+	Symbol                         string
+	TotalPremiumCollected          float64
+	TotalStockPL                   float64
+	NumberOfOptionsTrades          int
+	CurrentCapital                 float64
+	AverageDTE                     float64
+	AvgOptionReturn                float64
+	TotalPL                        float64
+	PercentOfOverallPL             float64
+	TotalPremiumCollectedFormatted string
+	TotalStockPLFormatted          string
+	CurrentCapitalFormatted        string
+	TotalPLFormatted               string
+	PercentOfOverallPLFormatted    string
+	AverageDTEFormatted            string
+	AvgOptionReturnFormatted       string
+	NumberOfOptionsTradesFormatted string
 }

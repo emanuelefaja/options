@@ -20,6 +20,7 @@ func main() {
 	// Routes
 	mux.HandleFunc("/", handleHome)
 	mux.HandleFunc("/stocks", handleStocks)
+	mux.HandleFunc("/stocks/", handleStockPages)
 	mux.HandleFunc("/analytics", handleAnalytics)
 	mux.HandleFunc("/rules", handleRules)
 
@@ -63,22 +64,75 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleStocks(w http.ResponseWriter, r *http.Request) {
+	// Only handle exact /stocks path
+	if r.URL.Path != "/stocks" {
+		http.NotFound(w, r)
+		return
+	}
+
 	trades := web.LoadTradesFromCSV("data/options.csv")
 	currentStocks, closedStocks := web.LoadStocksWithHistory("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(trades, currentStocks, transactions)
-	
-	renderPage(w, "stocks", web.PageData{
-		Title:        "Stocks - mnmlsm",
-		CurrentPage:  "stocks",
-		Stocks:       currentStocks,
-		ClosedStocks: closedStocks,
+
+	// Load symbol summaries
+	symbolSummaries := web.CalculateSymbolSummaries()
+
+	renderPage(w, "stocks/index", web.PageData{
+		Title:           "Stocks - mnmlsm",
+		CurrentPage:     "stocks",
+		Stocks:          currentStocks,
+		ClosedStocks:    closedStocks,
+		SymbolSummaries: symbolSummaries,
 		// Portfolio values for header
-		TotalPortfolioValue:          analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
-		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
+		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
+		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
+		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
+		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
+		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+	})
+}
+
+func handleStockPages(w http.ResponseWriter, r *http.Request) {
+	// Extract symbol from URL (e.g., /stocks/AMD -> AMD)
+	symbol := strings.ToUpper(strings.TrimPrefix(r.URL.Path, "/stocks/"))
+
+	if symbol == "" {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Load analytics for portfolio-wide metrics
+	trades := web.LoadTradesFromCSV("data/options.csv")
+	stocks := web.LoadStocksFromCSV("data/stocks.csv")
+	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
+	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+
+	// Get symbol-specific data
+	symbolDetails := web.GetSymbolDetails(symbol, analytics.TotalPortfolioProfit)
+	symbolStocks := web.GetStockPositionsBySymbol(symbol)
+	symbolOptions := web.GetOptionPositionsBySymbol(symbol)
+
+	// Return 404 if no data exists for this symbol
+	if len(symbolStocks) == 0 && len(symbolOptions) == 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	renderPage(w, "stocks/detail", web.PageData{
+		Title:          symbol + " - Stock Detail - mnmlsm",
+		CurrentPage:    "stocks",
+		Symbol:         symbol,
+		SymbolDetails:  symbolDetails,
+		SymbolStocks:   symbolStocks,
+		SymbolOptions:  symbolOptions,
+		// Portfolio values for header
+		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
+		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
+		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
+		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 	})
 }

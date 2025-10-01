@@ -286,5 +286,112 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Per Symbol Summary Table -->
+    <div x-data="{
+        sortBy: 'symbol',
+        sortOrder: 'asc',
+        summaries: [
+            {{range $index, $summary := .SymbolSummaries}}{{if $index}},{{end}}
+            {
+                symbol: {{printf "%q" $summary.Symbol}},
+                totalPL: {{$summary.TotalPL}},
+                totalPLFormatted: {{printf "%q" $summary.TotalPLFormatted}},
+                premiums: {{$summary.PremiumsCollected}},
+                premiumsFormatted: {{printf "%q" $summary.PremiumsFormatted}},
+                stockPL: {{$summary.StockPL}},
+                stockPLFormatted: {{printf "%q" $summary.StockPLFormatted}},
+                capital: {{$summary.TotalCapital}},
+                capitalFormatted: {{printf "%q" $summary.CapitalFormatted}}
+            }
+            {{end}}
+        ],
+        sortData(field) {
+            if (this.sortBy === field) {
+                this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortBy = field;
+                this.sortOrder = 'asc';
+            }
+        },
+        get sortedSummaries() {
+            return [...this.summaries].sort((a, b) => {
+                let aVal = a[this.sortBy];
+                let bVal = b[this.sortBy];
+
+                if (this.sortOrder === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+        }
+    }">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Summary by Symbol</h3>
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th @click="sortData('symbol')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1">
+                                <span>Symbol</span>
+                                <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'symbol', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </div>
+                        </th>
+                        <th @click="sortData('totalPL')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1">
+                                <span>Total P/L</span>
+                                <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'totalPL', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </div>
+                        </th>
+                        <th @click="sortData('premiums')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1">
+                                <span>Premiums Collected</span>
+                                <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'premiums', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </div>
+                        </th>
+                        <th @click="sortData('stockPL')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1">
+                                <span>Stock P/L</span>
+                                <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'stockPL', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </div>
+                        </th>
+                        <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                            <div class="flex items-center space-x-1">
+                                <span>Total Deployed Capital</span>
+                                <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'capital', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <template x-for="summary in sortedSummaries" :key="summary.symbol">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a :href="'/stocks/' + summary.symbol" class="text-gray-900 hover:text-blue-600 hover:underline" x-text="summary.symbol"></a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                                :class="summary.totalPL >= 0 ? 'text-green-600' : 'text-red-600'"
+                                x-text="summary.totalPLFormatted">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="summary.premiumsFormatted"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="summary.stockPLFormatted"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="summary.capitalFormatted"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {{end}}

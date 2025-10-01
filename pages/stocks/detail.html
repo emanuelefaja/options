@@ -1,0 +1,148 @@
+{{define "content"}}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-gray-900">{{.Symbol}}</h2>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Total Premium Collected</p>
+            <p class="text-2xl font-bold text-green-600">{{.SymbolDetails.TotalPremiumCollectedFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Total Stock P/L</p>
+            <p class="text-2xl font-bold {{if hasPrefix .SymbolDetails.TotalStockPLFormatted "-"}}text-red-600{{else}}text-green-600{{end}}">{{.SymbolDetails.TotalStockPLFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Total P/L</p>
+            <p class="text-2xl font-bold {{if hasPrefix .SymbolDetails.TotalPLFormatted "-"}}text-red-600{{else}}text-green-600{{end}}">{{.SymbolDetails.TotalPLFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">% of Overall P/L</p>
+            <p class="text-2xl font-bold text-gray-900">{{.SymbolDetails.PercentOfOverallPLFormatted}}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Average DTE</p>
+            <p class="text-2xl font-bold text-gray-900">{{.SymbolDetails.AverageDTEFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Avg Option Return</p>
+            <p class="text-2xl font-bold text-gray-900">{{.SymbolDetails.AvgOptionReturnFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Number of Options Traded</p>
+            <p class="text-2xl font-bold text-gray-900">{{.SymbolDetails.NumberOfOptionsTradesFormatted}}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Current Capital</p>
+            <p class="text-2xl font-bold text-gray-900">{{.SymbolDetails.CurrentCapitalFormatted}}</p>
+        </div>
+    </div>
+
+    <!-- Stock Positions Table -->
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Stock Positions</h3>
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shares</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entry Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Cost</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost Basis</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exit Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P&L</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {{range .SymbolStocks}}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{if .ExitDate}}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Closed</span>
+                            {{else}}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Open</span>
+                            {{end}}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{.Shares}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{.EntryDate}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{.AvgCost}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{.Capital}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{if .ExitDate}}{{.ExitDate}}{{else}}-{{end}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{if .ExitDate}}{{if hasPrefix .ProfitLoss "-"}}text-red-600{{else}}text-green-600{{end}}{{else}}text-gray-500{{end}}">
+                            {{if .ExitDate}}{{.ProfitLoss}}{{else}}-{{end}}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{if .ExitDate}}{{if hasPrefix .ReturnPerc "-"}}text-red-600{{else}}text-green-600{{end}}{{else}}text-gray-500{{end}}">
+                            {{if .ExitDate}}{{.ReturnPerc}}{{else}}-{{end}}
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Options Positions Table -->
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Options Positions</h3>
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DTE</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strike</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Premium</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capital</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return %</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Annual %</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {{range .SymbolOptions}}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm {{if eq .OptionType "Call"}}text-blue-600{{else}}text-purple-600{{end}}">{{.OptionType}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium
+                                {{if eq .Status "Open"}}bg-green-100 text-green-800
+                                {{else if eq .Status "Expired"}}bg-gray-100 text-gray-800
+                                {{else if eq .Status "Assigned"}}bg-blue-100 text-blue-800
+                                {{else if eq .Status "Closed Early"}}bg-yellow-100 text-yellow-800
+                                {{else if eq .Status "Rolled"}}bg-purple-100 text-purple-800
+                                {{else}}bg-gray-100 text-gray-800{{end}}">
+                                {{.Status}}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{.OpenDate}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{.Expiry}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{.DaysToExpiry}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{printf "%.2f" .Strike}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{.Contracts}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                            ${{printf "%.2f" .NetPremium}}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{printf "%.0f" .Capital}}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                            {{printf "%.2f" .PercentReturn}}%
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                            {{printf "%.0f" .AnnualizedReturn}}%
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{end}}
