@@ -21,6 +21,7 @@ func main() {
 	mux.HandleFunc("/", handleHome)
 	mux.HandleFunc("/stocks", handleStocks)
 	mux.HandleFunc("/analytics", handleAnalytics)
+	mux.HandleFunc("/rules", handleRules)
 
 	log.Println("Server starting on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
@@ -123,6 +124,25 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		// Daily returns data
 		DailyReturns:     analytics.DailyReturns,
 		DailyReturnsJSON: analytics.DailyReturnsJSON,
+	})
+}
+
+func handleRules(w http.ResponseWriter, r *http.Request) {
+	trades := web.LoadTradesFromCSV("data/options.csv")
+	stocks := web.LoadStocksFromCSV("data/stocks.csv")
+	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
+	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+
+	renderPage(w, "rules", web.PageData{
+		Title:       "Rules - mnmlsm",
+		CurrentPage: "rules",
+		// Portfolio values for header
+		TotalPortfolioValue:          analytics.TotalPortfolioValue,
+		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
+		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
+		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
+		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
+		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 	})
 }
 
