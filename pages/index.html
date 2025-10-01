@@ -125,22 +125,22 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">Open Positions</dt>
-            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{.OpenOptionsCount}}</dd>
+    <div class="grid grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Open Positions</p>
+            <p class="text-2xl font-bold text-gray-900">{{.OpenOptionsCount}}</p>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">Closed Positions</dt>
-            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{.ClosedOptionsCount}}</dd>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Closed Positions</p>
+            <p class="text-2xl font-bold text-gray-900">{{.ClosedOptionsCount}}</p>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">Active Capital</dt>
-            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{.OptionsActiveCapitalFormatted}}</dd>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Active Capital</p>
+            <p class="text-2xl font-bold text-gray-900">{{.OptionsActiveCapitalFormatted}}</p>
         </div>
-        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
-            <dt class="truncate text-sm font-medium text-gray-500">Collected Premiums</dt>
-            <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">{{.CollectedPremiumsFormatted}}</dd>
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <p class="text-sm font-medium text-gray-600">Collected Premiums</p>
+            <p class="text-2xl font-bold text-green-600">{{.CollectedPremiumsFormatted}}</p>
         </div>
     </div>
 
