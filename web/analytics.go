@@ -43,6 +43,18 @@ type DailyReturn struct {
 	TotalReturns  float64 `json:"totalReturns"`
 }
 
+type StockPerformance struct {
+	WinRate              float64
+	WinCount             int
+	LossCount            int
+	TotalClosedCount     int
+	AvgWin               float64
+	AvgLoss              float64
+	WinRateFormatted     string
+	AvgWinFormatted      string
+	AvgLossFormatted     string
+}
+
 func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transaction) Analytics {
 	// Load and calculate option positions from new transaction system
 	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
@@ -337,6 +349,50 @@ func CalculateDailyReturns(trades []Trade, stockTransactions []StockTransaction)
 			}
 		}
 	}
-	
+
 	return dailyReturns
+}
+
+func CalculateStockPerformance(stockTransactions []StockTransaction) StockPerformance {
+	positions := CalculateAllPositions(stockTransactions)
+
+	var perf StockPerformance
+	var totalWins float64
+	var totalLosses float64
+
+	for _, pos := range positions {
+		if pos.Type == "closed" {
+			perf.TotalClosedCount++
+
+			if pos.RealizedPnL > 0 {
+				perf.WinCount++
+				totalWins += pos.RealizedPnL
+			} else if pos.RealizedPnL < 0 {
+				perf.LossCount++
+				totalLosses += pos.RealizedPnL
+			}
+		}
+	}
+
+	// Calculate win rate
+	if perf.TotalClosedCount > 0 {
+		perf.WinRate = (float64(perf.WinCount) / float64(perf.TotalClosedCount)) * 100
+	}
+
+	// Calculate average win
+	if perf.WinCount > 0 {
+		perf.AvgWin = totalWins / float64(perf.WinCount)
+	}
+
+	// Calculate average loss
+	if perf.LossCount > 0 {
+		perf.AvgLoss = totalLosses / float64(perf.LossCount)
+	}
+
+	// Format values
+	perf.WinRateFormatted = FormatPercentage(perf.WinRate)
+	perf.AvgWinFormatted = FormatCurrency(perf.AvgWin)
+	perf.AvgLossFormatted = FormatCurrency(perf.AvgLoss)
+
+	return perf
 }

@@ -52,6 +52,8 @@ type PageData struct {
 	SymbolDetails   SymbolDetails     // For individual stock detail page
 	SymbolStocks    []Stock           // Filtered stocks for this symbol
 	SymbolOptions   []OptionPosition  // Filtered options for this symbol
+	// Stock performance data
+	StockPerformance StockPerformance
 }
 
 type SymbolSummary struct {

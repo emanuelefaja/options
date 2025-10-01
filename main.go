@@ -19,6 +19,7 @@ func main() {
 
 	// Routes
 	mux.HandleFunc("/", handleHome)
+	mux.HandleFunc("/options", handleOptions)
 	mux.HandleFunc("/stocks", handleStocks)
 	mux.HandleFunc("/stocks/", handleStockPages)
 	mux.HandleFunc("/analytics", handleAnalytics)
@@ -31,6 +32,31 @@ func main() {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
+	trades := web.LoadTradesFromCSV("data/options.csv")
+	stocks := web.LoadStocksFromCSV("data/stocks.csv")
+	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
+	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+
+	// Calculate stock performance metrics
+	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
+	stockPerformance := web.CalculateStockPerformance(stockTransactions)
+
+	renderPage(w, "home", web.PageData{
+		Title:       "Home - mnmlsm",
+		CurrentPage: "home",
+		// Portfolio values for header
+		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
+		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
+		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
+		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
+		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		// Stock performance metrics
+		StockPerformance: stockPerformance,
+	})
+}
+
+func handleOptions(w http.ResponseWriter, r *http.Request) {
 	// Load option positions from new transaction system
 	optionTransactions := web.LoadOptionTransactions("data/options_transactions.csv")
 	optionPositions := web.CalculateOptionPositions(optionTransactions)
@@ -41,9 +67,9 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(trades, stocks, transactions)
 
-	renderPage(w, "index", web.PageData{
-		Title:           "Options Tracker",
-		CurrentPage:     "home",
+	renderPage(w, "options", web.PageData{
+		Title:           "Options - mnmlsm",
+		CurrentPage:     "options",
 		Trades:          trades, // Keep for now, will be replaced by OptionPositions in template update
 		OptionPositions: optionPositions,
 		// Options page specific metrics
