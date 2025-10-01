@@ -1,8 +1,8 @@
 Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commission,PositionID,Notes
 2025-09-10,Sell to Open,SOFI,Call,26.00,2025-09-12,1,48.00,25.57,0.00,P1,"First ever trade, recommendation from John"
 2025-09-12,Assigned,SOFI,Call,26.00,2025-09-12,1,0.00,,0.00,P1,
-2025-09-10,Sell to Open,PTLR,Call,165.00,2025-09-12,1,280.00,164.79,0.00,P2,"Was a little scared on this as it was $16,500, first large stock purchase"
-2025-09-12,Assigned,PTLR,Call,165.00,2025-09-12,1,0.00,,0.00,P2,
+2025-09-10,Sell to Open,PLTR,Call,165.00,2025-09-12,1,280.00,164.79,0.00,P2,"Was a little scared on this as it was $16,500, first large stock purchase"
+2025-09-12,Assigned,PLTR,Call,165.00,2025-09-12,1,0.00,,0.00,P2,
 2025-09-10,Sell to Open,F,Call,11.50,2025-09-19,1,12.00,11.34,0.00,P3,Test trade to get comfortable with things
 2025-09-19,Assigned,F,Call,11.50,2025-09-19,1,0.00,,0.00,P3,
 2025-09-11,Sell to Open,SOFI,Call,26.00,2025-09-12,1,44.00,25.75,0.00,P4,"Already had SOFI, but the Annualized return was insane on this"
@@ -16,8 +16,8 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-09-19,Expired,OXY,Call,47.50,2025-09-19,1,0.00,,0.00,P8,
 2025-09-18,Sell to Open,SOFI,Put,27.00,2025-09-19,1,23.00,27.48,0.00,P9,First ever Put!
 2025-09-19,Expired,SOFI,Put,27.00,2025-09-19,1,0.00,,0.00,P9,
-2025-09-18,Sell to Open,MNRA,Put,25.50,2025-09-19,1,60.00,25.66,0.00,P10,"Second Put, but not sure I would want to own MRNA in the long term, it feels like its a long term downtrending stock"
-2025-09-19,Assigned,MNRA,Put,25.50,2025-09-19,1,0.00,,0.00,P10,
+2025-09-18,Sell to Open,MRNA,Put,25.50,2025-09-19,1,60.00,25.66,0.00,P10,"Second Put, but not sure I would want to own MRNA in the long term, it feels like its a long term downtrending stock"
+2025-09-19,Assigned,MRNA,Put,25.50,2025-09-19,1,0.00,,0.00,P10,
 2025-09-18,Sell to Open,AMD,Call,157.50,2025-09-19,1,191.00,157.30,0.00,P11,Only Good call option I could find for end of this week that was not on a stock that I already own or PLTR which I felt was too volatile
 2025-09-19,Expired,AMD,Call,157.50,2025-09-19,1,0.00,,0.00,P11,
 2025-09-19,Sell to Open,AAL,Call,12.50,2025-09-25,4,92.00,12.42,0.00,P12,"Wanted to try out an over-the-weekend weekly, and I want to check how much this is on Monday, as I think we get good theta decay on the weekend without much price movement. And this fit nicely, almost 2% for the week."
