@@ -14,7 +14,7 @@
             profitLoss: {{printf "%q" .ProfitLoss}},
             returnPerc: {{printf "%q" .ReturnPerc}},
             exitDate: {{printf "%q" .ExitDate}},
-            type: {{if .ExitDate}}{{printf "%q" "closed"}}{{else}}{{printf "%q" "open"}}{{end}}
+            type: {{printf "%q" "open"}}
         },
         {{end}}
         {{range .ClosedStocks}}
@@ -27,7 +27,7 @@
             profitLoss: {{printf "%q" .ProfitLoss}},
             returnPerc: {{printf "%q" .ReturnPerc}},
             exitDate: {{printf "%q" .ExitDate}},
-            type: 'closed'
+            type: {{printf "%q" "closed"}}
         },
         {{end}}
     ],

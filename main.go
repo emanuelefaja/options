@@ -71,7 +71,22 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	trades := web.LoadTradesFromCSV("data/options.csv")
-	currentStocks, closedStocks := web.LoadStocksWithHistory("data/stocks.csv")
+
+	// Load stock positions from transaction system
+	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
+	stockPositions := web.CalculateAllPositions(stockTransactions)
+	allStocks := web.PositionsToStocks(stockPositions)
+
+	// Separate open and closed positions
+	var currentStocks, closedStocks []web.Stock
+	for _, stock := range allStocks {
+		if stock.ExitDate == "" {
+			currentStocks = append(currentStocks, stock)
+		} else {
+			closedStocks = append(closedStocks, stock)
+		}
+	}
+
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(trades, currentStocks, transactions)
 
