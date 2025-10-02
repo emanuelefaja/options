@@ -57,6 +57,15 @@ type PageData struct {
 	// Net worth data
 	NetWorthData     []NetWorthMonth
 	NetWorthDataJSON string
+	// Cash position data
+	CashPosition     CashPosition
+	CashPositionJSON string
+}
+
+type CashPosition struct {
+	ActiveCapital float64 `json:"activeCapital"`
+	DryPowder     float64 `json:"dryPowder"`
+	WiseBalance   float64 `json:"wiseBalance"`
 }
 
 type NetWorthMonth struct {

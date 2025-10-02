@@ -445,3 +445,34 @@ func CalculateNetWorth(totalPortfolioValue float64) []NetWorthMonth {
 
 	return netWorthData
 }
+
+func CalculateCashPosition(analytics Analytics) CashPosition {
+	// Active Capital: Money currently tied up in positions
+	activeCapital := analytics.TotalActiveCapital
+
+	// Dry Powder: Available cash in brokerage
+	// = Total Deposits + Premiums Earned + Stock P/L - Active Capital
+	dryPowder := analytics.TotalDeposits + analytics.TotalPremiums + analytics.TotalStockProfitLoss - activeCapital
+
+	// Wise Balance: Get latest balance from wise.csv
+	wiseBalance := 0.0
+	file, err := os.Open("data/wise.csv")
+	if err == nil {
+		defer file.Close()
+		reader := csv.NewReader(file)
+		records, err := reader.ReadAll()
+		if err == nil && len(records) > 1 {
+			// Get the last row (most recent month)
+			lastRow := records[len(records)-1]
+			if len(lastRow) >= 2 {
+				wiseBalance, _ = strconv.ParseFloat(lastRow[1], 64)
+			}
+		}
+	}
+
+	return CashPosition{
+		ActiveCapital: activeCapital,
+		DryPowder:     dryPowder,
+		WiseBalance:   wiseBalance,
+	}
+}

@@ -42,6 +42,13 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
 	stockPerformance := web.CalculateStockPerformance(stockTransactions)
 
+	// Calculate cash position
+	cashPosition := web.CalculateCashPosition(analytics)
+	cashPositionJSON := "[]"
+	if jsonData, err := json.Marshal(cashPosition); err == nil {
+		cashPositionJSON = string(jsonData)
+	}
+
 	renderPage(w, "home", web.PageData{
 		Title:       "Home - mnmlsm",
 		CurrentPage: "home",
@@ -54,6 +61,9 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		// Stock performance metrics
 		StockPerformance: stockPerformance,
+		// Cash position data
+		CashPosition:     cashPosition,
+		CashPositionJSON: cashPositionJSON,
 	})
 }
 
