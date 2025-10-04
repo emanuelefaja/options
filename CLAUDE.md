@@ -110,7 +110,7 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - No buying back calls to "defend" positions
 - All positions should be small enough that I do not lose sleep over them.
 - No single position is more than 10% of portfolio. So a 20% drop in a stock is a 2% drop in the portfolio.
-- Avoid crazy meme stock (i.e. PLTR, GME, AMC, BBBY) where stock price has nothing to do with fundamentals.
+- Avoid crazy meme stock (i.e. GME, AMC, BBBY) where stock price has nothing to do with fundamentals.
 
 ## Stock Categories & Selection
 
