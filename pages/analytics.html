@@ -1,22 +1,98 @@
 {{define "content"}}
 <div class="space-y-6" x-data="{
-    activeTab: 'general',
+    activeTab: (localStorage.getItem('analyticsActiveTab') === 'daily' ? 'timeseries' : localStorage.getItem('analyticsActiveTab')) || 'general',
     chartFilter: 'both',
+    timeInterval: 'daily',
     chart: null,
     netWorthChart: null,
     dailyData: {{.DailyReturnsJSON}} || [],
     netWorthData: {{.NetWorthDataJSON}} || [],
+    init() {
+        this.$watch('activeTab', value => {
+            localStorage.setItem('analyticsActiveTab', value);
+        });
+        // Initialize chart if returning to timeseries or networth tab
+        this.$nextTick(() => {
+            if (this.activeTab === 'timeseries') {
+                this.initChart();
+            } else if (this.activeTab === 'networth') {
+                this.initNetWorthChart();
+            }
+        });
+    },
+    getAggregatedData() {
+        if (this.timeInterval === 'daily') {
+            return this.dailyData;
+        }
+
+        if (this.timeInterval === 'weekly') {
+            // Aggregate by week
+            const weeklyData = {};
+            this.dailyData.forEach(d => {
+                const [year, month, day] = d.date.split('-');
+                const date = new Date(year, month - 1, day);
+                // Get Monday of the week
+                const dayOfWeek = date.getDay();
+                const diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                const monday = new Date(date.setDate(diff));
+                const weekKey = monday.toISOString().split('T')[0];
+
+                if (!weeklyData[weekKey]) {
+                    weeklyData[weekKey] = {
+                        date: weekKey,
+                        premiums: 0,
+                        stockGains: 0,
+                        totalReturns: 0
+                    };
+                }
+
+                weeklyData[weekKey].premiums += d.premiums;
+                weeklyData[weekKey].stockGains += d.stockGains;
+                weeklyData[weekKey].totalReturns += d.totalReturns;
+            });
+
+            return Object.values(weeklyData).sort((a, b) => a.date.localeCompare(b.date));
+        }
+
+        // Aggregate by month
+        const monthlyData = {};
+        this.dailyData.forEach(d => {
+            const [year, month, day] = d.date.split('-');
+            const monthKey = `${year}-${month}`;
+
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = {
+                    date: `${year}-${month}-01`,
+                    premiums: 0,
+                    stockGains: 0,
+                    totalReturns: 0
+                };
+            }
+
+            monthlyData[monthKey].premiums += d.premiums;
+            monthlyData[monthKey].stockGains += d.stockGains;
+            monthlyData[monthKey].totalReturns += d.totalReturns;
+        });
+
+        return Object.values(monthlyData).sort((a, b) => a.date.localeCompare(b.date));
+    },
     initChart() {
         if (!this.chart && this.dailyData.length > 0) {
             const ctx = document.getElementById('dailyReturnsChart').getContext('2d');
-            
-            // Format labels
-            const labels = this.dailyData.map(d => {
-                // Parse date string and add time to ensure correct date
+
+            const data = this.getAggregatedData();
+
+            // Format labels based on time interval
+            const labels = data.map(d => {
                 const [year, month, day] = d.date.split('-');
                 const date = new Date(year, month - 1, day);
-                const monthName = date.toLocaleDateString('en-US', { month: 'short' });
-                return monthName + ' ' + date.getDate();
+
+                if (this.timeInterval === 'monthly') {
+                    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                } else {
+                    const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+                    return monthName + ' ' + date.getDate();
+                }
             });
             
             this.chart = new Chart(ctx, {
@@ -26,14 +102,14 @@
                     datasets: [
                         {
                             label: 'Premiums',
-                            data: this.dailyData.map(d => d.premiums),
+                            data: data.map(d => d.premiums),
                             backgroundColor: 'rgba(34, 197, 94, 0.8)',
                             borderColor: 'rgb(34, 197, 94)',
                             borderWidth: 1
                         },
                         {
                             label: 'Stock Gains',
-                            data: this.dailyData.map(d => d.stockGains),
+                            data: data.map(d => d.stockGains),
                             backgroundColor: 'rgba(59, 130, 246, 0.8)',
                             borderColor: 'rgb(59, 130, 246)',
                             borderWidth: 1
@@ -45,7 +121,10 @@
                     maintainAspectRatio: false,
                     scales: {
                         x: {
-                            stacked: true
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
                         },
                         y: {
                             stacked: true,
@@ -69,30 +148,60 @@
                             position: 'top'
                         }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'totalLabel',
+                    afterDatasetsDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        chart.data.datasets[0].data.forEach(function(value, index) {
+                            // Calculate total for this bar
+                            let total = 0;
+                            chart.data.datasets.forEach(function(dataset) {
+                                total += dataset.data[index] || 0;
+                            });
+
+                            // Find the topmost bar to position the label
+                            const lastDatasetIndex = chart.data.datasets.length - 1;
+                            const meta = chart.getDatasetMeta(lastDatasetIndex);
+                            const bar = meta.data[index];
+
+                            ctx.fillStyle = 'black';
+                            ctx.font = 'bold 12px sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('$' + total.toLocaleString(), bar.x, bar.y - 10);
+                        });
+                    }
+                }]
             });
         }
     },
     updateChart() {
         if (!this.chart || this.dailyData.length === 0) return;
-        
-        // Format labels
-        const labels = this.dailyData.map(d => {
-            const date = new Date(d.date);
-            const month = date.toLocaleDateString('en-US', { month: 'short' });
-            const day = date.getDate();
-            return month + ' ' + day;
+
+        const data = this.getAggregatedData();
+
+        // Format labels based on time interval
+        const labels = data.map(d => {
+            const [year, month, day] = d.date.split('-');
+            const date = new Date(year, month - 1, day);
+
+            if (this.timeInterval === 'monthly') {
+                return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            } else {
+                const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+                return monthName + ' ' + date.getDate();
+            }
         });
-        
+
         // Destroy and recreate the chart to avoid update issues
         this.chart.destroy();
         const ctx = document.getElementById('dailyReturnsChart').getContext('2d');
-        
+
         let datasets = [];
         if (this.chartFilter === 'premiums') {
             datasets = [{
                 label: 'Premiums',
-                data: this.dailyData.map(d => d.premiums),
+                data: data.map(d => d.premiums),
                 backgroundColor: 'rgba(34, 197, 94, 0.8)',
                 borderColor: 'rgb(34, 197, 94)',
                 borderWidth: 1
@@ -100,7 +209,7 @@
         } else if (this.chartFilter === 'stocks') {
             datasets = [{
                 label: 'Stock Gains',
-                data: this.dailyData.map(d => d.stockGains),
+                data: data.map(d => d.stockGains),
                 backgroundColor: 'rgba(59, 130, 246, 0.8)',
                 borderColor: 'rgb(59, 130, 246)',
                 borderWidth: 1
@@ -109,14 +218,14 @@
             datasets = [
                 {
                     label: 'Premiums',
-                    data: this.dailyData.map(d => d.premiums),
+                    data: data.map(d => d.premiums),
                     backgroundColor: 'rgba(34, 197, 94, 0.8)',
                     borderColor: 'rgb(34, 197, 94)',
                     borderWidth: 1
                 },
                 {
                     label: 'Stock Gains',
-                    data: this.dailyData.map(d => d.stockGains),
+                    data: data.map(d => d.stockGains),
                     backgroundColor: 'rgba(59, 130, 246, 0.8)',
                     borderColor: 'rgb(59, 130, 246)',
                     borderWidth: 1
@@ -135,7 +244,10 @@
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        stacked: (this.chartFilter === 'both')
+                        stacked: (this.chartFilter === 'both'),
+                        grid: {
+                            display: false
+                        }
                     },
                     y: {
                         stacked: (this.chartFilter === 'both'),
@@ -159,7 +271,30 @@
                         position: 'top'
                     }
                 }
-            }
+            },
+            plugins: [{
+                id: 'totalLabel',
+                afterDatasetsDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    chart.data.datasets[0].data.forEach(function(value, index) {
+                        // Calculate total for this bar
+                        let total = 0;
+                        chart.data.datasets.forEach(function(dataset) {
+                            total += dataset.data[index] || 0;
+                        });
+
+                        // Find the topmost bar to position the label
+                        const lastDatasetIndex = chart.data.datasets.length - 1;
+                        const meta = chart.getDatasetMeta(lastDatasetIndex);
+                        const bar = meta.data[index];
+
+                        ctx.fillStyle = 'black';
+                        ctx.font = 'bold 12px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('$' + total.toLocaleString(), bar.x, bar.y - 5);
+                    });
+                }
+            }]
         });
     },
     initNetWorthChart() {
@@ -200,7 +335,10 @@
                     maintainAspectRatio: false,
                     scales: {
                         x: {
-                            stacked: true
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
                         },
                         y: {
                             stacked: true,
@@ -249,7 +387,7 @@
                             ctx.fillStyle = 'black';
                             ctx.font = 'bold 12px sans-serif';
                             ctx.textAlign = 'center';
-                            ctx.fillText('$' + total.toLocaleString(), bar.x, bar.y - 5);
+                            ctx.fillText('$' + total.toLocaleString(), bar.x, bar.y - 10);
                         });
                     }
                 }]
@@ -267,10 +405,10 @@
                     class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
                 General
             </button>
-            <button @click="activeTab = 'daily'; $nextTick(() => initChart())"
-                    :class="activeTab === 'daily' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
+            <button @click="activeTab = 'timeseries'; $nextTick(() => initChart())"
+                    :class="activeTab === 'timeseries' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
                     class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
-                Daily
+                Time Series
             </button>
             <button @click="activeTab = 'networth'; $nextTick(() => initNetWorthChart())"
                     :class="activeTab === 'networth' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
@@ -415,10 +553,12 @@
         </div>
     </div>
     
-    <!-- Daily Tab Content -->
-    <div x-show="activeTab === 'daily'" class="bg-white p-6">
-        <!-- Filter Buttons -->
-        <div class="mb-4 flex space-x-2">
+    <!-- Time Series Tab Content -->
+    <div x-show="activeTab === 'timeseries'" class="bg-white p-6">
+        <!-- Filter Header with Daily/Weekly Toggle -->
+        <div class="mb-4 flex justify-between items-center">
+            <!-- Filter Buttons -->
+            <div class="flex space-x-2">
             <button @click="chartFilter = 'both'; updateChart()" 
                     :class="chartFilter === 'both' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
                     class="px-4 py-2 rounded-md text-sm font-medium">
@@ -429,13 +569,33 @@
                     class="px-4 py-2 rounded-md text-sm font-medium">
                 Premiums Only
             </button>
-            <button @click="chartFilter = 'stocks'; updateChart()" 
+            <button @click="chartFilter = 'stocks'; updateChart()"
                     :class="chartFilter === 'stocks' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
                     class="px-4 py-2 rounded-md text-sm font-medium">
                 Stocks Only
             </button>
+            </div>
+
+            <!-- Daily/Weekly/Monthly Toggle -->
+            <div class="flex space-x-2">
+                <button @click="timeInterval = 'daily'; updateChart()"
+                        :class="timeInterval === 'daily' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                        class="px-4 py-2 rounded-md text-sm font-medium">
+                    Daily
+                </button>
+                <button @click="timeInterval = 'weekly'; updateChart()"
+                        :class="timeInterval === 'weekly' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                        class="px-4 py-2 rounded-md text-sm font-medium">
+                    Weekly
+                </button>
+                <button @click="timeInterval = 'monthly'; updateChart()"
+                        :class="timeInterval === 'monthly' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                        class="px-4 py-2 rounded-md text-sm font-medium">
+                    Monthly
+                </button>
+            </div>
         </div>
-        
+
         <!-- Chart Container -->
         <div class="relative h-96">
             <canvas id="dailyReturnsChart"></canvas>
