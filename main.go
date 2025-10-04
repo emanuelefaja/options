@@ -33,10 +33,8 @@ func main() {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	trades := web.LoadTradesFromCSV("data/options.csv")
-	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	// Calculate stock performance metrics
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
@@ -72,16 +70,12 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 	optionTransactions := web.LoadOptionTransactions("data/options_transactions.csv")
 	optionPositions := web.CalculateOptionPositions(optionTransactions)
 
-	// Keep loading old trades for now to ensure compatibility
-	trades := web.LoadTradesFromCSV("data/options.csv")
-	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	renderPage(w, "options", web.PageData{
 		Title:           "Options - mnmlsm",
 		CurrentPage:     "options",
-		Trades:          trades, // Keep for now, will be replaced by OptionPositions in template update
 		OptionPositions: optionPositions,
 		// Options page specific metrics
 		OpenOptionsCount:     analytics.OpenOptionsCount,
@@ -107,8 +101,6 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trades := web.LoadTradesFromCSV("data/options.csv")
-
 	// Load stock positions from transaction system
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
 	stockPositions := web.CalculateAllPositions(stockTransactions)
@@ -125,7 +117,7 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(trades, currentStocks, transactions)
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	// Load symbol summaries
 	symbolSummaries := web.CalculateSymbolSummaries()
@@ -156,10 +148,8 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load analytics for portfolio-wide metrics
-	trades := web.LoadTradesFromCSV("data/options.csv")
-	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	// Get symbol-specific data
 	symbolDetails := web.GetSymbolDetails(symbol, analytics.TotalPortfolioProfit)
@@ -190,10 +180,8 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAnalytics(w http.ResponseWriter, r *http.Request) {
-	trades := web.LoadTradesFromCSV("data/options.csv")
-	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	// Calculate net worth data
 	netWorthData := web.CalculateNetWorth(analytics.TotalPortfolioValue)
@@ -207,7 +195,6 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 	renderPage(w, "analytics", web.PageData{
 		Title:              "Analytics - Options Tracker",
 		CurrentPage:        "analytics",
-		Trades:             trades,
 		TotalPremiums:      analytics.TotalPremiums,
 		TotalCapital:       analytics.TotalCapital,
 		TotalActiveCapital: analytics.TotalActiveCapital,
@@ -247,10 +234,8 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRules(w http.ResponseWriter, r *http.Request) {
-	trades := web.LoadTradesFromCSV("data/options.csv")
-	stocks := web.LoadStocksFromCSV("data/stocks.csv")
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(trades, stocks, transactions)
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	renderPage(w, "rules", web.PageData{
 		Title:       "Rules - mnmlsm",

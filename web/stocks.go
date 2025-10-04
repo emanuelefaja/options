@@ -304,19 +304,3 @@ func LoadStocksFromCSV(filename string) []Stock {
 	}
 	return openStocks
 }
-
-func LoadStocksWithHistory(filename string) ([]Stock, []Stock) {
-	stocks := LoadStocksWithPositions(filename)
-	var currentStocks []Stock
-	var closedStocks []Stock
-	
-	for _, stock := range stocks {
-		if stock.ExitDate == "" {
-			currentStocks = append(currentStocks, stock)
-		} else {
-			closedStocks = append(closedStocks, stock)
-		}
-	}
-	
-	return currentStocks, closedStocks
-}
