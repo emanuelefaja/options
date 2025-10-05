@@ -425,3 +425,28 @@ func CalculateCashPosition(analytics Analytics) CashPosition {
 		WiseBalance:   wiseBalance,
 	}
 }
+
+func LoadVIX(filePath string) float64 {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return 0.0
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil || len(records) < 2 {
+		return 0.0
+	}
+
+	// Get the last row (most recent VIX value)
+	lastRow := records[len(records)-1]
+	if len(lastRow) >= 2 {
+		vix, err := strconv.ParseFloat(lastRow[1], 64)
+		if err == nil {
+			return vix
+		}
+	}
+
+	return 0.0
+}

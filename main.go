@@ -49,6 +49,7 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "home", web.PageData{
 		Title:       "Home - mnmlsm",
@@ -62,6 +63,8 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
+		VIX:                                     vix,
+		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 		// Stock performance metrics
 		StockPerformance: stockPerformance,
 		// Cash position data
@@ -79,6 +82,7 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "options", web.PageData{
 		Title:           "Options - mnmlsm",
@@ -100,6 +104,8 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
+		VIX:                          vix,
+		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
 	})
 }
 
@@ -138,6 +144,7 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 
 	// Load symbol summaries
 	symbolSummaries := web.CalculateSymbolSummaries()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "stocks/index", web.PageData{
 		Title:           "Stocks - mnmlsm",
@@ -154,6 +161,8 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
+		VIX:                                     vix,
+		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 	})
 }
 
@@ -182,6 +191,7 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "stocks/detail", web.PageData{
 		Title:          symbol + " - Stock Detail - mnmlsm",
@@ -199,6 +209,8 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
+		VIX:                                     vix,
+		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 	})
 }
 
@@ -216,6 +228,7 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "analytics", web.PageData{
 		Title:              "Analytics - Options Tracker",
@@ -252,6 +265,8 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 		TotalStockProfitFormatted:    web.FormatCurrency(analytics.TotalStockProfitLoss),
 		TotalDepositsFormatted:       web.FormatCurrency(analytics.TotalDeposits),
+		VIX:                          vix,
+		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
 		// Daily returns data
 		DailyReturns:     analytics.DailyReturns,
 		DailyReturnsJSON: analytics.DailyReturnsJSON,
@@ -266,6 +281,7 @@ func handleRules(w http.ResponseWriter, r *http.Request) {
 	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "rules", web.PageData{
 		Title:       "Rules - mnmlsm",
@@ -279,6 +295,8 @@ func handleRules(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
+		VIX:                          vix,
+		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
 	})
 }
 

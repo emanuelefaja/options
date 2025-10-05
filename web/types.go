@@ -46,6 +46,8 @@ type PageData struct {
 	TotalStockProfitFormatted    string
 	TotalUnrealizedPLFormatted   string
 	TotalDepositsFormatted       string
+	VIX                          float64
+	VIXFormatted                 string
 	// Daily returns data
 	DailyReturns     []DailyReturn
 	DailyReturnsJSON string
