@@ -12,15 +12,19 @@ import (
 )
 
 type Stock struct {
-	Symbol     string
-	Shares     string
-	AvgCost    string
-	Capital    string
-	ProfitLoss string
-	ReturnPerc string
-	EntryDate  string
-	ExitDate   string
-	StocksID   string
+	Symbol          string
+	Shares          string
+	AvgCost         string
+	Capital         string
+	ProfitLoss      string
+	ReturnPerc      string
+	EntryDate       string
+	ExitDate        string
+	StocksID        string
+	CurrentPrice    string
+	MarketValue     string
+	UnrealizedPnL   string
+	UnrealizedPerc  string
 }
 
 type StockTransaction struct {
@@ -53,6 +57,10 @@ type Position struct {
 	ReturnPerc     float64
 	OpenDate       string
 	CloseDate      string
+	CurrentPrice   float64
+	MarketValue    float64
+	UnrealizedPnL  float64
+	UnrealizedPerc float64
 }
 
 func LoadStockTransactions(filename string) []StockTransaction {
@@ -97,7 +105,36 @@ func LoadStockTransactions(filename string) []StockTransaction {
 	return transactions
 }
 
-func CalculateAllPositions(transactions []StockTransaction) []Position {
+func LoadStockPrices(filename string) map[string]float64 {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Printf("Error opening stock prices CSV file: %v", err)
+		return make(map[string]float64)
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Printf("Error reading stock prices CSV file: %v", err)
+		return make(map[string]float64)
+	}
+
+	prices := make(map[string]float64)
+	for i, record := range records {
+		if i == 0 {
+			continue
+		}
+		if len(record) >= 2 {
+			ticker := record[0]
+			price, _ := strconv.ParseFloat(record[1], 64)
+			prices[ticker] = price
+		}
+	}
+	return prices
+}
+
+func CalculateAllPositions(transactions []StockTransaction, stockPrices map[string]float64) []Position {
 	var positions []Position
 	symbolLots := make(map[string][]Lot)
 	
@@ -208,14 +245,26 @@ func CalculateAllPositions(transactions []StockTransaction) []Position {
 			
 			if totalShares > 0 {
 				avgPrice = avgPrice / totalShares
-				
+
+				currentPrice := stockPrices[symbol]
+				marketValue := currentPrice * totalShares
+				unrealizedPnL := marketValue - totalCostBasis
+				unrealizedPerc := 0.0
+				if totalCostBasis > 0 {
+					unrealizedPerc = (unrealizedPnL / totalCostBasis) * 100
+				}
+
 				openPos := Position{
-					Symbol:      symbol,
-					Type:        "open",
-					Shares:      totalShares,
-					AvgBuyPrice: totalCostBasis / totalShares,
-					CostBasis:   totalCostBasis,
-					OpenDate:    openDate,
+					Symbol:         symbol,
+					Type:           "open",
+					Shares:         totalShares,
+					AvgBuyPrice:    totalCostBasis / totalShares,
+					CostBasis:      totalCostBasis,
+					OpenDate:       openDate,
+					CurrentPrice:   currentPrice,
+					MarketValue:    marketValue,
+					UnrealizedPnL:  unrealizedPnL,
+					UnrealizedPerc: unrealizedPerc,
 				}
 				positions = append(positions, openPos)
 			}
@@ -267,6 +316,10 @@ func PositionsToStocks(positions []Position) []Stock {
 			stock.ReturnPerc = "0.00%"
 			stock.EntryDate = formatStockDate(pos.OpenDate)
 			stock.ExitDate = ""
+			stock.CurrentPrice = fmt.Sprintf("$%.2f", pos.CurrentPrice)
+			stock.MarketValue = FormatCurrency(pos.MarketValue)
+			stock.UnrealizedPnL = fmt.Sprintf("$%.2f", pos.UnrealizedPnL)
+			stock.UnrealizedPerc = fmt.Sprintf("%.2f%%", pos.UnrealizedPerc)
 		} else {
 			stock.ProfitLoss = fmt.Sprintf("$%.2f", pos.RealizedPnL)
 			stock.ReturnPerc = fmt.Sprintf("%.2f%%", pos.ReturnPerc)
@@ -282,13 +335,16 @@ func PositionsToStocks(positions []Position) []Stock {
 
 func LoadStocksWithPositions(filename string) []Stock {
 	transactionsFile := strings.Replace(filename, "stocks.csv", "stocks_transactions.csv", 1)
+	pricesFile := strings.Replace(filename, "stocks.csv", "stock_prices.csv", 1)
+
 	transactions := LoadStockTransactions(transactionsFile)
-	
+	stockPrices := LoadStockPrices(pricesFile)
+
 	if len(transactions) > 0 {
-		positions := CalculateAllPositions(transactions)
+		positions := CalculateAllPositions(transactions, stockPrices)
 		return PositionsToStocks(positions)
 	}
-	
+
 	return []Stock{}
 }
 

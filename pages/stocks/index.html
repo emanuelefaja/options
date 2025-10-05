@@ -14,6 +14,10 @@
             profitLoss: {{printf "%q" .ProfitLoss}},
             returnPerc: {{printf "%q" .ReturnPerc}},
             exitDate: {{printf "%q" .ExitDate}},
+            currentPrice: {{printf "%q" .CurrentPrice}},
+            marketValue: {{printf "%q" .MarketValue}},
+            unrealizedPnL: {{printf "%q" .UnrealizedPnL}},
+            unrealizedPerc: {{printf "%q" .UnrealizedPerc}},
             type: {{printf "%q" "open"}}
         },
         {{end}}
@@ -27,6 +31,10 @@
             profitLoss: {{printf "%q" .ProfitLoss}},
             returnPerc: {{printf "%q" .ReturnPerc}},
             exitDate: {{printf "%q" .ExitDate}},
+            currentPrice: {{printf "%q" ""}},
+            marketValue: {{printf "%q" ""}},
+            unrealizedPnL: {{printf "%q" ""}},
+            unrealizedPerc: {{printf "%q" ""}},
             type: {{printf "%q" "closed"}}
         },
         {{end}}
@@ -91,12 +99,12 @@
                 bVal = parseFloat(bVal) || 0;
             }
             // Handle currency fields
-            else if (['avgCost', 'capital', 'profitLoss'].includes(this.sortBy)) {
+            else if (['avgCost', 'capital', 'profitLoss', 'currentPrice', 'marketValue', 'unrealizedPnL'].includes(this.sortBy)) {
                 aVal = parseFloat(aVal.replace(/[$,]/g, '')) || 0;
                 bVal = parseFloat(bVal.replace(/[$,]/g, '')) || 0;
             }
             // Handle percentage fields
-            else if (['returnPerc'].includes(this.sortBy)) {
+            else if (['returnPerc', 'unrealizedPerc'].includes(this.sortBy)) {
                 aVal = parseFloat(aVal.replace('%', '')) || 0;
                 bVal = parseFloat(bVal.replace('%', '')) || 0;
             }
@@ -144,7 +152,7 @@
     </div>
     
     <!-- Summary Cards -->
-    <div class="grid grid-cols-4 gap-4">
+    <div class="grid grid-cols-5 gap-4">
         <div class="bg-white rounded-lg border border-gray-200 p-4">
             <p class="text-sm font-medium text-gray-600">Open Positions</p>
             <p class="text-2xl font-bold text-gray-900" x-text="openPositionsCount"></p>
@@ -156,6 +164,10 @@
         <div class="bg-white rounded-lg border border-gray-200 p-4">
             <p class="text-sm font-medium text-gray-600">Open Capital</p>
             <p class="text-2xl font-bold text-blue-600">$<span x-text="totalOpenCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
+            <p class="text-sm font-medium text-gray-600">Unrealized P&L</p>
+            <p class="text-2xl font-bold" :class="unrealizedPL >= 0 ? 'text-green-600' : 'text-red-600'">{{.TotalUnrealizedPLFormatted}}</p>
         </div>
         <div class="bg-white rounded-lg border border-gray-200 p-4">
             <p class="text-sm font-medium text-gray-600">Realized P&L</p>
@@ -170,7 +182,7 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th @click="sortData('symbol')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('symbol')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-20">
                         <div class="flex items-center space-x-1">
                             <span>Symbol</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'symbol', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +190,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('type')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('type')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-20">
                         <div class="flex items-center space-x-1">
                             <span>Status</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'type', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,7 +198,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('shares')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('shares')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-16">
                         <div class="flex items-center space-x-1">
                             <span>Shares</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'shares', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,15 +206,15 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('entryDate')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('entryDate')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
-                            <span>Entry Date</span>
+                            <span>Entry</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'entryDate', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('avgCost')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('avgCost')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Avg Cost</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'avgCost', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +222,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('capital')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Cost Basis</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'capital', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,15 +230,39 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('exitDate')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('currentPrice')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
-                            <span>Exit Date</span>
+                            <span>Current</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'currentPrice', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('marketValue')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                        <div class="flex items-center space-x-1">
+                            <span>Mkt Value</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'marketValue', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('unrealizedPnL')" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap w-32">
+                        <div class="flex items-center space-x-1">
+                            <span>Unrealized P&L</span>
+                            <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'unrealizedPnL', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </div>
+                    </th>
+                    <th @click="sortData('exitDate')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                        <div class="flex items-center space-x-1">
+                            <span>Exit</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'exitDate', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('profitLoss')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('profitLoss')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>P&L</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'profitLoss', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,7 +270,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('returnPerc')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('returnPerc')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Return</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'returnPerc', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,6 +300,16 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" x-text="pos.entryDate"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.avgCost"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="pos.capital"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.type === 'open' ? pos.currentPrice : '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.type === 'open' ? pos.marketValue : '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                                :class="{
+                                    'text-green-600': pos.type === 'open' && parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) > 0,
+                                    'text-red-600': pos.type === 'open' && parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) < 0,
+                                    'text-gray-500': pos.type === 'closed' || parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) === 0
+                                }"
+                                x-text="pos.type === 'open' ? pos.unrealizedPnL : '-'">
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" x-text="pos.exitDate || '-'"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" 
                                 :class="{

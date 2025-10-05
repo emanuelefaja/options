@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"mnmlsm/web"
@@ -47,6 +48,8 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		cashPositionJSON = string(jsonData)
 	}
 
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
+
 	renderPage(w, "home", web.PageData{
 		Title:       "Home - mnmlsm",
 		CurrentPage: "home",
@@ -54,9 +57,11 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:                       totalUnrealizedPL,
 		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
 		// Stock performance metrics
 		StockPerformance: stockPerformance,
 		// Cash position data
@@ -73,6 +78,8 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
+
 	renderPage(w, "options", web.PageData{
 		Title:           "Options - mnmlsm",
 		CurrentPage:     "options",
@@ -88,9 +95,11 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:          analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:            totalUnrealizedPL,
 		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 	})
 }
 
@@ -103,14 +112,22 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 
 	// Load stock positions from transaction system
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
-	stockPositions := web.CalculateAllPositions(stockTransactions)
+	stockPrices := web.LoadStockPrices("data/stock_prices.csv")
+	stockPositions := web.CalculateAllPositions(stockTransactions, stockPrices)
 	allStocks := web.PositionsToStocks(stockPositions)
 
 	// Separate open and closed positions
 	var currentStocks, closedStocks []web.Stock
+	totalUnrealizedPL := 0.0
 	for _, stock := range allStocks {
 		if stock.ExitDate == "" {
 			currentStocks = append(currentStocks, stock)
+			// Calculate total unrealized P&L from open positions
+			if stock.UnrealizedPnL != "" {
+				var pnl float64
+				fmt.Sscanf(stock.UnrealizedPnL, "$%f", &pnl)
+				totalUnrealizedPL += pnl
+			}
 		} else {
 			closedStocks = append(closedStocks, stock)
 		}
@@ -132,9 +149,11 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:                       totalUnrealizedPL,
 		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
 	})
 }
 
@@ -162,6 +181,8 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
+
 	renderPage(w, "stocks/detail", web.PageData{
 		Title:          symbol + " - Stock Detail - mnmlsm",
 		CurrentPage:    "stocks",
@@ -173,9 +194,11 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:                       totalUnrealizedPL,
 		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
 	})
 }
 
@@ -192,6 +215,8 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
+
 	renderPage(w, "analytics", web.PageData{
 		Title:              "Analytics - Options Tracker",
 		CurrentPage:        "analytics",
@@ -206,6 +231,7 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		OptionTradesCount:  analytics.OptionTradesCount,
 		StockTradesCount:   analytics.StockTradesCount,
 		TotalTradesCount:   analytics.TotalTradesCount,
+		DaysSinceStart:     analytics.DaysSinceStart,
 		TotalPremiumsFormatted:      web.FormatCurrency(analytics.TotalPremiums),
 		TotalCapitalFormatted:       web.FormatCurrency(analytics.TotalCapital),
 		TotalActiveCapitalFormatted: web.FormatCurrency(analytics.TotalActiveCapital),
@@ -218,10 +244,12 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:          analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:            totalUnrealizedPL,
 		TotalStockProfit:             analytics.TotalStockProfitLoss,
 		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 		TotalStockProfitFormatted:    web.FormatCurrency(analytics.TotalStockProfitLoss),
 		TotalDepositsFormatted:       web.FormatCurrency(analytics.TotalDeposits),
 		// Daily returns data
@@ -237,6 +265,8 @@ func handleRules(w http.ResponseWriter, r *http.Request) {
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
+
 	renderPage(w, "rules", web.PageData{
 		Title:       "Rules - mnmlsm",
 		CurrentPage: "rules",
@@ -244,10 +274,26 @@ func handleRules(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioValue:          analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
 		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:            totalUnrealizedPL,
 		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
 		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 	})
+}
+
+func calculateTotalUnrealizedPL() float64 {
+	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
+	stockPrices := web.LoadStockPrices("data/stock_prices.csv")
+	positions := web.CalculateAllPositions(stockTransactions, stockPrices)
+
+	totalUnrealizedPL := 0.0
+	for _, pos := range positions {
+		if pos.Type == "open" {
+			totalUnrealizedPL += pos.UnrealizedPnL
+		}
+	}
+	return totalUnrealizedPL
 }
 
 func renderPage(w http.ResponseWriter, page string, data web.PageData) {

@@ -6,9 +6,17 @@
         </svg>
     </button>
     
-    <div class="flex items-center space-x-4">
+    <div class="flex items-center space-x-6" x-data="{
+        totalPortfolio: {{.TotalPortfolioValue}},
+        unrealizedPL: {{.TotalUnrealizedPL}},
+        get ibkrValue() {
+            return this.totalPortfolio + this.unrealizedPL;
+        }
+    }">
         <span class="text-sm text-gray-600">Portfolio: <span class="font-semibold text-gray-900">{{.TotalPortfolioValueFormatted}}</span></span>
-        <span class="text-sm text-gray-600">Profit: <span class="font-semibold text-green-600">+{{.TotalPortfolioProfitFormatted}} ({{.TotalPortfolioProfitPercentageFormatted}})</span></span>
+        <span class="text-sm text-gray-600">Realized P&L: <span class="font-semibold text-green-600">{{.TotalPortfolioProfitFormatted}}</span></span>
+        <span class="text-sm text-gray-600">Unrealized P&L: <span class="font-semibold" :class="unrealizedPL >= 0 ? 'text-green-600' : 'text-red-600'">{{.TotalUnrealizedPLFormatted}}</span></span>
+        <span class="text-sm text-gray-600">IBKR: <span class="font-semibold text-gray-900">$<span x-text="ibkrValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></span></span>
     </div>
 </header>
 {{end}}

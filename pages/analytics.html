@@ -454,6 +454,14 @@
                     </p>
                 </div>
 
+                <!-- Days Active -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                    <p class="text-sm/6 font-medium text-gray-500">Days Active</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.DaysSinceStart}}</span>
+                    </p>
+                </div>
+
                 <!-- Total Portfolio Profit -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Total Profit</p>
@@ -485,7 +493,29 @@
                         <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalStockProfitFormatted}}</span>
                     </p>
                 </div>
-                
+
+                <!-- Unrealized P&L -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
+                    <p class="text-sm/6 font-medium text-gray-500">Unrealized P&L</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight" :class="unrealizedPL >= 0 ? 'text-green-600' : 'text-red-600'">{{.TotalUnrealizedPLFormatted}}</span>
+                    </p>
+                </div>
+
+                <!-- IBKR Value -->
+                <div class="bg-white px-4 py-6 sm:px-6 lg:px-8" x-data="{
+                    portfolio: {{.TotalPortfolioValue}},
+                    unrealized: {{.TotalUnrealizedPL}},
+                    get ibkrValue() {
+                        return this.portfolio + this.unrealized;
+                    }
+                }">
+                    <p class="text-sm/6 font-medium text-gray-500">IBKR Value</p>
+                    <p class="mt-2 flex items-baseline gap-x-2">
+                        <span class="text-4xl font-semibold tracking-tight text-gray-900">$<span x-text="ibkrValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></span>
+                    </p>
+                </div>
+
                 <!-- Premium Per Day -->
                 <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm/6 font-medium text-gray-500">Premium Per Day</p>

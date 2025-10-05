@@ -18,6 +18,7 @@ type PageData struct {
 	OptionTradesCount  int
 	StockTradesCount   int
 	TotalTradesCount   int
+	DaysSinceStart     int
 	// Options page specific
 	OpenOptionsCount     int
 	ClosedOptionsCount   int
@@ -38,10 +39,12 @@ type PageData struct {
 	TotalPortfolioProfit         float64
 	TotalPortfolioProfitPercentage float64
 	TotalStockProfit             float64
+	TotalUnrealizedPL            float64
 	TotalPortfolioValueFormatted  string
 	TotalPortfolioProfitFormatted string
 	TotalPortfolioProfitPercentageFormatted string
 	TotalStockProfitFormatted    string
+	TotalUnrealizedPLFormatted   string
 	TotalDepositsFormatted       string
 	// Daily returns data
 	DailyReturns     []DailyReturn

@@ -22,6 +22,7 @@ type Analytics struct {
 	OptionTradesCount  int
 	StockTradesCount   int
 	TotalTradesCount   int
+	DaysSinceStart     int
 	// Options specific calculations
 	OpenOptionsCount   int
 	ClosedOptionsCount int
@@ -156,10 +157,27 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	// Calculate total stock profit/loss from all positions
 	// Load stock transactions to get closed positions and open positions' cost basis
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
+	stockPrices := LoadStockPrices("data/stock_prices.csv")
 	if len(stockTransactions) > 0 {
-		positions := CalculateAllPositions(stockTransactions)
+		positions := CalculateAllPositions(stockTransactions, stockPrices)
 		openStockCount := 0
 		closedStockCount := 0
+
+		// Find earliest stock transaction date for days since start
+		var earliestStockDate *time.Time
+		for _, txn := range stockTransactions {
+			if txnDate, err := time.Parse("2006-01-02", txn.Date); err == nil {
+				if earliestStockDate == nil || txnDate.Before(*earliestStockDate) {
+					earliestStockDate = &txnDate
+				}
+			}
+		}
+
+		// Calculate days since start
+		if earliestStockDate != nil {
+			analytics.DaysSinceStart = int(time.Since(*earliestStockDate).Hours() / 24)
+		}
+
 		for _, pos := range positions {
 			if pos.Type == "closed" {
 				analytics.TotalStockProfitLoss += pos.RealizedPnL
@@ -245,7 +263,8 @@ func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransaction
 	}
 
 	// Process stock transactions for realized gains
-	positions := CalculateAllPositions(stockTransactions)
+	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	positions := CalculateAllPositions(stockTransactions, stockPrices)
 	for _, pos := range positions {
 		if pos.Type == "closed" {
 			// Use the close date (sell date) for realized gains
@@ -285,7 +304,8 @@ func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransaction
 }
 
 func CalculateStockPerformance(stockTransactions []StockTransaction) StockPerformance {
-	positions := CalculateAllPositions(stockTransactions)
+	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	positions := CalculateAllPositions(stockTransactions, stockPrices)
 
 	var perf StockPerformance
 	var totalWins float64
