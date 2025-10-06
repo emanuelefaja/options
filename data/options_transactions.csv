@@ -68,3 +68,9 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-10-03,Assigned,SOFI,Put,27.50,2025-10-03,3,0.00,,0.00,P29,
 2025-10-03,Assigned,UBER,Put,99.00,2025-10-03,1,0.00,,0.00,P31,
 2025-10-03,Assigned,MRNA,Call,25.00,2025-10-03,1,0.00,,0.00,P30,
+2025-10-06,Sell to Open,HIMS,Call,58.00,2025-10-10,2,190.00,53.31,0.00,P37,Covered call on HIMS position from P27 assignment
+2025-10-06,Sell to Open,PLTR,Call,180.00,2025-10-10,1,464.00,179.31,0.00,P38,Covered call on PLTR position from P33 assignment
+2025-10-06,Sell to Open,SOFI,Call,27.50,2025-10-10,3,57.00,25.72,0.00,P39,Covered call on SOFI position from P29 assignment
+2025-10-06,Sell to Open,UBER,Call,99.00,2025-10-10,1,181.00,99.44,0.00,P40,Covered call on UBER position from P31 assignment
+2025-10-06,Sell to Open,HOOD,Put,140.00,2025-10-10,1,125.00,148.87,0.00,P41,Cash secured put on HOOD with delta ~0.20
+2025-10-06,Sell to Open,RIVN,Put,13.50,2025-10-10,1,29.00,13.69,0.00,P42,CSP on RIVN after deliveries announcement; 202% annualized
