@@ -348,6 +348,76 @@ func CalculateStockPerformance(stockTransactions []StockTransaction) StockPerfor
 	return perf
 }
 
+// CalculatePortfolioValueAsOf calculates the portfolio value as of a specific date
+// It includes: deposits + options premiums + realized stock P&L (only counting transactions up to the date)
+func CalculatePortfolioValueAsOf(asOfDate time.Time) float64 {
+	// Load all data sources
+	transactions := LoadTransactionsFromCSV("data/transactions.csv")
+	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
+	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
+
+	var portfolioValue float64
+
+	// 1. Calculate deposits up to this date
+	for _, t := range transactions {
+		txDate, err := time.Parse("January 2 2006", t.Date)
+		if err != nil {
+			continue
+		}
+		if !txDate.After(asOfDate) && t.Type == "Deposit" {
+			amount := strings.TrimPrefix(t.Amount, "$")
+			amount = strings.ReplaceAll(amount, ",", "")
+			if a, err := strconv.ParseFloat(amount, 64); err == nil {
+				portfolioValue += a
+			}
+		}
+	}
+
+	// 2. Calculate options premiums for positions opened by this date
+	// Filter option transactions up to the date
+	var filteredOptionTxns []OptionTransaction
+	for _, tx := range optionTransactions {
+		txDate, err := time.Parse("2006-01-02", tx.Date)
+		if err != nil {
+			continue
+		}
+		if !txDate.After(asOfDate) {
+			filteredOptionTxns = append(filteredOptionTxns, tx)
+		}
+	}
+
+	// Calculate positions from filtered transactions
+	optionPositions := CalculateOptionPositions(filteredOptionTxns)
+	for _, pos := range optionPositions {
+		// Only count net premiums (collected - paid - commissions)
+		portfolioValue += pos.NetPremium
+	}
+
+	// 3. Calculate realized stock P&L from sales by this date
+	// Filter stock transactions up to the date
+	var filteredStockTxns []StockTransaction
+	for _, tx := range stockTransactions {
+		txDate, err := time.Parse("2006-01-02", tx.Date)
+		if err != nil {
+			continue
+		}
+		if !txDate.After(asOfDate) {
+			filteredStockTxns = append(filteredStockTxns, tx)
+		}
+	}
+
+	// Calculate positions from filtered transactions - only count closed positions
+	stockPrices := make(map[string]float64) // Empty map since we only need realized P&L
+	positions := CalculateAllPositions(filteredStockTxns, stockPrices)
+	for _, pos := range positions {
+		if pos.Type == "closed" {
+			portfolioValue += pos.RealizedPnL
+		}
+	}
+
+	return portfolioValue
+}
+
 func CalculateNetWorth(totalPortfolioValue float64) []NetWorthMonth {
 	// Load wise.csv
 	file, err := os.Open("data/wise.csv")
@@ -363,6 +433,10 @@ func CalculateNetWorth(totalPortfolioValue float64) []NetWorthMonth {
 	}
 
 	var netWorthData []NetWorthMonth
+
+	// Get current time for comparison
+	now := time.Now()
+	currentMonth := now.Format("2006-01")
 
 	// Skip header and process each row
 	for i, record := range records {
@@ -380,9 +454,24 @@ func CalculateNetWorth(totalPortfolioValue float64) []NetWorthMonth {
 			continue
 		}
 
-		// For the current month (2025-10), use the live portfolio value
-		// For future months, we'll need to add logic to get historical values
-		brokerageBalance := totalPortfolioValue
+		var brokerageBalance float64
+
+		// If this is the current month, use live portfolio value
+		// Otherwise, calculate historical value as of end of month
+		if month == currentMonth {
+			brokerageBalance = totalPortfolioValue
+		} else {
+			// Parse month and get last day of that month
+			monthDate, err := time.Parse("2006-01", month)
+			if err != nil {
+				continue
+			}
+			// Get the last day of the month
+			endOfMonth := time.Date(monthDate.Year(), monthDate.Month()+1, 0, 23, 59, 59, 0, time.UTC)
+
+			// Calculate portfolio value as of that date
+			brokerageBalance = CalculatePortfolioValueAsOf(endOfMonth)
+		}
 
 		netWorthData = append(netWorthData, NetWorthMonth{
 			Month:            month,
