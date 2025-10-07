@@ -34,6 +34,7 @@ type Analytics struct {
 	TotalPortfolioValue          float64
 	TotalPortfolioProfit         float64
 	TotalPortfolioProfitPercentage float64
+	DailyTheta                   float64
 	// Daily returns data
 	DailyReturns       []DailyReturn
 	DailyReturnsJSON   string
@@ -75,6 +76,11 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 		// Count open vs closed options
 		if pos.Status == "Open" {
 			analytics.OpenOptionsCount++
+
+			// Calculate Daily Theta for open positions
+			if pos.DaysToExpiry > 0 {
+				analytics.DailyTheta += pos.NetPremium / float64(pos.DaysToExpiry)
+			}
 		} else {
 			analytics.ClosedOptionsCount++
 		}

@@ -48,6 +48,8 @@ type PageData struct {
 	TotalDepositsFormatted       string
 	VIX                          float64
 	VIXFormatted                 string
+	DailyTheta                   float64
+	DailyThetaFormatted          string
 	// Daily returns data
 	DailyReturns     []DailyReturn
 	DailyReturnsJSON string

@@ -265,6 +265,8 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 		TotalStockProfitFormatted:    web.FormatCurrency(analytics.TotalStockProfitLoss),
 		TotalDepositsFormatted:       web.FormatCurrency(analytics.TotalDeposits),
+		DailyTheta:                   analytics.DailyTheta,
+		DailyThetaFormatted:          web.FormatCurrency(analytics.DailyTheta),
 		VIX:                          vix,
 		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
 		// Daily returns data
