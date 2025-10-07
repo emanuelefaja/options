@@ -232,9 +232,15 @@ func FormatPercentage(value float64) string {
 }
 
 func FormatCurrency(amount float64) string {
+	// Handle negative numbers
+	isNegative := amount < 0
+	if isNegative {
+		amount = -amount
+	}
+
 	// Format with commas and no decimal places
 	formatted := fmt.Sprintf("%.0f", amount)
-	
+
 	// Add commas
 	parts := []string{}
 	for i := len(formatted); i > 0; i -= 3 {
@@ -244,8 +250,13 @@ func FormatCurrency(amount float64) string {
 		}
 		parts = append([]string{formatted[start:i]}, parts...)
 	}
-	
-	return "$" + strings.Join(parts, ",")
+
+	result := "$" + strings.Join(parts, ",")
+	if isNegative {
+		result = "-" + result
+	}
+
+	return result
 }
 
 func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransactions []StockTransaction) []DailyReturn {
