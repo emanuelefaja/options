@@ -288,15 +288,30 @@ func formatStockDate(dateStr string) string {
 	if dateStr == "" {
 		return ""
 	}
-	
+
 	// Parse the date string (format: "2025-08-26")
 	t, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
 		return dateStr // Return original if parsing fails
 	}
-	
+
 	// Format as "September 10 2025"
 	return t.Format("January 2 2006")
+}
+
+func formatCurrencyWithDecimals(amount float64) string {
+	isNegative := amount < 0
+	if isNegative {
+		amount = -amount
+	}
+
+	result := fmt.Sprintf("$%.2f", amount)
+
+	if isNegative {
+		result = "-" + result
+	}
+
+	return result
 }
 
 func PositionsToStocks(positions []Position) []Stock {
@@ -318,10 +333,10 @@ func PositionsToStocks(positions []Position) []Stock {
 			stock.ExitDate = ""
 			stock.CurrentPrice = fmt.Sprintf("$%.2f", pos.CurrentPrice)
 			stock.MarketValue = FormatCurrency(pos.MarketValue)
-			stock.UnrealizedPnL = fmt.Sprintf("$%.2f", pos.UnrealizedPnL)
+			stock.UnrealizedPnL = formatCurrencyWithDecimals(pos.UnrealizedPnL)
 			stock.UnrealizedPerc = fmt.Sprintf("%.2f%%", pos.UnrealizedPerc)
 		} else {
-			stock.ProfitLoss = fmt.Sprintf("$%.2f", pos.RealizedPnL)
+			stock.ProfitLoss = formatCurrencyWithDecimals(pos.RealizedPnL)
 			stock.ReturnPerc = fmt.Sprintf("%.2f%%", pos.ReturnPerc)
 			stock.EntryDate = formatStockDate(pos.OpenDate)
 			stock.ExitDate = formatStockDate(pos.CloseDate)
