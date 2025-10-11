@@ -37,49 +37,98 @@
     },
     hideTooltip() {
         this.tooltipVisible = false;
+    },
+    get sectorRiskStatus() {
+        if (!this.sectorExposure || this.sectorExposure.length === 0 || this.totalCapital === 0) {
+            return 'compliant';
+        }
+
+        let hasViolation = false;
+        let hasWarning = false;
+
+        for (const sector of this.sectorExposure) {
+            const percentage = (sector.amount / this.totalCapital) * 100;
+
+            if (percentage > 20) {
+                hasViolation = true;
+                break;
+            } else if (percentage >= 18) {
+                hasWarning = true;
+            }
+        }
+
+        if (hasViolation) return 'violation';
+        if (hasWarning) return 'warning';
+        return 'compliant';
+    },
+    get pingColor() {
+        switch (this.sectorRiskStatus) {
+            case 'violation': return 'bg-red-500';
+            case 'warning': return 'bg-orange-500';
+            default: return 'bg-green-500';
+        }
+    },
+    get dotColor() {
+        switch (this.sectorRiskStatus) {
+            case 'violation': return 'bg-red-500';
+            case 'warning': return 'bg-orange-500';
+            default: return 'bg-green-500';
+        }
+    },
+    get riskStatusText() {
+        switch (this.sectorRiskStatus) {
+            case 'violation': return 'Rule Violation';
+            case 'warning': return 'Approaching Limit';
+            default: return 'Risk Compliant';
+        }
+    },
+    get riskStatusTextColor() {
+        switch (this.sectorRiskStatus) {
+            case 'violation': return 'text-red-600';
+            case 'warning': return 'text-orange-600';
+            default: return 'text-green-600';
+        }
+    },
+    get capitalDeploymentStatus() {
+        const percentage = this.capitalAtRiskPercentage;
+        if (percentage > 75) return 'violation';
+        if (percentage >= 60) return 'warning';
+        return 'compliant';
+    },
+    get capitalPingColor() {
+        switch (this.capitalDeploymentStatus) {
+            case 'violation': return 'bg-red-500';
+            case 'warning': return 'bg-orange-500';
+            default: return 'bg-green-500';
+        }
+    },
+    get capitalDotColor() {
+        switch (this.capitalDeploymentStatus) {
+            case 'violation': return 'bg-red-500';
+            case 'warning': return 'bg-orange-500';
+            default: return 'bg-green-500';
+        }
     }
 }">
     <h2 class="text-2xl font-bold text-gray-900">Risk Management</h2>
 
     <!-- Risk Metrics Grid -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Total Capital -->
+        <!-- At Risk Capital -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">Total Capital</p>
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <p class="mt-2 text-3xl font-bold text-gray-900">$<span x-text="totalCapital.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></p>
-            <p class="mt-1 text-xs text-gray-500">Sum of all account balances</p>
-        </div>
-
-        <!-- At Risk Capital -->
-        <div class="bg-white rounded-lg border border-red-200 p-6">
-            <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-600">At Risk Capital</p>
-                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium" :class="capitalDeploymentStatus === 'violation' ? 'text-red-600' : capitalDeploymentStatus === 'warning' ? 'text-orange-600' : 'text-green-600'" x-text="capitalDeploymentStatus === 'violation' ? 'Rule Violation' : capitalDeploymentStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="capitalPingColor"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3" :class="capitalDotColor"></span>
+                    </span>
+                </div>
             </div>
-            <p class="mt-2 text-3xl font-bold text-red-600">{{.TotalActiveCapitalFormatted}}</p>
+            <p class="mt-2 text-3xl font-bold text-gray-900">{{.TotalActiveCapitalFormatted}}</p>
             <p class="mt-1 text-xs text-gray-500">
-                <span x-text="capitalAtRiskPercentage"></span>% of total capital
-            </p>
-        </div>
-
-        <!-- Dry Powder (Safe Capital) -->
-        <div class="bg-white rounded-lg border border-blue-200 p-6">
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">Dry Powder</p>
-                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
-            </div>
-            <p class="mt-2 text-3xl font-bold text-blue-600">$<span x-text="cashPosition.dryPowder.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></p>
-            <p class="mt-1 text-xs text-gray-500">
-                <span x-text="dryPowderPercentage"></span>% of total capital
+                <span x-text="capitalAtRiskPercentage"></span>% of $<span x-text="totalCapital.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span> capital
             </p>
         </div>
 
@@ -117,23 +166,20 @@
             </p>
             <p class="mt-1 text-xs text-gray-500">Open position P&L</p>
         </div>
-
-        <!-- Wise Savings -->
-        <div class="bg-white rounded-lg border border-green-200 p-6">
-            <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">Wise Savings</p>
-                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
-                </svg>
-            </div>
-            <p class="mt-2 text-3xl font-bold text-green-600">$<span x-text="cashPosition.wiseBalance.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></p>
-            <p class="mt-1 text-xs text-gray-500">Emergency fund balance</p>
-        </div>
     </div>
 
     <!-- Sector Exposure Table -->
     <div class="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-6">Sector Exposure</h3>
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Sector Exposure</h3>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-medium" :class="riskStatusTextColor" x-text="riskStatusText"></span>
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="pingColor"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3" :class="dotColor"></span>
+                </span>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
