@@ -2,7 +2,10 @@
 <div class="space-y-6" x-data="{
     cashPosition: {{.CashPositionJSON}},
     sectorExposure: {{.SectorExposureJSON}},
-    sectorChart: null,
+    tooltipVisible: false,
+    tooltipX: 0,
+    tooltipY: 0,
+    tooltipContent: '',
     get totalCapital() {
         return this.cashPosition.activeCapital + this.cashPosition.dryPowder + this.cashPosition.wiseBalance;
     },
@@ -12,115 +15,30 @@
     get dryPowderPercentage() {
         return (this.cashPosition.dryPowder / this.totalCapital * 100).toFixed(1);
     },
-    initSectorChart() {
-        if (!this.sectorChart && this.sectorExposure.length > 0) {
-            const ctx = document.getElementById('sectorExposureChart').getContext('2d');
-
-            const labels = this.sectorExposure.map(s => s.sector);
-            const data = this.sectorExposure.map(s => s.amount);
-            const totalExposure = data.reduce((sum, val) => sum + val, 0);
-
-            // Color palette for different sectors
-            const colors = [
-                'rgba(59, 130, 246, 0.8)',   // Blue
-                'rgba(220, 38, 38, 0.8)',    // Red
-                'rgba(34, 197, 94, 0.8)',    // Green
-                'rgba(251, 191, 36, 0.8)',   // Yellow
-                'rgba(168, 85, 247, 0.8)',   // Purple
-                'rgba(236, 72, 153, 0.8)',   // Pink
-                'rgba(245, 158, 11, 0.8)',   // Orange
-                'rgba(20, 184, 166, 0.8)',   // Teal
-                'rgba(156, 163, 175, 0.8)',  // Gray
-                'rgba(99, 102, 241, 0.8)',   // Indigo
-            ];
-
-            const borderColors = [
-                'rgb(59, 130, 246)',
-                'rgb(220, 38, 38)',
-                'rgb(34, 197, 94)',
-                'rgb(251, 191, 36)',
-                'rgb(168, 85, 247)',
-                'rgb(236, 72, 153)',
-                'rgb(245, 158, 11)',
-                'rgb(20, 184, 166)',
-                'rgb(156, 163, 175)',
-                'rgb(99, 102, 241)',
-            ];
-
-            // Register the plugin if available
-            if (window.ChartDataLabels) {
-                Chart.register(ChartDataLabels);
-            }
-
-            this.sectorChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: colors.slice(0, labels.length),
-                        borderColor: borderColors.slice(0, labels.length),
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            enabled: true,
-                            callbacks: {
-                                title: function(context) {
-                                    return context[0].label;
-                                },
-                                label: function(context) {
-                                    return '';  // Hide default label
-                                },
-                                afterLabel: function(context) {
-                                    const sectorIndex = context.dataIndex;
-                                    const sector = this.sectorExposure[sectorIndex];
-
-                                    if (sector && sector.positions) {
-                                        const lines = [];
-                                        sector.positions.forEach(pos => {
-                                            const formattedAmount = '$' + pos.amount.toLocaleString(undefined, {maximumFractionDigits: 0});
-                                            lines.push(pos.ticker + ' ' + pos.type + ' (' + formattedAmount + ')');
-                                        });
-                                        lines.push(''); // Empty line
-                                        lines.push('Total: $' + sector.amount.toLocaleString(undefined, {maximumFractionDigits: 0}));
-                                        return lines;
-                                    }
-                                    return [];
-                                }.bind(this)
-                            }
-                        },
-                        datalabels: {
-                            color: '#fff',
-                            font: {
-                                weight: 'bold',
-                                size: 14
-                            },
-                            formatter: function(value, context) {
-                                const percentage = ((value / totalExposure) * 100).toFixed(1);
-                                return '$' + value.toLocaleString(undefined, {maximumFractionDigits: 0}) + '\n(' + percentage + '%)';
-                            }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
+    showTooltip(event, sector) {
+        if (!sector.positions || sector.positions.length === 0) {
+            return;
         }
+
+        let lines = [];
+        lines.push(`<div class='font-semibold mb-2'>${sector.sector}</div>`);
+
+        sector.positions.forEach(pos => {
+            const formattedAmount = '$' + pos.amount.toLocaleString(undefined, {maximumFractionDigits: 0});
+            lines.push(`<div class='text-xs'>${pos.ticker} ${pos.type} (${formattedAmount})</div>`);
+        });
+
+        lines.push(`<div class='border-t border-gray-600 mt-2 pt-2 text-xs font-semibold'>Total: $${sector.amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>`);
+
+        this.tooltipContent = lines.join('');
+        this.tooltipX = event.pageX + 10;
+        this.tooltipY = event.pageY + 10;
+        this.tooltipVisible = true;
+    },
+    hideTooltip() {
+        this.tooltipVisible = false;
     }
-}" x-init="$nextTick(() => initSectorChart())">
+}">
     <h2 class="text-2xl font-bold text-gray-900">Risk Management</h2>
 
     <!-- Risk Metrics Grid -->
@@ -213,11 +131,43 @@
         </div>
     </div>
 
-    <!-- Sector Exposure Pie Chart -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 w-1/2">
+    <!-- Sector Exposure Table -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-6">Sector Exposure</h3>
-        <div class="relative max-w-sm mx-auto">
-            <canvas id="sectorExposureChart"></canvas>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% of Total Capital</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <template x-for="(sector, index) in sectorExposure" :key="index">
+                        <tr class="hover:bg-gray-50 cursor-help"
+                            @mouseenter="showTooltip($event, sector)"
+                            @mouseleave="hideTooltip()">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="sector.sector"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                $<span x-text="sector.amount.toLocaleString(undefined, {maximumFractionDigits: 0})"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right"
+                                :class="(sector.amount / totalCapital * 100) > 20 ? 'text-red-600 font-semibold' : 'text-gray-900'">
+                                <span x-text="((sector.amount / totalCapital) * 100).toFixed(1)"></span>%
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tooltip -->
+        <div x-show="tooltipVisible"
+             x-transition
+             class="absolute z-50 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 pointer-events-none"
+             :style="`left: ${tooltipX}px; top: ${tooltipY}px;`">
+            <div x-html="tooltipContent"></div>
         </div>
     </div>
 </div>
