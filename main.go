@@ -92,9 +92,9 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 		OpenOptionsCount:     analytics.OpenOptionsCount,
 		ClosedOptionsCount:   analytics.ClosedOptionsCount,
 		OptionsActiveCapital: analytics.OptionsActiveCapital,
-		CollectedPremiums:    analytics.CollectedPremiums,
+		TotalPremiums:        analytics.TotalPremiums,
 		OptionsActiveCapitalFormatted: web.FormatCurrency(analytics.OptionsActiveCapital),
-		CollectedPremiumsFormatted:    web.FormatCurrency(analytics.CollectedPremiums),
+		TotalPremiumsFormatted:        web.FormatCurrency(analytics.TotalPremiums),
 		// Portfolio values for header
 		TotalPortfolioValue:          analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,

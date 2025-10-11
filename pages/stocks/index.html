@@ -283,8 +283,8 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 <template x-for="pos in filteredAndSortedPositions" :key="pos.symbol + pos.entryDate + pos.exitDate">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="text-sm font-medium text-gray-900" x-text="pos.symbol"></span>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a :href="'/stocks/' + pos.symbol" class="text-gray-900 hover:text-blue-600 hover:underline" x-text="pos.symbol"></a>
                         </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span x-show="pos.type === 'open'" 

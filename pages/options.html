@@ -139,8 +139,8 @@
             <p class="text-2xl font-bold text-gray-900">{{.OptionsActiveCapitalFormatted}}</p>
         </div>
         <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Collected Premiums</p>
-            <p class="text-2xl font-bold text-green-600">{{.CollectedPremiumsFormatted}}</p>
+            <p class="text-sm font-medium text-gray-600">Net Premiums</p>
+            <p class="text-2xl font-bold text-green-600">{{.TotalPremiumsFormatted}}</p>
         </div>
     </div>
 
@@ -238,7 +238,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 <template x-for="position in filteredAndSortedPositions" :key="position.positionId">
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="position.symbol"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a :href="'/stocks/' + position.symbol" class="text-gray-900 hover:text-blue-600 hover:underline" x-text="position.symbol"></a>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             <span :class="position.optionType === 'Call' ? 'text-blue-600' : 'text-purple-600'" x-text="position.optionType"></span>
                         </td>

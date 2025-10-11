@@ -63,10 +63,41 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - No problem with getting assigned, we will just buy back the stock and sell again.
 - I am Panama permanent foreign resident, so I pay 0% tax on foreign sourced income including capital gains and option premiums. US does NOT tax me on this.
 
-## Testing
+## Current Portfolio Statistics (as of Day 45)
 
-- I have currently sold 12 covered calls.
-- I am planning to sell 50 calls in total as a testing period to refine my strategy.
+**Portfolio Overview:**
+- Total Portfolio Value: $110,387
+- Total Deposits: $96,009
+- Total Profit: $14,379
+- Portfolio Return: **14.98%**
+- Days Active: 45
+- IBKR Value: $108,362
+
+**Capital Deployment:**
+- Total Active Capital: $64,218
+- Cumulative Capital Deployed: $434,608
+
+**Profit Breakdown:**
+- Total Premiums Collected: $6,640
+- Total Stock Profit: $7,739
+- Unrealized P&L: -$2,026
+
+**Performance Metrics:**
+- Premium Per Day: $217
+- Daily Theta: $154
+- Avg Return Per Option: 1.71%
+
+**Trade Statistics:**
+- Number of Option Trades: 50
+- Number of Stock Trades: 28
+- Total Number of Trades: 78
+- Largest Premium: $459
+- Smallest Premium: $12
+- Average Premium: $133
+
+**Testing Status:**
+- Currently at 50 option trades
+- Target: 50 trades to refine strategy (testing period complete - now evaluating results)
 
 ## Trade Decision Framework
 
