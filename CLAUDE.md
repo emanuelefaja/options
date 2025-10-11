@@ -17,6 +17,57 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - `go build` - Compile check
 - No test framework currently configured
 
+## File Structure
+
+```
+.
+├── .air.toml
+├── .claude
+│   └── settings.local.json
+├── .DS_Store
+├── .gitignore
+├── CLAUDE.md
+├── components
+│   ├── header.html
+│   └── sidebar.html
+├── data
+│   ├── .DS_Store
+│   ├── options_transactions.csv
+│   ├── stock_prices.csv
+│   ├── stocks_transactions.csv
+│   ├── transactions.csv
+│   ├── vix.csv
+│   └── wise.csv
+├── figure
+├── go.mod
+├── layouts
+│   └── main.html
+├── main.go
+├── mnmlsm
+├── pages
+│   ├── analytics.html
+│   ├── home.html
+│   ├── options.html
+│   ├── rules.html
+│   └── stocks
+│       ├── detail.html
+│       └── index.html
+├── plan.md
+├── scripts
+├── static
+├── tmp
+│   ├── build-errors.log
+│   └── main
+└── web
+    ├── analytics.go
+    ├── options_transactions.go
+    ├── options.go
+    ├── stocks.go
+    ├── symbol_analysis.go
+    ├── transactions.go
+    └── types.go
+```
+
 ## Architecture
 
 ### Core Structure
