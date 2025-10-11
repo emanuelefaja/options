@@ -300,7 +300,9 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
-	vix := web.LoadVIX("data/vix.csv")
+
+	// Calculate weekly performance metrics
+	weeklyPerf := web.CalculateWeeklyPerformance(analytics.TotalPortfolioValue)
 
 	renderPage(w, "risk", web.PageData{
 		Title:       "Risk - mnmlsm",
@@ -317,6 +319,15 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		// Analytics for additional metrics
 		TotalActiveCapital:              analytics.TotalActiveCapital,
 		TotalActiveCapitalFormatted:     web.FormatCurrency(analytics.TotalActiveCapital),
+		// Weekly performance metrics
+		WeeklyReturnPercent:   weeklyPerf.WeeklyReturnPercent,
+		WeeklyReturnFormatted: weeklyPerf.WeeklyReturnFormatted,
+		WeeklyPL:              weeklyPerf.WeeklyPL,
+		WeeklyPLFormatted:     weeklyPerf.WeeklyPLFormatted,
+		DaysRemainingInWeek:   weeklyPerf.DaysRemainingInWeek,
+		WeeklyReturnStatus:    weeklyPerf.WeeklyReturnStatus,
+		WeekStartDate:         weeklyPerf.WeekStartDate,
+		TargetWeeklyReturn:    weeklyPerf.TargetWeeklyReturn,
 		// Portfolio values for header
 		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
@@ -326,8 +337,6 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
-		VIX:                                     vix,
-		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 	})
 }
 

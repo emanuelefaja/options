@@ -50,6 +50,15 @@ type PageData struct {
 	VIXFormatted                 string
 	DailyTheta                   float64
 	DailyThetaFormatted          string
+	// Weekly performance metrics
+	WeeklyReturnPercent   float64
+	WeeklyReturnFormatted string
+	WeeklyPL              float64
+	WeeklyPLFormatted     string
+	DaysRemainingInWeek   int
+	WeeklyReturnStatus    string // "compliant", "warning", "violation"
+	WeekStartDate         string
+	TargetWeeklyReturn    float64
 	// Daily returns data
 	DailyReturns     []DailyReturn
 	DailyReturnsJSON string

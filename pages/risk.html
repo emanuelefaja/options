@@ -210,24 +210,42 @@
             </p>
         </div>
 
-        <!-- VIX (Market Volatility) -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6" x-data="{ vix: {{.VIX}} }">
+        <!-- Weekly Return Rate Progress -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6"
+             x-data="{
+               weeklyReturn: {{.WeeklyReturnPercent}},
+               status: '{{.WeeklyReturnStatus}}'
+             }">
             <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">VIX (Volatility Index)</p>
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                </svg>
+                <p class="text-sm font-medium text-gray-600">Weekly Return Rate</p>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium"
+                          :class="status === 'violation' ? 'text-red-600' :
+                                  status === 'warning' ? 'text-orange-600' :
+                                  'text-green-600'"
+                          x-text="status === 'violation' ? 'Behind Target' :
+                                  status === 'warning' ? 'Near Target' :
+                                  'On Track'">
+                    </span>
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                              :class="status === 'violation' ? 'bg-red-500' :
+                                      status === 'warning' ? 'bg-orange-500' :
+                                      'bg-green-500'">
+                        </span>
+                        <span class="relative inline-flex rounded-full h-3 w-3"
+                              :class="status === 'violation' ? 'bg-red-500' :
+                                      status === 'warning' ? 'bg-orange-500' :
+                                      'bg-green-500'">
+                        </span>
+                    </span>
+                </div>
             </div>
-            <p class="mt-2 text-3xl font-bold"
-               :class="vix < 15 ? 'text-green-600' : vix < 20 ? 'text-yellow-600' : vix < 30 ? 'text-orange-600' : 'text-red-600'">
-                {{.VIXFormatted}}
+            <p class="mt-2 text-3xl font-bold text-gray-900">
+                {{.WeeklyReturnFormatted}}%
             </p>
-            <p class="mt-1 text-xs"
-               :class="vix < 15 ? 'text-green-600' : vix < 20 ? 'text-yellow-600' : vix < 30 ? 'text-orange-600' : 'text-red-600'">
-                <span x-show="vix < 15">Low volatility - calm market</span>
-                <span x-show="vix >= 15 && vix < 20">Normal volatility</span>
-                <span x-show="vix >= 20 && vix < 30">Elevated volatility</span>
-                <span x-show="vix >= 30">High volatility - market stress</span>
+            <p class="mt-1 text-xs text-gray-500">
+                {{.WeeklyPLFormatted}}
             </p>
         </div>
 
