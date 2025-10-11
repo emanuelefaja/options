@@ -586,9 +586,16 @@ func LoadSectorMapping(filePath string) map[string]string {
 	return sectorMap
 }
 
-type SectorExposure struct {
-	Sector string  `json:"sector"`
+type PositionDetail struct {
+	Ticker string  `json:"ticker"`
+	Type   string  `json:"type"`   // "Stock" or "Put"
 	Amount float64 `json:"amount"`
+}
+
+type SectorExposure struct {
+	Sector    string           `json:"sector"`
+	Amount    float64          `json:"amount"`
+	Positions []PositionDetail `json:"positions"`
 }
 
 // CalculateSectorExposure calculates capital exposure by sector
@@ -596,7 +603,7 @@ type SectorExposure struct {
 // Does NOT count call options (those are covered calls on stocks we already own)
 func CalculateSectorExposure() []SectorExposure {
 	sectorMap := LoadSectorMapping("data/sectors.csv")
-	sectorCapital := make(map[string]float64)
+	sectorData := make(map[string]*SectorExposure)
 
 	// 1. Get open stock positions
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
@@ -609,8 +616,22 @@ func CalculateSectorExposure() []SectorExposure {
 			if sector == "" {
 				sector = "Other"
 			}
-			// Use cost basis as the capital at risk for stocks
-			sectorCapital[sector] += pos.CostBasis
+
+			// Initialize sector if not exists
+			if sectorData[sector] == nil {
+				sectorData[sector] = &SectorExposure{
+					Sector:    sector,
+					Positions: []PositionDetail{},
+				}
+			}
+
+			// Add position detail
+			sectorData[sector].Positions = append(sectorData[sector].Positions, PositionDetail{
+				Ticker: pos.Symbol,
+				Type:   "Stock",
+				Amount: pos.CostBasis,
+			})
+			sectorData[sector].Amount += pos.CostBasis
 		}
 	}
 
@@ -626,19 +647,30 @@ func CalculateSectorExposure() []SectorExposure {
 			if sector == "" {
 				sector = "Other"
 			}
-			// Use the capital requirement for the put
-			sectorCapital[sector] += pos.Capital
+
+			// Initialize sector if not exists
+			if sectorData[sector] == nil {
+				sectorData[sector] = &SectorExposure{
+					Sector:    sector,
+					Positions: []PositionDetail{},
+				}
+			}
+
+			// Add position detail
+			sectorData[sector].Positions = append(sectorData[sector].Positions, PositionDetail{
+				Ticker: pos.Symbol,
+				Type:   "Put",
+				Amount: pos.Capital,
+			})
+			sectorData[sector].Amount += pos.Capital
 		}
 	}
 
 	// 3. Convert map to slice
 	var exposures []SectorExposure
-	for sector, amount := range sectorCapital {
-		if amount > 0 {
-			exposures = append(exposures, SectorExposure{
-				Sector: sector,
-				Amount: amount,
-			})
+	for _, exposure := range sectorData {
+		if exposure.Amount > 0 {
+			exposures = append(exposures, *exposure)
 		}
 	}
 

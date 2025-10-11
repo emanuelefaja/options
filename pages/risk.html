@@ -77,7 +77,31 @@
                             }
                         },
                         tooltip: {
-                            enabled: false
+                            enabled: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    return '';  // Hide default label
+                                },
+                                afterLabel: function(context) {
+                                    const sectorIndex = context.dataIndex;
+                                    const sector = this.sectorExposure[sectorIndex];
+
+                                    if (sector && sector.positions) {
+                                        const lines = [];
+                                        sector.positions.forEach(pos => {
+                                            const formattedAmount = '$' + pos.amount.toLocaleString(undefined, {maximumFractionDigits: 0});
+                                            lines.push(pos.ticker + ' ' + pos.type + ' (' + formattedAmount + ')');
+                                        });
+                                        lines.push(''); // Empty line
+                                        lines.push('Total: $' + sector.amount.toLocaleString(undefined, {maximumFractionDigits: 0}));
+                                        return lines;
+                                    }
+                                    return [];
+                                }.bind(this)
+                            }
                         },
                         datalabels: {
                             color: '#fff',
