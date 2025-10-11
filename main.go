@@ -125,20 +125,15 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 
 	// Separate open and closed positions
 	var currentStocks, closedStocks []web.Stock
-	totalUnrealizedPL := 0.0
 	for _, stock := range allStocks {
 		if stock.ExitDate == "" {
 			currentStocks = append(currentStocks, stock)
-			// Calculate total unrealized P&L from open positions
-			if stock.UnrealizedPnL != "" {
-				var pnl float64
-				fmt.Sscanf(stock.UnrealizedPnL, "$%f", &pnl)
-				totalUnrealizedPL += pnl
-			}
 		} else {
 			closedStocks = append(closedStocks, stock)
 		}
 	}
+
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
 
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(nil, nil, transactions)
