@@ -67,6 +67,9 @@ type PageData struct {
 	// Cash position data
 	CashPosition     CashPosition
 	CashPositionJSON string
+	// Sector exposure data
+	SectorExposure     []SectorExposure
+	SectorExposureJSON string
 }
 
 type CashPosition struct {

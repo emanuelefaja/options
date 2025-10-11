@@ -25,6 +25,7 @@ func main() {
 	mux.HandleFunc("/stocks", handleStocks)
 	mux.HandleFunc("/stocks/", handleStockPages)
 	mux.HandleFunc("/analytics", handleAnalytics)
+	mux.HandleFunc("/risk", handleRisk)
 	mux.HandleFunc("/rules", handleRules)
 
 	log.Println("Server starting on http://localhost:8080")
@@ -275,6 +276,53 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		// Net worth data
 		NetWorthData:     netWorthData,
 		NetWorthDataJSON: netWorthJSON,
+	})
+}
+
+func handleRisk(w http.ResponseWriter, r *http.Request) {
+	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
+	analytics := web.CalculateAnalytics(nil, nil, transactions)
+
+	// Calculate cash position for risk metrics
+	cashPosition := web.CalculateCashPosition(analytics)
+	cashPositionJSON := "[]"
+	if jsonData, err := json.Marshal(cashPosition); err == nil {
+		cashPositionJSON = string(jsonData)
+	}
+
+	// Calculate sector exposure
+	sectorExposure := web.CalculateSectorExposure()
+	sectorExposureJSON := "[]"
+	if jsonData, err := json.Marshal(sectorExposure); err == nil {
+		sectorExposureJSON = string(jsonData)
+	}
+
+	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
+
+	renderPage(w, "risk", web.PageData{
+		Title:       "Risk - mnmlsm",
+		CurrentPage: "risk",
+		// Cash position data for risk page
+		CashPosition:     cashPosition,
+		CashPositionJSON: cashPositionJSON,
+		// Sector exposure data
+		SectorExposure:     sectorExposure,
+		SectorExposureJSON: sectorExposureJSON,
+		// Analytics for additional metrics
+		TotalActiveCapital:              analytics.TotalActiveCapital,
+		TotalActiveCapitalFormatted:     web.FormatCurrency(analytics.TotalActiveCapital),
+		// Portfolio values for header
+		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
+		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
+		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
+		TotalUnrealizedPL:                       totalUnrealizedPL,
+		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
+		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
+		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
+		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
+		VIX:                                     vix,
+		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 	})
 }
 

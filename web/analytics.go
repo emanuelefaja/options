@@ -556,3 +556,100 @@ func LoadVIX(filePath string) float64 {
 
 	return 0.0
 }
+
+// LoadSectorMapping loads the sector mapping from sectors.csv
+func LoadSectorMapping(filePath string) map[string]string {
+	sectorMap := make(map[string]string)
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return sectorMap
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return sectorMap
+	}
+
+	// Skip header and build mapping
+	for i, record := range records {
+		if i == 0 || len(record) < 2 {
+			continue
+		}
+		symbol := record[0]
+		sector := record[1]
+		sectorMap[symbol] = sector
+	}
+
+	return sectorMap
+}
+
+type SectorExposure struct {
+	Sector string  `json:"sector"`
+	Amount float64 `json:"amount"`
+}
+
+// CalculateSectorExposure calculates capital exposure by sector
+// Only counts: open stock positions + open PUT options (cash-secured puts)
+// Does NOT count call options (those are covered calls on stocks we already own)
+func CalculateSectorExposure() []SectorExposure {
+	sectorMap := LoadSectorMapping("data/sectors.csv")
+	sectorCapital := make(map[string]float64)
+
+	// 1. Get open stock positions
+	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
+	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	positions := CalculateAllPositions(stockTransactions, stockPrices)
+
+	for _, pos := range positions {
+		if pos.Type == "open" {
+			sector := sectorMap[pos.Symbol]
+			if sector == "" {
+				sector = "Other"
+			}
+			// Use cost basis as the capital at risk for stocks
+			sectorCapital[sector] += pos.CostBasis
+		}
+	}
+
+	// 2. Get open PUT option positions (cash-secured puts)
+	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
+	optionPositions := CalculateOptionPositions(optionTransactions)
+
+	for _, pos := range optionPositions {
+		// Only count open PUT options (cash-secured puts)
+		// Skip call options as they are covered calls on stocks already counted
+		if pos.Status == "Open" && pos.OptionType == "Put" {
+			sector := sectorMap[pos.Symbol]
+			if sector == "" {
+				sector = "Other"
+			}
+			// Use the capital requirement for the put
+			sectorCapital[sector] += pos.Capital
+		}
+	}
+
+	// 3. Convert map to slice
+	var exposures []SectorExposure
+	for sector, amount := range sectorCapital {
+		if amount > 0 {
+			exposures = append(exposures, SectorExposure{
+				Sector: sector,
+				Amount: amount,
+			})
+		}
+	}
+
+	// 4. Sort by amount descending
+	for i := 0; i < len(exposures)-1; i++ {
+		for j := i + 1; j < len(exposures); j++ {
+			if exposures[i].Amount < exposures[j].Amount {
+				exposures[i], exposures[j] = exposures[j], exposures[i]
+			}
+		}
+	}
+
+	return exposures
+}

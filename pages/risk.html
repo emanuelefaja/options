@@ -1,0 +1,204 @@
+{{define "content"}}
+<div class="space-y-6" x-data="{
+    cashPosition: {{.CashPositionJSON}},
+    sectorExposure: {{.SectorExposureJSON}},
+    sectorChart: null,
+    get totalCapital() {
+        return this.cashPosition.activeCapital + this.cashPosition.dryPowder + this.cashPosition.wiseBalance;
+    },
+    get capitalAtRiskPercentage() {
+        return (this.cashPosition.activeCapital / this.totalCapital * 100).toFixed(1);
+    },
+    get dryPowderPercentage() {
+        return (this.cashPosition.dryPowder / this.totalCapital * 100).toFixed(1);
+    },
+    initSectorChart() {
+        if (!this.sectorChart && this.sectorExposure.length > 0) {
+            const ctx = document.getElementById('sectorExposureChart').getContext('2d');
+
+            const labels = this.sectorExposure.map(s => s.sector);
+            const data = this.sectorExposure.map(s => s.amount);
+            const totalExposure = data.reduce((sum, val) => sum + val, 0);
+
+            // Color palette for different sectors
+            const colors = [
+                'rgba(59, 130, 246, 0.8)',   // Blue
+                'rgba(220, 38, 38, 0.8)',    // Red
+                'rgba(34, 197, 94, 0.8)',    // Green
+                'rgba(251, 191, 36, 0.8)',   // Yellow
+                'rgba(168, 85, 247, 0.8)',   // Purple
+                'rgba(236, 72, 153, 0.8)',   // Pink
+                'rgba(245, 158, 11, 0.8)',   // Orange
+                'rgba(20, 184, 166, 0.8)',   // Teal
+                'rgba(156, 163, 175, 0.8)',  // Gray
+                'rgba(99, 102, 241, 0.8)',   // Indigo
+            ];
+
+            const borderColors = [
+                'rgb(59, 130, 246)',
+                'rgb(220, 38, 38)',
+                'rgb(34, 197, 94)',
+                'rgb(251, 191, 36)',
+                'rgb(168, 85, 247)',
+                'rgb(236, 72, 153)',
+                'rgb(245, 158, 11)',
+                'rgb(20, 184, 166)',
+                'rgb(156, 163, 175)',
+                'rgb(99, 102, 241)',
+            ];
+
+            // Register the plugin if available
+            if (window.ChartDataLabels) {
+                Chart.register(ChartDataLabels);
+            }
+
+            this.sectorChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderColor: borderColors.slice(0, labels.length),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: false
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
+                            formatter: function(value, context) {
+                                const percentage = ((value / totalExposure) * 100).toFixed(1);
+                                return '$' + value.toLocaleString(undefined, {maximumFractionDigits: 0}) + '\n(' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+    }
+}" x-init="$nextTick(() => initSectorChart())">
+    <h2 class="text-2xl font-bold text-gray-900">Risk Management</h2>
+
+    <!-- Risk Metrics Grid -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Total Capital -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-600">Total Capital</p>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <p class="mt-2 text-3xl font-bold text-gray-900">$<span x-text="totalCapital.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></p>
+            <p class="mt-1 text-xs text-gray-500">Sum of all account balances</p>
+        </div>
+
+        <!-- At Risk Capital -->
+        <div class="bg-white rounded-lg border border-red-200 p-6">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-600">At Risk Capital</p>
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <p class="mt-2 text-3xl font-bold text-red-600">{{.TotalActiveCapitalFormatted}}</p>
+            <p class="mt-1 text-xs text-gray-500">
+                <span x-text="capitalAtRiskPercentage"></span>% of total capital
+            </p>
+        </div>
+
+        <!-- Dry Powder (Safe Capital) -->
+        <div class="bg-white rounded-lg border border-blue-200 p-6">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-600">Dry Powder</p>
+                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+            </div>
+            <p class="mt-2 text-3xl font-bold text-blue-600">$<span x-text="cashPosition.dryPowder.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></p>
+            <p class="mt-1 text-xs text-gray-500">
+                <span x-text="dryPowderPercentage"></span>% of total capital
+            </p>
+        </div>
+
+        <!-- VIX (Market Volatility) -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6" x-data="{ vix: {{.VIX}} }">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-600">VIX (Volatility Index)</p>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+            </div>
+            <p class="mt-2 text-3xl font-bold"
+               :class="vix < 15 ? 'text-green-600' : vix < 20 ? 'text-yellow-600' : vix < 30 ? 'text-orange-600' : 'text-red-600'">
+                {{.VIXFormatted}}
+            </p>
+            <p class="mt-1 text-xs"
+               :class="vix < 15 ? 'text-green-600' : vix < 20 ? 'text-yellow-600' : vix < 30 ? 'text-orange-600' : 'text-red-600'">
+                <span x-show="vix < 15">Low volatility - calm market</span>
+                <span x-show="vix >= 15 && vix < 20">Normal volatility</span>
+                <span x-show="vix >= 20 && vix < 30">Elevated volatility</span>
+                <span x-show="vix >= 30">High volatility - market stress</span>
+            </p>
+        </div>
+
+        <!-- Unrealized P&L -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-600">Unrealized P&L</p>
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <p class="mt-2 text-3xl font-bold" :class="unrealizedPL >= 0 ? 'text-green-600' : 'text-red-600'">
+                {{.TotalUnrealizedPLFormatted}}
+            </p>
+            <p class="mt-1 text-xs text-gray-500">Open position P&L</p>
+        </div>
+
+        <!-- Wise Savings -->
+        <div class="bg-white rounded-lg border border-green-200 p-6">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-600">Wise Savings</p>
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                </svg>
+            </div>
+            <p class="mt-2 text-3xl font-bold text-green-600">$<span x-text="cashPosition.wiseBalance.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></p>
+            <p class="mt-1 text-xs text-gray-500">Emergency fund balance</p>
+        </div>
+    </div>
+
+    <!-- Sector Exposure Pie Chart -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 w-1/2">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Sector Exposure</h3>
+        <div class="relative max-w-sm mx-auto">
+            <canvas id="sectorExposureChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+{{end}}
