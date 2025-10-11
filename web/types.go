@@ -70,6 +70,9 @@ type PageData struct {
 	// Sector exposure data
 	SectorExposure     []SectorExposure
 	SectorExposureJSON string
+	// Position details data
+	PositionDetails     []PositionDetail
+	PositionDetailsJSON string
 }
 
 type CashPosition struct {
@@ -115,4 +118,16 @@ type SymbolDetails struct {
 	AverageDTEFormatted            string
 	AvgOptionReturnFormatted       string
 	NumberOfOptionsTradesFormatted string
+}
+
+type PositionDetail struct {
+	Symbol string  `json:"symbol"`
+	Type   string  `json:"type"`   // "Stock", "Call", or "Put"
+	Amount float64 `json:"amount"`
+}
+
+type SectorExposure struct {
+	Sector    string           `json:"sector"`
+	Amount    float64          `json:"amount"`
+	Positions []PositionDetail `json:"positions"`
 }

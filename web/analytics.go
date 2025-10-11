@@ -586,18 +586,6 @@ func LoadSectorMapping(filePath string) map[string]string {
 	return sectorMap
 }
 
-type PositionDetail struct {
-	Ticker string  `json:"ticker"`
-	Type   string  `json:"type"`   // "Stock" or "Put"
-	Amount float64 `json:"amount"`
-}
-
-type SectorExposure struct {
-	Sector    string           `json:"sector"`
-	Amount    float64          `json:"amount"`
-	Positions []PositionDetail `json:"positions"`
-}
-
 // CalculateSectorExposure calculates capital exposure by sector
 // Only counts: open stock positions + open PUT options (cash-secured puts)
 // Does NOT count call options (those are covered calls on stocks we already own)
@@ -627,7 +615,7 @@ func CalculateSectorExposure() []SectorExposure {
 
 			// Add position detail
 			sectorData[sector].Positions = append(sectorData[sector].Positions, PositionDetail{
-				Ticker: pos.Symbol,
+				Symbol: pos.Symbol,
 				Type:   "Stock",
 				Amount: pos.CostBasis,
 			})
@@ -658,7 +646,7 @@ func CalculateSectorExposure() []SectorExposure {
 
 			// Add position detail
 			sectorData[sector].Positions = append(sectorData[sector].Positions, PositionDetail{
-				Ticker: pos.Symbol,
+				Symbol: pos.Symbol,
 				Type:   "Put",
 				Amount: pos.Capital,
 			})
@@ -684,4 +672,78 @@ func CalculateSectorExposure() []SectorExposure {
 	}
 
 	return exposures
+}
+
+// CalculatePositionDetails calculates individual position details without double-counting
+// Shows covered calls instead of underlying stocks to avoid double counting
+func CalculatePositionDetails() []PositionDetail {
+	var details []PositionDetail
+
+	// 1. Load open stock positions
+	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
+	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	positions := CalculateAllPositions(stockTransactions, stockPrices)
+
+	// 2. Load open option positions
+	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
+	optionPositions := CalculateOptionPositions(optionTransactions)
+
+	// 3. Build map of stocks with covered calls
+	stocksWithCalls := make(map[string]float64) // symbol -> cost basis
+	for _, opt := range optionPositions {
+		if opt.Status == "Open" && opt.OptionType == "Call" {
+			// Find the underlying stock
+			for _, pos := range positions {
+				if pos.Type == "open" && pos.Symbol == opt.Symbol {
+					stocksWithCalls[opt.Symbol] = pos.CostBasis
+					break
+				}
+			}
+		}
+	}
+
+	// 4. Add covered calls (showing call instead of stock) - ONE entry per symbol
+	for symbol, costBasis := range stocksWithCalls {
+		details = append(details, PositionDetail{
+			Symbol: symbol,
+			Type:   "Call",
+			Amount: costBasis, // Use stock's cost basis
+		})
+	}
+
+	// 5. Add stocks without covered calls
+	for _, pos := range positions {
+		if pos.Type == "open" {
+			// Only add if no covered call exists for this stock
+			if _, hasCoveredCall := stocksWithCalls[pos.Symbol]; !hasCoveredCall {
+				details = append(details, PositionDetail{
+					Symbol: pos.Symbol,
+					Type:   "Stock",
+					Amount: pos.CostBasis,
+				})
+			}
+		}
+	}
+
+	// 6. Add cash-secured puts
+	for _, opt := range optionPositions {
+		if opt.Status == "Open" && opt.OptionType == "Put" {
+			details = append(details, PositionDetail{
+				Symbol: opt.Symbol,
+				Type:   "Put",
+				Amount: opt.Capital,
+			})
+		}
+	}
+
+	// 7. Sort by amount descending
+	for i := 0; i < len(details)-1; i++ {
+		for j := i + 1; j < len(details); j++ {
+			if details[i].Amount < details[j].Amount {
+				details[i], details[j] = details[j], details[i]
+			}
+		}
+	}
+
+	return details
 }

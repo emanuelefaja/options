@@ -297,6 +297,13 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		sectorExposureJSON = string(jsonData)
 	}
 
+	// Calculate position details
+	positionDetails := web.CalculatePositionDetails()
+	positionDetailsJSON := "[]"
+	if jsonData, err := json.Marshal(positionDetails); err == nil {
+		positionDetailsJSON = string(jsonData)
+	}
+
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
 	vix := web.LoadVIX("data/vix.csv")
 
@@ -309,6 +316,9 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		// Sector exposure data
 		SectorExposure:     sectorExposure,
 		SectorExposureJSON: sectorExposureJSON,
+		// Position details data
+		PositionDetails:     positionDetails,
+		PositionDetailsJSON: positionDetailsJSON,
 		// Analytics for additional metrics
 		TotalActiveCapital:              analytics.TotalActiveCapital,
 		TotalActiveCapitalFormatted:     web.FormatCurrency(analytics.TotalActiveCapital),
