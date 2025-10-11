@@ -108,6 +108,32 @@
             case 'warning': return 'bg-orange-500';
             default: return 'bg-green-500';
         }
+    },
+    get unrealizedPLStatus() {
+        const unrealizedPL = {{.TotalUnrealizedPL}};
+        const atRiskCapital = this.cashPosition.activeCapital;
+
+        if (atRiskCapital === 0) return 'compliant';
+
+        const percentage = (unrealizedPL / atRiskCapital) * 100;
+
+        if (percentage < -10) return 'violation';
+        if (percentage <= -5) return 'warning';
+        return 'compliant';
+    },
+    get unrealizedPingColor() {
+        switch (this.unrealizedPLStatus) {
+            case 'violation': return 'bg-red-500';
+            case 'warning': return 'bg-orange-500';
+            default: return 'bg-green-500';
+        }
+    },
+    get unrealizedDotColor() {
+        switch (this.unrealizedPLStatus) {
+            case 'violation': return 'bg-red-500';
+            case 'warning': return 'bg-orange-500';
+            default: return 'bg-green-500';
+        }
     }
 }">
     <h2 class="text-2xl font-bold text-gray-900">Risk Management</h2>
@@ -157,14 +183,20 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-600">Unrealized P&L</p>
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium" :class="unrealizedPLStatus === 'violation' ? 'text-red-600' : unrealizedPLStatus === 'warning' ? 'text-orange-600' : 'text-green-600'" x-text="unrealizedPLStatus === 'violation' ? 'Rule Violation' : unrealizedPLStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="unrealizedPingColor"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3" :class="unrealizedDotColor"></span>
+                    </span>
+                </div>
             </div>
-            <p class="mt-2 text-3xl font-bold" :class="unrealizedPL >= 0 ? 'text-green-600' : 'text-red-600'">
+            <p class="mt-2 text-3xl font-bold text-gray-900">
                 {{.TotalUnrealizedPLFormatted}}
             </p>
-            <p class="mt-1 text-xs text-gray-500">Open position P&L</p>
+            <p class="mt-1 text-xs text-gray-500">
+                <span x-text="cashPosition.activeCapital > 0 ? Math.abs((unrealizedPL / cashPosition.activeCapital) * 100).toFixed(1) : '0.0'"></span>% of at risk capital
+            </p>
         </div>
     </div>
 
