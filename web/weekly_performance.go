@@ -81,52 +81,28 @@ func getWeekEnd(weekStart time.Time) time.Time {
 }
 
 // calculateWeeklyPL sums up P&L from all trades within the current week
+// Uses the same calculation as analytics page for consistency
 // For options: premiums collected from positions OPENED this week (sell to open)
 // For stocks: realized P&L from positions CLOSED this week
 func calculateWeeklyPL(weekStart, weekEnd time.Time) float64 {
-	weeklyPL := 0.0
-
-	// Load option positions and sum premiums collected from positions OPENED this week
+	// Use the same daily returns calculation as analytics for consistency
 	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
-	optionPositions := CalculateOptionPositions(optionTransactions)
-
-	for _, pos := range optionPositions {
-		if pos.OpenDate == "" {
-			continue
-		}
-
-		openDate, err := time.Parse("2006-01-02", pos.OpenDate)
-		if err != nil {
-			continue
-		}
-
-		// Check if open date is within current week
-		if (openDate.Equal(weekStart) || openDate.After(weekStart)) &&
-		   (openDate.Before(weekEnd) || openDate.Equal(weekEnd)) {
-			// Add the premium collected when opening (selling) the position
-			weeklyPL += pos.PremiumCollected
-		}
-	}
-
-	// Load stock positions and sum realized P&L for closed trades this week
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
-	positions := CalculateAllPositions(stockTransactions, stockPrices)
+	optionPositions := CalculateOptionPositions(optionTransactions)
+	dailyReturns := CalculateDailyReturnsNew(optionPositions, stockTransactions)
 
-	for _, pos := range positions {
-		if pos.Type != "closed" {
-			continue // Skip open positions
-		}
-
-		closeDate, err := time.Parse("2006-01-02", pos.CloseDate)
+	// Sum up all returns that fall within the current week
+	weeklyPL := 0.0
+	for _, dr := range dailyReturns {
+		date, err := time.Parse("2006-01-02", dr.Date)
 		if err != nil {
 			continue
 		}
 
-		// Check if close date is within current week
-		if (closeDate.Equal(weekStart) || closeDate.After(weekStart)) &&
-		   (closeDate.Before(weekEnd) || closeDate.Equal(weekEnd)) {
-			weeklyPL += pos.RealizedPnL
+		// Check if date is within current week
+		if (date.Equal(weekStart) || date.After(weekStart)) &&
+		   (date.Before(weekEnd) || date.Equal(weekEnd)) {
+			weeklyPL += dr.TotalReturns
 		}
 	}
 

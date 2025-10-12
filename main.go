@@ -301,9 +301,6 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
 
-	// Calculate weekly performance metrics
-	weeklyPerf := web.CalculateWeeklyPerformance(analytics.TotalPortfolioValue)
-
 	renderPage(w, "risk", web.PageData{
 		Title:       "Risk - mnmlsm",
 		CurrentPage: "risk",
@@ -319,15 +316,9 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		// Analytics for additional metrics
 		TotalActiveCapital:              analytics.TotalActiveCapital,
 		TotalActiveCapitalFormatted:     web.FormatCurrency(analytics.TotalActiveCapital),
-		// Weekly performance metrics
-		WeeklyReturnPercent:   weeklyPerf.WeeklyReturnPercent,
-		WeeklyReturnFormatted: weeklyPerf.WeeklyReturnFormatted,
-		WeeklyPL:              weeklyPerf.WeeklyPL,
-		WeeklyPLFormatted:     weeklyPerf.WeeklyPLFormatted,
-		DaysRemainingInWeek:   weeklyPerf.DaysRemainingInWeek,
-		WeeklyReturnStatus:    weeklyPerf.WeeklyReturnStatus,
-		WeekStartDate:         weeklyPerf.WeekStartDate,
-		TargetWeeklyReturn:    weeklyPerf.TargetWeeklyReturn,
+		// Daily returns data for client-side weekly calculation
+		DailyReturns:     analytics.DailyReturns,
+		DailyReturnsJSON: analytics.DailyReturnsJSON,
 		// Portfolio values for header
 		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
 		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,

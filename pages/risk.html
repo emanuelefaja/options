@@ -3,6 +3,8 @@
     cashPosition: {{.CashPositionJSON}},
     sectorExposure: {{.SectorExposureJSON}},
     positionDetails: {{.PositionDetailsJSON}},
+    dailyData: {{.DailyReturnsJSON}},
+    portfolioValue: {{.TotalPortfolioValue}},
     tooltipVisible: false,
     tooltipX: 0,
     tooltipY: 0,
@@ -186,6 +188,54 @@
             case 'warning': return 'text-orange-600';
             default: return 'text-green-600';
         }
+    },
+    get currentWeekData() {
+        // Get current week boundaries (same logic as analytics page)
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        const weekStart = new Date(now);
+        weekStart.setDate(diff);
+        weekStart.setHours(0, 0, 0, 0);
+
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+
+        // Aggregate daily returns for current week
+        let weeklyPL = 0;
+        this.dailyData.forEach(d => {
+            const [year, month, day] = d.date.split('-');
+            const date = new Date(year, month - 1, day);
+
+            if (date >= weekStart && date <= weekEnd) {
+                weeklyPL += d.totalReturns;
+            }
+        });
+
+        return {
+            pl: weeklyPL,
+            percent: this.portfolioValue > 0 ? (weeklyPL / this.portfolioValue) * 100 : 0
+        };
+    },
+    get weeklyReturnPercent() {
+        return this.currentWeekData.percent;
+    },
+    get weeklyPL() {
+        return this.currentWeekData.pl;
+    },
+    get weeklyReturnFormatted() {
+        return this.weeklyReturnPercent.toFixed(2);
+    },
+    get weeklyPLFormatted() {
+        const amount = Math.abs(this.weeklyPL);
+        const formatted = '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        return this.weeklyPL < 0 ? '-' + formatted : formatted;
+    },
+    get weeklyReturnStatus() {
+        if (this.weeklyReturnPercent < 0.5) return 'violation';
+        if (this.weeklyReturnPercent < 1.0) return 'warning';
+        return 'compliant';
     }
 }">
     <h2 class="text-2xl font-bold text-gray-900">Risk Management</h2>
@@ -211,41 +261,35 @@
         </div>
 
         <!-- Weekly Return Rate Progress -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6"
-             x-data="{
-               weeklyReturn: {{.WeeklyReturnPercent}},
-               status: '{{.WeeklyReturnStatus}}'
-             }">
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-600">Weekly Return Rate</p>
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-medium"
-                          :class="status === 'violation' ? 'text-red-600' :
-                                  status === 'warning' ? 'text-orange-600' :
+                          :class="weeklyReturnStatus === 'violation' ? 'text-red-600' :
+                                  weeklyReturnStatus === 'warning' ? 'text-orange-600' :
                                   'text-green-600'"
-                          x-text="status === 'violation' ? 'Behind Target' :
-                                  status === 'warning' ? 'Near Target' :
+                          x-text="weeklyReturnStatus === 'violation' ? 'Behind Target' :
+                                  weeklyReturnStatus === 'warning' ? 'Near Target' :
                                   'On Track'">
                     </span>
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                              :class="status === 'violation' ? 'bg-red-500' :
-                                      status === 'warning' ? 'bg-orange-500' :
+                              :class="weeklyReturnStatus === 'violation' ? 'bg-red-500' :
+                                      weeklyReturnStatus === 'warning' ? 'bg-orange-500' :
                                       'bg-green-500'">
                         </span>
                         <span class="relative inline-flex rounded-full h-3 w-3"
-                              :class="status === 'violation' ? 'bg-red-500' :
-                                      status === 'warning' ? 'bg-orange-500' :
+                              :class="weeklyReturnStatus === 'violation' ? 'bg-red-500' :
+                                      weeklyReturnStatus === 'warning' ? 'bg-orange-500' :
                                       'bg-green-500'">
                         </span>
                     </span>
                 </div>
             </div>
-            <p class="mt-2 text-3xl font-bold text-gray-900">
-                {{.WeeklyReturnFormatted}}%
+            <p class="mt-2 text-3xl font-bold text-gray-900" x-text="weeklyReturnFormatted + '%'">
             </p>
-            <p class="mt-1 text-xs text-gray-500">
-                {{.WeeklyPLFormatted}}
+            <p class="mt-1 text-xs text-gray-500" x-text="weeklyPLFormatted">
             </p>
         </div>
 
