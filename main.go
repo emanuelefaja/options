@@ -300,6 +300,7 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	vix := web.LoadVIX("data/vix.csv")
 
 	renderPage(w, "risk", web.PageData{
 		Title:       "Risk - mnmlsm",
@@ -328,6 +329,8 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
 		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
+		VIX:                                     vix,
+		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 	})
 }
 

@@ -314,8 +314,10 @@
         </div>
     </div>
 
-    <!-- Sector Exposure Card -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <!-- Two Column Layout for Sector and Position Tables -->
+    <div class="grid grid-cols-2 gap-6">
+        <!-- Sector Exposure Card -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Sector Exposure</h3>
             <div class="flex items-center gap-2">
@@ -353,14 +355,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
-
-    <!-- Tooltip -->
-    <div x-show="tooltipVisible"
-         x-transition
-         class="absolute z-50 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 pointer-events-none"
-         :style="`left: ${tooltipX}px; top: ${tooltipY}px;`">
-        <div x-html="tooltipContent"></div>
     </div>
 
     <!-- Position Details Card -->
@@ -402,6 +396,15 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div x-show="tooltipVisible"
+         x-transition
+         class="absolute z-50 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 pointer-events-none"
+         :style="`left: ${tooltipX}px; top: ${tooltipY}px;`">
+        <div x-html="tooltipContent"></div>
     </div>
 </div>
 
