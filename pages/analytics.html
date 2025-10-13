@@ -42,13 +42,22 @@
                         date: weekKey,
                         premiums: 0,
                         stockGains: 0,
-                        totalReturns: 0
+                        totalReturns: 0,
+                        premiumDetails: [],
+                        stockDetails: []
                     };
                 }
 
                 weeklyData[weekKey].premiums += d.premiums;
                 weeklyData[weekKey].stockGains += d.stockGains;
                 weeklyData[weekKey].totalReturns += d.totalReturns;
+                // Combine detail arrays
+                if (d.premiumDetails) {
+                    weeklyData[weekKey].premiumDetails = weeklyData[weekKey].premiumDetails.concat(d.premiumDetails);
+                }
+                if (d.stockDetails) {
+                    weeklyData[weekKey].stockDetails = weeklyData[weekKey].stockDetails.concat(d.stockDetails);
+                }
             });
 
             return Object.values(weeklyData).sort((a, b) => a.date.localeCompare(b.date));
@@ -65,13 +74,22 @@
                     date: `${year}-${month}-01`,
                     premiums: 0,
                     stockGains: 0,
-                    totalReturns: 0
+                    totalReturns: 0,
+                    premiumDetails: [],
+                    stockDetails: []
                 };
             }
 
             monthlyData[monthKey].premiums += d.premiums;
             monthlyData[monthKey].stockGains += d.stockGains;
             monthlyData[monthKey].totalReturns += d.totalReturns;
+            // Combine detail arrays
+            if (d.premiumDetails) {
+                monthlyData[monthKey].premiumDetails = monthlyData[monthKey].premiumDetails.concat(d.premiumDetails);
+            }
+            if (d.stockDetails) {
+                monthlyData[monthKey].stockDetails = monthlyData[monthKey].stockDetails.concat(d.stockDetails);
+            }
         });
 
         return Object.values(monthlyData).sort((a, b) => a.date.localeCompare(b.date));
@@ -140,6 +158,37 @@
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                },
+                                afterBody: function(context) {
+                                    const dataIndex = context[0].dataIndex;
+                                    const rawData = data[dataIndex];
+                                    const lines = [];
+
+                                    // Show premium details if this is the premiums dataset or both
+                                    if (rawData.premiumDetails && rawData.premiumDetails.length > 0) {
+                                        lines.push('');
+                                        lines.push('Premium Breakdown:');
+                                        rawData.premiumDetails.forEach(d => {
+                                            const formattedAmount = d.amount >= 0 ?
+                                                '$' + d.amount.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) :
+                                                '-$' + Math.abs(d.amount).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                                            lines.push(`  ${d.symbol} ${d.type}: ${formattedAmount}`);
+                                        });
+                                    }
+
+                                    // Show stock details if this is the stocks dataset or both
+                                    if (rawData.stockDetails && rawData.stockDetails.length > 0) {
+                                        lines.push('');
+                                        lines.push('Stock Gains Breakdown:');
+                                        rawData.stockDetails.forEach(d => {
+                                            const formattedAmount = d.amount >= 0 ?
+                                                '$' + d.amount.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) :
+                                                '-$' + Math.abs(d.amount).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                                            lines.push(`  ${d.symbol}: ${formattedAmount}`);
+                                        });
+                                    }
+
+                                    return lines;
                                 }
                             }
                         },
@@ -263,6 +312,37 @@
                         callbacks: {
                             label: function(context) {
                                 return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                            },
+                            afterBody: function(context) {
+                                const dataIndex = context[0].dataIndex;
+                                const rawData = data[dataIndex];
+                                const lines = [];
+
+                                // Show premium details if this is the premiums dataset or both
+                                if (rawData.premiumDetails && rawData.premiumDetails.length > 0) {
+                                    lines.push('');
+                                    lines.push('Premium Breakdown:');
+                                    rawData.premiumDetails.forEach(d => {
+                                        const formattedAmount = d.amount >= 0 ?
+                                            '$' + d.amount.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) :
+                                            '-$' + Math.abs(d.amount).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                                        lines.push(`  ${d.symbol} ${d.type}: ${formattedAmount}`);
+                                    });
+                                }
+
+                                // Show stock details if this is the stocks dataset or both
+                                if (rawData.stockDetails && rawData.stockDetails.length > 0) {
+                                    lines.push('');
+                                    lines.push('Stock Gains Breakdown:');
+                                    rawData.stockDetails.forEach(d => {
+                                        const formattedAmount = d.amount >= 0 ?
+                                            '$' + d.amount.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) :
+                                            '-$' + Math.abs(d.amount).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                                        lines.push(`  ${d.symbol}: ${formattedAmount}`);
+                                    });
+                                }
+
+                                return lines;
                             }
                         }
                     },

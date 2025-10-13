@@ -46,10 +46,18 @@ type Analytics struct {
 }
 
 type DailyReturn struct {
-	Date          string  `json:"date"`
-	Premiums      float64 `json:"premiums"`
-	StockGains    float64 `json:"stockGains"`
-	TotalReturns  float64 `json:"totalReturns"`
+	Date            string        `json:"date"`
+	Premiums        float64       `json:"premiums"`
+	StockGains      float64       `json:"stockGains"`
+	TotalReturns    float64       `json:"totalReturns"`
+	PremiumDetails  []TradeDetail `json:"premiumDetails"`
+	StockDetails    []TradeDetail `json:"stockDetails"`
+}
+
+type TradeDetail struct {
+	Symbol string  `json:"symbol"`
+	Type   string  `json:"type"` // "Call", "Put", or "Stock"
+	Amount float64 `json:"amount"`
 }
 
 type StockPerformance struct {
@@ -290,12 +298,21 @@ func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransaction
 
 			if _, exists := dailyMap[dateStr]; !exists {
 				dailyMap[dateStr] = &DailyReturn{
-					Date: dateStr,
+					Date:           dateStr,
+					PremiumDetails: []TradeDetail{},
+					StockDetails:   []TradeDetail{},
 				}
 			}
 
 			// Add net premium to the open date
 			dailyMap[dateStr].Premiums += pos.NetPremium
+
+			// Add trade detail
+			dailyMap[dateStr].PremiumDetails = append(dailyMap[dateStr].PremiumDetails, TradeDetail{
+				Symbol: pos.Symbol,
+				Type:   pos.OptionType,
+				Amount: pos.NetPremium,
+			})
 		}
 	}
 
@@ -312,12 +329,21 @@ func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransaction
 
 			if _, exists := dailyMap[dateStr]; !exists {
 				dailyMap[dateStr] = &DailyReturn{
-					Date: dateStr,
+					Date:           dateStr,
+					PremiumDetails: []TradeDetail{},
+					StockDetails:   []TradeDetail{},
 				}
 			}
 
 			// Use the already calculated realized P&L from the position
 			dailyMap[dateStr].StockGains += pos.RealizedPnL
+
+			// Add trade detail
+			dailyMap[dateStr].StockDetails = append(dailyMap[dateStr].StockDetails, TradeDetail{
+				Symbol: pos.Symbol,
+				Type:   "Stock",
+				Amount: pos.RealizedPnL,
+			})
 		}
 	}
 
