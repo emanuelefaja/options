@@ -73,8 +73,10 @@ type PageData struct {
 	// Options performance data
 	OptionPerformance OptionPerformance
 	// Net worth data
-	NetWorthData     []NetWorthMonth
-	NetWorthDataJSON string
+	NetWorthData          []NetWorthMonth
+	NetWorthDataJSON      string
+	TotalNetWorth         float64
+	TotalNetWorthFormatted string
 	// Cash position data
 	CashPosition     CashPosition
 	CashPositionJSON string

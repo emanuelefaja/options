@@ -243,10 +243,13 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 	// Calculate net worth data
 	netWorthData := web.CalculateNetWorth(analytics.TotalPortfolioValue)
 	netWorthJSON := "[]"
+	var totalNetWorth float64
 	if len(netWorthData) > 0 {
 		if jsonData, err := json.Marshal(netWorthData); err == nil {
 			netWorthJSON = string(jsonData)
 		}
+		// Get the latest (current) total net worth from the last entry
+		totalNetWorth = netWorthData[len(netWorthData)-1].TotalNetWorth
 	}
 
 	totalUnrealizedPL := calculateTotalUnrealizedPL()
@@ -295,8 +298,10 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		DailyReturns:     analytics.DailyReturns,
 		DailyReturnsJSON: analytics.DailyReturnsJSON,
 		// Net worth data
-		NetWorthData:     netWorthData,
-		NetWorthDataJSON: netWorthJSON,
+		NetWorthData:          netWorthData,
+		NetWorthDataJSON:      netWorthJSON,
+		TotalNetWorth:         totalNetWorth,
+		TotalNetWorthFormatted: web.FormatCurrency(totalNetWorth),
 		// Time-Weighted Return data
 		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
 		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
