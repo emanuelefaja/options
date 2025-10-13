@@ -101,3 +101,4 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-10-13,Buy to Close,PLTR,Put,175.00,2025-10-17,1,-370.00,176.00,0.00,P55,Closed within minutes at 22% profit; $105 profit captured quickly
 2025-10-13,Sell to Open,SHOP,Put,150.00,2025-10-17,1,282.00,153.00,0.00,P56,CSP on SHOP; 172.2% annualized; 4-day expiry; Oct 30 earnings after expiry; chose $150 over $152.50 for better safety cushion
 2025-10-10,Assigned,RIVN,Put,13.50,2025-10-10,1,0.00,,0.00,P42,
+2025-10-13,Sell to Open,CVS,Put,79.00,2025-10-17,1,100.00,79.13,0.00,P57,CSP on CVS; 109.5% annualized; 4-day expiry; healthcare diversification; earnings Oct 29 after expiry
