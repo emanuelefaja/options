@@ -9,6 +9,10 @@
     tooltipX: 0,
     tooltipY: 0,
     tooltipContent: '',
+    infoTooltipVisible: false,
+    infoTooltipX: 0,
+    infoTooltipY: 0,
+    infoTooltipContent: '',
     get totalCapital() {
         return this.cashPosition.activeCapital + this.cashPosition.dryPowder + this.cashPosition.wiseBalance;
     },
@@ -40,6 +44,15 @@
     },
     hideTooltip() {
         this.tooltipVisible = false;
+    },
+    showInfoTooltip(event, content) {
+        this.infoTooltipContent = content;
+        this.infoTooltipX = event.pageX + 10;
+        this.infoTooltipY = event.pageY + 10;
+        this.infoTooltipVisible = true;
+    },
+    hideInfoTooltip() {
+        this.infoTooltipVisible = false;
     },
     get sectorRiskStatus() {
         if (!this.sectorExposure || this.sectorExposure.length === 0 || this.totalCapital === 0) {
@@ -246,7 +259,23 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-600">At Risk Capital</p>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 cursor-help"
+                     @mouseenter="showInfoTooltip($event, `
+                        <div class='max-w-xs'>
+                            <div class='font-semibold mb-2'>At Risk Capital</div>
+                            <div class='text-xs space-y-2'>
+                                <div><strong>What it measures:</strong> Total capital currently deployed in open positions (stocks + cash-secured puts). Does not include dry powder or Wise savings.</div>
+                                <div class='border-t border-gray-600 pt-2'><strong>Status thresholds:</strong></div>
+                                <div class='pl-2'>
+                                    <div>🟢 <strong>Risk Compliant</strong> (40-70%): Optimal deployment - enough capital working while maintaining reserves</div>
+                                    <div class='mt-1'>🟠 <strong>Warning</strong> (30-40% or 70-85%): Either under-deployed (missing opportunities) or over-deployed (low liquidity buffer)</div>
+                                    <div class='mt-1'>🔴 <strong>Violation</strong> (<30% or >85%): Too much idle cash or insufficient reserves</div>
+                                </div>
+                                <div class='border-t border-gray-600 pt-2'><strong>Why it matters:</strong> Keeping 40-70% deployed balances opportunity (capturing premiums) with flexibility (cash for new trades, rolling positions, or emergencies).</div>
+                            </div>
+                        </div>
+                     `)"
+                     @mouseleave="hideInfoTooltip()">
                     <span class="text-xs font-medium" :class="capitalDeploymentStatus === 'violation' ? 'text-red-600' : capitalDeploymentStatus === 'warning' ? 'text-orange-600' : 'text-green-600'" x-text="capitalDeploymentStatus === 'violation' ? 'Rule Violation' : capitalDeploymentStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="capitalPingColor"></span>
@@ -264,7 +293,23 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-600">Weekly Return Rate</p>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 cursor-help"
+                     @mouseenter="showInfoTooltip($event, `
+                        <div class='max-w-xs'>
+                            <div class='font-semibold mb-2'>Weekly Return Rate</div>
+                            <div class='text-xs space-y-2'>
+                                <div><strong>What it measures:</strong> Portfolio return for the current week (Monday-Sunday) as a percentage of total portfolio value. Target is 1% per week (52% annually).</div>
+                                <div class='border-t border-gray-600 pt-2'><strong>Status thresholds:</strong></div>
+                                <div class='pl-2'>
+                                    <div>🟢 <strong>On Track</strong> (≥1.0%): Meeting or exceeding weekly target of 1%</div>
+                                    <div class='mt-1'>🟠 <strong>Near Target</strong> (0.5-1.0%): Approaching target but not quite there yet</div>
+                                    <div class='mt-1'>🔴 <strong>Behind Target</strong> (<0.5%): Significantly below weekly goal, may need to deploy more capital or find better trades</div>
+                                </div>
+                                <div class='border-t border-gray-600 pt-2'><strong>Why it matters:</strong> Consistent 1% weekly returns compound to 52% annually, which is your target for capital growth. Falling short means adjusting strategy or increasing deployment.</div>
+                            </div>
+                        </div>
+                     `)"
+                     @mouseleave="hideInfoTooltip()">
                     <span class="text-xs font-medium"
                           :class="weeklyReturnStatus === 'violation' ? 'text-red-600' :
                                   weeklyReturnStatus === 'warning' ? 'text-orange-600' :
@@ -297,7 +342,29 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
             <div class="flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-600">Unrealized P&L</p>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 cursor-help"
+                     @mouseenter="(event) => {
+                        const content = `
+                        <div class='max-w-xs'>
+                            <div class='font-semibold mb-2'>Unrealized P&L</div>
+                            <div class='text-xs space-y-2'>
+                                <div><strong>What it measures:</strong> Total unrealized profit/loss on open stock positions. Shows how much your current holdings are up or down from their cost basis.</div>
+                                <div class='border-t border-gray-600 pt-2'><strong>Status thresholds:</strong></div>
+                                <div class='pl-2'>
+                                    <div>🟢 <strong>Risk Compliant</strong> (>-5%): Minor paper losses are normal and acceptable</div>
+                                    <div class='mt-1'>🟠 <strong>Warning</strong> (-5% to -10%): Positions moving against you, monitor closely for defensive actions</div>
+                                    <div class='mt-1'>🔴 <strong>Violation</strong> (<-10%): Significant drawdown, consider rolling covered calls or cutting losses</div>
+                                </div>
+                                <div class='border-t border-gray-600 pt-2'><strong>Why it matters:</strong> Large unrealized losses tie up capital and reduce flexibility. Your strategy sells covered calls on stocks you own, so deep losses can limit your ability to exit positions profitably.</div>
+                            </div>
+                        </div>
+                        `;
+                        infoTooltipContent = content;
+                        infoTooltipX = event.pageX - 320;
+                        infoTooltipY = event.pageY + 10;
+                        infoTooltipVisible = true;
+                     }"
+                     @mouseleave="hideInfoTooltip()">
                     <span class="text-xs font-medium" :class="unrealizedPLStatus === 'violation' ? 'text-red-600' : unrealizedPLStatus === 'warning' ? 'text-orange-600' : 'text-green-600'" x-text="unrealizedPLStatus === 'violation' ? 'Rule Violation' : unrealizedPLStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="unrealizedPingColor"></span>
@@ -320,7 +387,23 @@
         <div class="bg-white rounded-lg border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Sector Exposure</h3>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 cursor-help"
+                 @mouseenter="showInfoTooltip($event, `
+                    <div class='max-w-xs'>
+                        <div class='font-semibold mb-2'>Sector Exposure</div>
+                        <div class='text-xs space-y-2'>
+                            <div><strong>What it measures:</strong> Capital deployed across different market sectors (Technology, Financial Services, Healthcare, etc.). Includes open stock positions and cash-secured puts.</div>
+                            <div class='border-t border-gray-600 pt-2'><strong>Status thresholds:</strong></div>
+                            <div class='pl-2'>
+                                <div>🟢 <strong>Risk Compliant</strong>: No single sector exceeds 18% of total capital</div>
+                                <div class='mt-1'>🟠 <strong>Warning</strong>: One or more sectors between 18-20%</div>
+                                <div class='mt-1'>🔴 <strong>Violation</strong>: One or more sectors exceeds 20%</div>
+                            </div>
+                            <div class='border-t border-gray-600 pt-2'><strong>Why it matters:</strong> Sector diversification reduces correlated risk. If one sector crashes (e.g., tech in recession), you don't want too much capital concentrated there. Aim for max 20% in any single sector.</div>
+                        </div>
+                    </div>
+                 `)"
+                 @mouseleave="hideInfoTooltip()">
                 <span class="text-xs font-medium" :class="riskStatusTextColor" x-text="riskStatusText"></span>
                 <span class="relative flex h-3 w-3">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="pingColor"></span>
@@ -361,7 +444,29 @@
     <div class="bg-white rounded-lg border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Position Details</h3>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 cursor-help"
+                 @mouseenter="(event) => {
+                    const content = `
+                    <div class='max-w-xs'>
+                        <div class='font-semibold mb-2'>Position Details</div>
+                        <div class='text-xs space-y-2'>
+                            <div><strong>What it measures:</strong> Capital deployed in each individual position. Shows stock holdings, covered calls, and cash-secured puts separately to avoid double-counting.</div>
+                            <div class='border-t border-gray-600 pt-2'><strong>Status thresholds:</strong></div>
+                            <div class='pl-2'>
+                                <div>🟢 <strong>Risk Compliant</strong>: No single position exceeds 8% of total capital</div>
+                                <div class='mt-1'>🟠 <strong>Warning</strong>: One or more positions between 8-10%</div>
+                                <div class='mt-1'>🔴 <strong>Violation</strong>: One or more positions exceeds 10%</div>
+                            </div>
+                            <div class='border-t border-gray-600 pt-2'><strong>Why it matters:</strong> No single position should exceed 10% of your portfolio. If one stock crashes 20%, you'd only lose 2% of total capital. This prevents concentration risk from destroying your account.</div>
+                        </div>
+                    </div>
+                    `;
+                    infoTooltipContent = content;
+                    infoTooltipX = event.pageX - 320;
+                    infoTooltipY = event.pageY + 10;
+                    infoTooltipVisible = true;
+                 }"
+                 @mouseleave="hideInfoTooltip()">
                 <span class="text-xs font-medium" :class="positionRiskStatusTextColor" x-text="positionRiskStatusText"></span>
                 <span class="relative flex h-3 w-3">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="positionPingColor"></span>
@@ -399,12 +504,20 @@
     </div>
     </div>
 
-    <!-- Tooltip -->
+    <!-- Sector Tooltip -->
     <div x-show="tooltipVisible"
          x-transition
          class="absolute z-50 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-3 pointer-events-none"
          :style="`left: ${tooltipX}px; top: ${tooltipY}px;`">
         <div x-html="tooltipContent"></div>
+    </div>
+
+    <!-- Info Tooltip -->
+    <div x-show="infoTooltipVisible"
+         x-transition
+         class="absolute z-50 bg-gray-900 text-white text-sm rounded-lg shadow-lg p-4 pointer-events-none max-w-md"
+         :style="`left: ${infoTooltipX}px; top: ${infoTooltipY}px;`">
+        <div x-html="infoTooltipContent"></div>
     </div>
 </div>
 
