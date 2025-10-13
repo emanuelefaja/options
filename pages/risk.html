@@ -28,7 +28,7 @@
 
         sector.positions.forEach(pos => {
             const formattedAmount = '$' + pos.amount.toLocaleString(undefined, {maximumFractionDigits: 0});
-            lines.push(`<div class='text-xs'>${pos.ticker} ${pos.type} (${formattedAmount})</div>`);
+            lines.push(`<div class='text-xs'>${pos.symbol} ${pos.type} (${formattedAmount})</div>`);
         });
 
         lines.push(`<div class='border-t border-gray-600 mt-2 pt-2 text-xs font-semibold'>Total: $${sector.amount.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>`);
