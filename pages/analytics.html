@@ -470,6 +470,14 @@
                             <span class="text-4xl font-semibold tracking-tight text-gray-900">$<span x-text="ibkrValue.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span></span>
                         </p>
                     </div>
+
+                    <!-- Total Net Worth -->
+                    <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
+                        <p class="text-sm/6 font-medium text-gray-500">Total Net Worth</p>
+                        <p class="mt-2 flex items-baseline gap-x-2">
+                            <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TotalNetWorthFormatted}}</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -489,28 +497,15 @@
                     <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                         <p class="text-sm/6 font-medium text-gray-500">Time-Weighted Return</p>
                         <p class="mt-2 flex items-baseline gap-x-2">
-                            <span class="text-4xl font-semibold tracking-tight text-blue-600">{{.TimeWeightedReturnFormatted}}</span>
+                            <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TimeWeightedReturnFormatted}}</span>
                         </p>
                     </div>
 
                     <!-- TWR Annualized -->
-                    <div class="bg-white px-4 py-6 sm:px-6 lg:px-8" x-data="{
-                        twrAnnualized: {{.TimeWeightedReturnAnnualized}},
-                        target: 52,
-                        get status() {
-                            if (this.twrAnnualized >= this.target) return 'success';
-                            if (this.twrAnnualized >= this.target * 0.8) return 'warning';
-                            return 'danger';
-                        }
-                    }">
+                    <div class="bg-white px-4 py-6 sm:px-6 lg:px-8">
                         <p class="text-sm/6 font-medium text-gray-500">TWR Annualized (Target: 52%)</p>
                         <p class="mt-2 flex items-baseline gap-x-2">
-                            <span class="text-4xl font-semibold tracking-tight"
-                                  :class="{
-                                    'text-green-600': status === 'success',
-                                    'text-yellow-600': status === 'warning',
-                                    'text-red-600': status === 'danger'
-                                  }">{{.TimeWeightedReturnAnnualizedFormatted}}</span>
+                            <span class="text-4xl font-semibold tracking-tight text-gray-900">{{.TimeWeightedReturnAnnualizedFormatted}}</span>
                         </p>
                     </div>
 
