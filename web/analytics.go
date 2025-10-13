@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -38,6 +40,9 @@ type Analytics struct {
 	// Daily returns data
 	DailyReturns       []DailyReturn
 	DailyReturnsJSON   string
+	// Time-Weighted Return metrics
+	TimeWeightedReturn           float64
+	TimeWeightedReturnAnnualized float64
 }
 
 type DailyReturn struct {
@@ -223,19 +228,22 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	
 	// Calculate daily returns
 	analytics.DailyReturns = CalculateDailyReturnsNew(optionPositions, stockTransactions)
-	
+
 	// Convert daily returns to JSON for use in JavaScript
 	if analytics.DailyReturns == nil {
 		analytics.DailyReturns = []DailyReturn{}
 	}
-	
+
 	jsonData, err := json.Marshal(analytics.DailyReturns)
 	if err != nil {
 		analytics.DailyReturnsJSON = "[]"
 	} else {
 		analytics.DailyReturnsJSON = string(jsonData)
 	}
-	
+
+	// Calculate Time-Weighted Return
+	analytics.TimeWeightedReturn, analytics.TimeWeightedReturnAnnualized = CalculateTimeWeightedReturn(transactions)
+
 	return analytics
 }
 
@@ -803,4 +811,120 @@ func CalculatePositionDetails() []PositionDetail {
 	}
 
 	return details
+}
+
+// CashFlowEvent represents a cash flow (deposit/withdrawal) event
+type CashFlowEvent struct {
+	Date   time.Time
+	Amount float64
+}
+
+// CalculateTimeWeightedReturn calculates the time-weighted return (TWR)
+// which measures portfolio performance independent of cash flow timing.
+// Returns: (cumulative TWR %, annualized TWR %)
+func CalculateTimeWeightedReturn(transactions []Transaction) (float64, float64) {
+	// Parse and collect all deposit dates with amounts
+	var cashFlows []CashFlowEvent
+
+	for _, t := range transactions {
+		if t.Type == "Deposit" {
+			// Parse date in format "August 25 2025"
+			txDate, err := time.Parse("January 2 2006", t.Date)
+			if err != nil {
+				continue
+			}
+
+			// Parse amount
+			amount := strings.TrimPrefix(t.Amount, "$")
+			amount = strings.ReplaceAll(amount, ",", "")
+			depositAmount, err := strconv.ParseFloat(amount, 64)
+			if err != nil {
+				continue
+			}
+
+			cashFlows = append(cashFlows, CashFlowEvent{
+				Date:   txDate,
+				Amount: depositAmount,
+			})
+		}
+	}
+
+	// Sort cash flows by date
+	sort.Slice(cashFlows, func(i, j int) bool {
+		return cashFlows[i].Date.Before(cashFlows[j].Date)
+	})
+
+	if len(cashFlows) == 0 {
+		return 0, 0
+	}
+
+	// Consolidate same-day deposits into single cash flow
+	consolidated := []CashFlowEvent{}
+	currentDate := cashFlows[0].Date
+	currentAmount := 0.0
+
+	for _, cf := range cashFlows {
+		if cf.Date.Format("2006-01-02") == currentDate.Format("2006-01-02") {
+			currentAmount += cf.Amount
+		} else {
+			consolidated = append(consolidated, CashFlowEvent{
+				Date:   currentDate,
+				Amount: currentAmount,
+			})
+			currentDate = cf.Date
+			currentAmount = cf.Amount
+		}
+	}
+	// Add the last group
+	consolidated = append(consolidated, CashFlowEvent{
+		Date:   currentDate,
+		Amount: currentAmount,
+	})
+
+	cashFlows = consolidated
+
+	// Calculate period returns between cash flows
+	var periodReturns []float64
+
+	// Start with first deposit
+	startValue := cashFlows[0].Amount
+
+	for i := 1; i < len(cashFlows); i++ {
+		// Calculate portfolio value just before this deposit
+		beforeDepositDate := cashFlows[i].Date.Add(-1 * time.Second)
+		endValue := CalculatePortfolioValueAsOf(beforeDepositDate)
+
+		// Calculate period return: (End Value - Start Value) / Start Value
+		if startValue > 0 {
+			periodReturn := (endValue - startValue) / startValue
+			periodReturns = append(periodReturns, periodReturn)
+		}
+
+		// Update start value for next period (end value + new deposit)
+		startValue = endValue + cashFlows[i].Amount
+	}
+
+	// Calculate final period (last deposit to today)
+	currentValue := CalculatePortfolioValueAsOf(time.Now())
+	if startValue > 0 {
+		periodReturn := (currentValue - startValue) / startValue
+		periodReturns = append(periodReturns, periodReturn)
+	}
+
+	// Geometrically link period returns: (1 + R1) × (1 + R2) × ... - 1
+	cumulativeTWR := 1.0
+	for _, r := range periodReturns {
+		cumulativeTWR *= (1.0 + r)
+	}
+	cumulativeTWR -= 1.0
+
+	// Annualize the return
+	daysActive := time.Since(cashFlows[0].Date).Hours() / 24
+	if daysActive <= 0 {
+		daysActive = 1
+	}
+
+	annualizedTWR := math.Pow(1.0+cumulativeTWR, 365.0/daysActive) - 1.0
+
+	return cumulativeTWR * 100, annualizedTWR * 100
 }

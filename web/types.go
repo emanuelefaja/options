@@ -84,6 +84,11 @@ type PageData struct {
 	// Position details data
 	PositionDetails     []PositionDetail
 	PositionDetailsJSON string
+	// Time-Weighted Return data
+	TimeWeightedReturn                   float64
+	TimeWeightedReturnAnnualized         float64
+	TimeWeightedReturnFormatted          string
+	TimeWeightedReturnAnnualizedFormatted string
 }
 
 type CashPosition struct {

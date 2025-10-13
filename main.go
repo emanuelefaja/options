@@ -77,6 +77,11 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		// Cash position data
 		CashPosition:     cashPosition,
 		CashPositionJSON: cashPositionJSON,
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
@@ -113,6 +118,11 @@ func handleOptions(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 		VIX:                          vix,
 		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
@@ -165,6 +175,11 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
 		VIX:                                     vix,
 		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
@@ -213,6 +228,11 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
 		VIX:                                     vix,
 		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
@@ -277,6 +297,11 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		// Net worth data
 		NetWorthData:     netWorthData,
 		NetWorthDataJSON: netWorthJSON,
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
@@ -337,6 +362,11 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
 		VIX:                                     vix,
 		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
@@ -361,6 +391,11 @@ func handleRules(w http.ResponseWriter, r *http.Request) {
 		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
 		VIX:                          vix,
 		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
+		// Time-Weighted Return data
+		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
+		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
+		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
+		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 	})
 }
 
