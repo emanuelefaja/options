@@ -70,6 +70,8 @@ type PageData struct {
 	SymbolOptions   []OptionPosition  // Filtered options for this symbol
 	// Stock performance data
 	StockPerformance StockPerformance
+	// Options performance data
+	OptionPerformance OptionPerformance
 	// Net worth data
 	NetWorthData     []NetWorthMonth
 	NetWorthDataJSON string

@@ -42,6 +42,10 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
 	stockPerformance := web.CalculateStockPerformance(stockTransactions)
 
+	// Calculate option performance metrics
+	optionTransactions := web.LoadOptionTransactions("data/options_transactions.csv")
+	optionPerformance := web.CalculateOptionPerformance(optionTransactions)
+
 	// Calculate cash position
 	cashPosition := web.CalculateCashPosition(analytics)
 	cashPositionJSON := "[]"
@@ -68,6 +72,8 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 		// Stock performance metrics
 		StockPerformance: stockPerformance,
+		// Options performance metrics
+		OptionPerformance: optionPerformance,
 		// Cash position data
 		CashPosition:     cashPosition,
 		CashPositionJSON: cashPositionJSON,

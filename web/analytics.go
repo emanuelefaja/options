@@ -59,6 +59,18 @@ type StockPerformance struct {
 	AvgLossFormatted     string
 }
 
+type OptionPerformance struct {
+	WinRate              float64
+	WinCount             int
+	LossCount            int
+	TotalClosedCount     int
+	AvgWin               float64
+	AvgLoss              float64
+	WinRateFormatted     string
+	AvgWinFormatted      string
+	AvgLossFormatted     string
+}
+
 func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transaction) Analytics {
 	// Load and calculate option positions from new transaction system
 	optionTransactions := LoadOptionTransactions("data/options_transactions.csv")
@@ -338,6 +350,51 @@ func CalculateStockPerformance(stockTransactions []StockTransaction) StockPerfor
 			} else if pos.RealizedPnL < 0 {
 				perf.LossCount++
 				totalLosses += pos.RealizedPnL
+			}
+		}
+	}
+
+	// Calculate win rate
+	if perf.TotalClosedCount > 0 {
+		perf.WinRate = (float64(perf.WinCount) / float64(perf.TotalClosedCount)) * 100
+	}
+
+	// Calculate average win
+	if perf.WinCount > 0 {
+		perf.AvgWin = totalWins / float64(perf.WinCount)
+	}
+
+	// Calculate average loss
+	if perf.LossCount > 0 {
+		perf.AvgLoss = totalLosses / float64(perf.LossCount)
+	}
+
+	// Format values
+	perf.WinRateFormatted = FormatPercentage(perf.WinRate)
+	perf.AvgWinFormatted = FormatCurrency(perf.AvgWin)
+	perf.AvgLossFormatted = FormatCurrency(perf.AvgLoss)
+
+	return perf
+}
+
+func CalculateOptionPerformance(optionTransactions []OptionTransaction) OptionPerformance {
+	optionPositions := CalculateOptionPositions(optionTransactions)
+
+	var perf OptionPerformance
+	var totalWins float64
+	var totalLosses float64
+
+	for _, pos := range optionPositions {
+		// Only count closed positions (not open)
+		if pos.Status != "Open" {
+			perf.TotalClosedCount++
+
+			if pos.NetPremium > 0 {
+				perf.WinCount++
+				totalWins += pos.NetPremium
+			} else if pos.NetPremium < 0 {
+				perf.LossCount++
+				totalLosses += pos.NetPremium
 			}
 		}
 	}
