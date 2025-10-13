@@ -110,14 +110,14 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 			analytics.ClosedOptionsCount++
 		}
 
-		// Track premiums
+		// Track premiums - include ALL positions (wins and losses)
 		netPremium := pos.NetPremium
-		if netPremium > 0 {
-			analytics.TotalPremiums += netPremium
-			analytics.CollectedPremiums += pos.PremiumCollected
-			premiumCount++
+		analytics.TotalPremiums += netPremium
+		analytics.CollectedPremiums += pos.PremiumCollected
+		premiumCount++
 
-			// Track largest and smallest premiums
+		// Track largest and smallest premiums (positive values only)
+		if netPremium > 0 {
 			if netPremium > analytics.LargestPremium {
 				analytics.LargestPremium = netPremium
 			}
