@@ -105,3 +105,7 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-10-13,Sell to Open,F,Put,11.50,2025-10-17,2,34.00,11.50,0.00,P58,CSP on F; 127% annualized; 4-day expiry; industrials diversification; earnings Oct 23 clear of expiry
 2025-10-13,Buy to Close,HOOD,Put,148.00,2025-10-17,1,-1133.00,137.00,0.00,P46,Bought back to roll; HOOD dropped $11 from entry; rolling to recover position
 2025-10-13,Sell to Open,HOOD,Put,146.00,2025-11-28,1,1821.00,137.00,0.00,P59,Rolled from P46; net credit $688 for 42 days; 40.9% annualized; cost basis now $134.53/share - profitable at current price
+2025-10-14,Sell to Open,RIVN,Call,13.50,2025-10-24,1,23.00,13.20,0.00,P60,Covered call on RIVN from P42 assignment; cost basis $13.50; 62% annualized; defensive play while underwater
+2025-10-14,Buy to Close,OXY,Call,47.50,2025-11-21,1,-42.00,41.89,0.00,P16,Bought back early; captured $139 profit (sold $181 - bought $42); exiting OXY position after OxyChem sale news
+2025-10-14,Buy to Close,SOFI,Call,27.50,2025-10-17,3,-129.00,26.45,0.00,P54,Closed at 54% profit with 3 days remaining; captured $153 profit to roll to longer dated
+2025-10-14,Sell to Open,SOFI,Call,27.50,2025-10-31,3,543.00,26.45,0.00,P61,Rolled from P54; net credit $414 for 16 days; 143% annualized; total collected $696 over 21 days from original P54
