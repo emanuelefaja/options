@@ -487,7 +487,11 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     <template x-for="(position, index) in positionDetails" :key="index">
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="position.symbol"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a :href="`/stocks/${position.symbol}`"
+                                   class="text-gray-900 hover:text-blue-600 hover:underline"
+                                   x-text="position.symbol"></a>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="position.type"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
                                 $<span x-text="position.amount.toLocaleString(undefined, {maximumFractionDigits: 0})"></span>
