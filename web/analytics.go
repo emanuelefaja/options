@@ -43,6 +43,10 @@ type Analytics struct {
 	// Time-Weighted Return metrics
 	TimeWeightedReturn           float64
 	TimeWeightedReturnAnnualized float64
+	// Projected $1M metrics
+	ProjectedMillionDate          time.Time
+	ProjectedMillionDateFormatted string
+	DaysToMillion                 int
 }
 
 type DailyReturn struct {
@@ -251,6 +255,13 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 
 	// Calculate Time-Weighted Return
 	analytics.TimeWeightedReturn, analytics.TimeWeightedReturnAnnualized = CalculateTimeWeightedReturn(transactions)
+
+	// Calculate Projected $1M Date
+	analytics.ProjectedMillionDate, analytics.DaysToMillion = CalculateProjectedMillionDate(
+		analytics.TotalPortfolioValue,
+		analytics.TimeWeightedReturnAnnualized,
+	)
+	analytics.ProjectedMillionDateFormatted = analytics.ProjectedMillionDate.Format("January 2, 2006")
 
 	return analytics
 }
@@ -953,4 +964,33 @@ func CalculateTimeWeightedReturn(transactions []Transaction) (float64, float64) 
 	annualizedTWR := math.Pow(1.0+cumulativeTWR, 365.0/daysActive) - 1.0
 
 	return cumulativeTWR * 100, annualizedTWR * 100
+}
+
+// CalculateProjectedMillionDate calculates when the portfolio will reach $1M
+// based on current portfolio value and annualized TWR
+func CalculateProjectedMillionDate(currentValue, annualizedTWR float64) (time.Time, int) {
+	targetValue := 1000000.0
+
+	// If already at or above $1M, return today
+	if currentValue >= targetValue {
+		return time.Now(), 0
+	}
+
+	// If TWR is 0 or negative, can't calculate
+	if annualizedTWR <= 0 {
+		// Return a far future date
+		return time.Now().AddDate(100, 0, 0), 36500
+	}
+
+	// Calculate years needed using compound growth formula
+	// years = log(target / current) / log(1 + return)
+	years := math.Log(targetValue/currentValue) / math.Log(1.0+annualizedTWR/100.0)
+
+	// Convert to days
+	days := int(years * 365)
+
+	// Add to today
+	projectedDate := time.Now().AddDate(0, 0, days)
+
+	return projectedDate, days
 }

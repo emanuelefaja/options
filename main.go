@@ -307,6 +307,9 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
 		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
 		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
+		// Projected $1M data
+		ProjectedMillionDateFormatted: analytics.ProjectedMillionDateFormatted,
+		DaysToMillion:                 analytics.DaysToMillion,
 	})
 }
 

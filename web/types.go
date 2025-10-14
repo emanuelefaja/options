@@ -91,6 +91,9 @@ type PageData struct {
 	TimeWeightedReturnAnnualized         float64
 	TimeWeightedReturnFormatted          string
 	TimeWeightedReturnAnnualizedFormatted string
+	// Projected $1M data
+	ProjectedMillionDateFormatted string
+	DaysToMillion                 int
 }
 
 type CashPosition struct {
