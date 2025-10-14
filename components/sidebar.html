@@ -1,47 +1,47 @@
 {{define "sidebar"}}
-<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
-       class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
-    <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-        <h1 class="text-xl font-bold text-gray-900">mnmlsm</h1>
-        <button @click="sidebarOpen = false" class="lg:hidden text-gray-600 hover:text-gray-900">
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+       class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
+    <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-700">
+        <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">mnmlsm</h1>
+        <button @click="sidebarOpen = false" class="lg:hidden text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
     </div>
-    
+
     <nav class="px-4 py-4">
-        <a href="/" class="flex items-center px-4 py-3 mb-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 {{if eq .CurrentPage "home"}}bg-gray-100 text-gray-900 font-medium{{end}}">
+        <a href="/" class="flex items-center px-4 py-3 mb-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 {{if eq .CurrentPage "home"}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium{{end}}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
             </svg>
             Home
         </a>
-        <a href="/options" class="flex items-center px-4 py-3 mb-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 {{if eq .CurrentPage "options"}}bg-gray-100 text-gray-900 font-medium{{end}}">
+        <a href="/options" class="flex items-center px-4 py-3 mb-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 {{if eq .CurrentPage "options"}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium{{end}}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
             </svg>
             Options
         </a>
-        <a href="/stocks" class="flex items-center px-4 py-3 mb-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 {{if eq .CurrentPage "stocks"}}bg-gray-100 text-gray-900 font-medium{{end}}">
+        <a href="/stocks" class="flex items-center px-4 py-3 mb-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 {{if eq .CurrentPage "stocks"}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium{{end}}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
             </svg>
             Stocks
         </a>
-        <a href="/analytics" class="flex items-center px-4 py-3 mb-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 {{if eq .CurrentPage "analytics"}}bg-gray-100 text-gray-900 font-medium{{end}}">
+        <a href="/analytics" class="flex items-center px-4 py-3 mb-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 {{if eq .CurrentPage "analytics"}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium{{end}}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
             Analytics
         </a>
-        <a href="/risk" class="flex items-center px-4 py-3 mb-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 {{if eq .CurrentPage "risk"}}bg-gray-100 text-gray-900 font-medium{{end}}">
+        <a href="/risk" class="flex items-center px-4 py-3 mb-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 {{if eq .CurrentPage "risk"}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium{{end}}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
             Risk
         </a>
-        <a href="/rules" class="flex items-center px-4 py-3 mb-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-gray-900 {{if eq .CurrentPage "rules"}}bg-gray-100 text-gray-900 font-medium{{end}}">
+        <a href="/rules" class="flex items-center px-4 py-3 mb-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 {{if eq .CurrentPage "rules"}}bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium{{end}}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>

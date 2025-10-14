@@ -70,78 +70,78 @@
         }
     }
 }" x-init="$nextTick(() => initCashPositionChart())">
-    <h2 class="text-2xl font-bold text-gray-900">Welcome back, Manny.</h2>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Welcome back, Manny.</h2>
 
     <!-- Performance Overview Grid -->
     <div class="grid grid-cols-2 gap-6">
         <!-- Options Performance Overview -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">Options Performance Overview</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Options Performance Overview</h3>
 
             <!-- Win Rate Section -->
             <div class="mb-6">
-                <p class="text-sm font-medium text-gray-600 mb-2">Win Rate</p>
-                <div class="w-full bg-gray-200 rounded-full h-8 mb-2 overflow-hidden">
-                    <div class="bg-green-500 h-8 flex items-center justify-end pr-3" style="width: {{.OptionPerformance.WinRate}}%">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Win Rate</p>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-8 mb-2 overflow-hidden">
+                    <div class="bg-green-500 dark:bg-green-600 h-8 flex items-center justify-end pr-3" style="width: {{.OptionPerformance.WinRate}}%">
                         <span class="text-white text-sm font-semibold">{{.OptionPerformance.WinRateFormatted}}</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-500">{{.OptionPerformance.WinCount}} wins / {{.OptionPerformance.TotalClosedCount}} total</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{.OptionPerformance.WinCount}} wins / {{.OptionPerformance.TotalClosedCount}} total</p>
             </div>
 
             <!-- Average Win/Loss Cards -->
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <p class="text-sm font-medium text-gray-600 mb-1">Avg Win</p>
-                    <p class="text-2xl font-bold text-green-600">{{.OptionPerformance.AvgWinFormatted}}</p>
-                    <p class="text-xs text-gray-500 mt-1">({{.OptionPerformance.WinCount}} trades)</p>
+                <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Avg Win</p>
+                    <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{.OptionPerformance.AvgWinFormatted}}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">({{.OptionPerformance.WinCount}} trades)</p>
                 </div>
 
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <p class="text-sm font-medium text-gray-600 mb-1">Avg Loss</p>
-                    <p class="text-2xl font-bold text-red-600">{{.OptionPerformance.AvgLossFormatted}}</p>
-                    <p class="text-xs text-gray-500 mt-1">({{.OptionPerformance.LossCount}} trades)</p>
+                <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Avg Loss</p>
+                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{.OptionPerformance.AvgLossFormatted}}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">({{.OptionPerformance.LossCount}} trades)</p>
                 </div>
             </div>
         </div>
 
         <!-- Stock Performance Overview -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-6">Stock Performance Overview</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Stock Performance Overview</h3>
 
             <!-- Win Rate Section -->
             <div class="mb-6">
-                <p class="text-sm font-medium text-gray-600 mb-2">Win Rate</p>
-                <div class="w-full bg-gray-200 rounded-full h-8 mb-2 overflow-hidden">
-                    <div class="bg-green-500 h-8 flex items-center justify-end pr-3" style="width: {{.StockPerformance.WinRate}}%">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Win Rate</p>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-8 mb-2 overflow-hidden">
+                    <div class="bg-green-500 dark:bg-green-600 h-8 flex items-center justify-end pr-3" style="width: {{.StockPerformance.WinRate}}%">
                         <span class="text-white text-sm font-semibold">{{.StockPerformance.WinRateFormatted}}</span>
                     </div>
                 </div>
-                <p class="text-sm text-gray-500">{{.StockPerformance.WinCount}} wins / {{.StockPerformance.TotalClosedCount}} total</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{.StockPerformance.WinCount}} wins / {{.StockPerformance.TotalClosedCount}} total</p>
             </div>
 
             <!-- Average Win/Loss Cards -->
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <p class="text-sm font-medium text-gray-600 mb-1">Avg Win</p>
-                    <p class="text-2xl font-bold text-green-600">{{.StockPerformance.AvgWinFormatted}}</p>
-                    <p class="text-xs text-gray-500 mt-1">({{.StockPerformance.WinCount}} trades)</p>
+                <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Avg Win</p>
+                    <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{.StockPerformance.AvgWinFormatted}}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">({{.StockPerformance.WinCount}} trades)</p>
                 </div>
 
-                <div class="bg-white rounded-lg border border-gray-200 p-4">
-                    <p class="text-sm font-medium text-gray-600 mb-1">Avg Loss</p>
-                    <p class="text-2xl font-bold text-red-600">{{.StockPerformance.AvgLossFormatted}}</p>
-                    <p class="text-xs text-gray-500 mt-1">({{.StockPerformance.LossCount}} trades)</p>
+                <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Avg Loss</p>
+                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{.StockPerformance.AvgLossFormatted}}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">({{.StockPerformance.LossCount}} trades)</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Cash Position Pie Chart -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 w-1/2">
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 w-1/2">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-semibold text-gray-900">Cash Position</h3>
-            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold" x-text="'$' + (cashPositionData.activeCapital + cashPositionData.dryPowder + cashPositionData.wiseBalance).toLocaleString(undefined, {maximumFractionDigits: 0})"></span>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Cash Position</h3>
+            <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-semibold" x-text="'$' + (cashPositionData.activeCapital + cashPositionData.dryPowder + cashPositionData.wiseBalance).toLocaleString(undefined, {maximumFractionDigits: 0})"></span>
         </div>
         <div class="relative max-w-sm mx-auto">
             <canvas id="cashPositionChart"></canvas>

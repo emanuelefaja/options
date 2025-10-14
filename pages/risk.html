@@ -251,14 +251,14 @@
         return 'compliant';
     }
 }">
-    <h2 class="text-2xl font-bold text-gray-900">Risk Management</h2>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Risk Management</h2>
 
     <!-- Risk Metrics Grid -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <!-- At Risk Capital -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
             <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">At Risk Capital</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">At Risk Capital</p>
                 <div class="flex items-center gap-2 cursor-help"
                      @mouseenter="showInfoTooltip($event, `
                         <div class='max-w-xs'>
@@ -276,23 +276,23 @@
                         </div>
                      `)"
                      @mouseleave="hideInfoTooltip()">
-                    <span class="text-xs font-medium" :class="capitalDeploymentStatus === 'violation' ? 'text-red-600' : capitalDeploymentStatus === 'warning' ? 'text-orange-600' : 'text-green-600'" x-text="capitalDeploymentStatus === 'violation' ? 'Rule Violation' : capitalDeploymentStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
+                    <span class="text-xs font-medium" :class="capitalDeploymentStatus === 'violation' ? 'text-red-600 dark:text-red-400' : capitalDeploymentStatus === 'warning' ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'" x-text="capitalDeploymentStatus === 'violation' ? 'Rule Violation' : capitalDeploymentStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="capitalPingColor"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3" :class="capitalDotColor"></span>
                     </span>
                 </div>
             </div>
-            <p class="mt-2 text-3xl font-bold text-gray-900">{{.TotalActiveCapitalFormatted}}</p>
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{{.TotalActiveCapitalFormatted}}</p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span x-text="capitalAtRiskPercentage"></span>% of $<span x-text="totalCapital.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span> capital
             </p>
         </div>
 
         <!-- Weekly Return Rate Progress -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
             <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">Weekly Return Rate</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Weekly Return Rate</p>
                 <div class="flex items-center gap-2 cursor-help"
                      @mouseenter="showInfoTooltip($event, `
                         <div class='max-w-xs'>
@@ -311,9 +311,9 @@
                      `)"
                      @mouseleave="hideInfoTooltip()">
                     <span class="text-xs font-medium"
-                          :class="weeklyReturnStatus === 'violation' ? 'text-red-600' :
-                                  weeklyReturnStatus === 'warning' ? 'text-orange-600' :
-                                  'text-green-600'"
+                          :class="weeklyReturnStatus === 'violation' ? 'text-red-600 dark:text-red-400' :
+                                  weeklyReturnStatus === 'warning' ? 'text-orange-600 dark:text-orange-400' :
+                                  'text-green-600 dark:text-green-400'"
                           x-text="weeklyReturnStatus === 'violation' ? 'Behind Target' :
                                   weeklyReturnStatus === 'warning' ? 'Near Target' :
                                   'On Track'">
@@ -332,16 +332,16 @@
                     </span>
                 </div>
             </div>
-            <p class="mt-2 text-3xl font-bold text-gray-900" x-text="weeklyReturnFormatted + '%'">
+            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100" x-text="weeklyReturnFormatted + '%'">
             </p>
-            <p class="mt-1 text-xs text-gray-500" x-text="weeklyPLFormatted">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400" x-text="weeklyPLFormatted">
             </p>
         </div>
 
         <!-- Unrealized P&L -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
             <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-gray-600">Unrealized P&L</p>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Unrealized P&L</p>
                 <div class="flex items-center gap-2 cursor-help"
                      @mouseenter="(event) => {
                         const content = `
@@ -365,17 +365,17 @@
                         infoTooltipVisible = true;
                      }"
                      @mouseleave="hideInfoTooltip()">
-                    <span class="text-xs font-medium" :class="unrealizedPLStatus === 'violation' ? 'text-red-600' : unrealizedPLStatus === 'warning' ? 'text-orange-600' : 'text-green-600'" x-text="unrealizedPLStatus === 'violation' ? 'Rule Violation' : unrealizedPLStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
+                    <span class="text-xs font-medium" :class="unrealizedPLStatus === 'violation' ? 'text-red-600 dark:text-red-400' : unrealizedPLStatus === 'warning' ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'" x-text="unrealizedPLStatus === 'violation' ? 'Rule Violation' : unrealizedPLStatus === 'warning' ? 'Approaching Limit' : 'Risk Compliant'"></span>
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="unrealizedPingColor"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3" :class="unrealizedDotColor"></span>
                     </span>
                 </div>
             </div>
-            <p class="mt-2 text-3xl font-bold text-gray-900">
+            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
                 {{.TotalUnrealizedPLFormatted}}
             </p>
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span x-text="cashPosition.activeCapital > 0 ? Math.abs((unrealizedPL / cashPosition.activeCapital) * 100).toFixed(1) : '0.0'"></span>% of at risk capital
             </p>
         </div>
@@ -384,9 +384,9 @@
     <!-- Two Column Layout for Sector and Position Tables -->
     <div class="grid grid-cols-2 gap-6">
         <!-- Sector Exposure Card -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Sector Exposure</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Sector Exposure</h3>
             <div class="flex items-center gap-2 cursor-help"
                  @mouseenter="showInfoTooltip($event, `
                     <div class='max-w-xs'>
@@ -404,33 +404,33 @@
                     </div>
                  `)"
                  @mouseleave="hideInfoTooltip()">
-                <span class="text-xs font-medium" :class="riskStatusTextColor" x-text="riskStatusText"></span>
+                <span class="text-xs font-medium" :class="riskStatusTextColor.replace('text-red-600', 'text-red-600 dark:text-red-400').replace('text-orange-600', 'text-orange-600 dark:text-orange-400').replace('text-green-600', 'text-green-600 dark:text-green-400')" x-text="riskStatusText"></span>
                 <span class="relative flex h-3 w-3">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="pingColor"></span>
                     <span class="relative inline-flex rounded-full h-3 w-3" :class="dotColor"></span>
                 </span>
             </div>
         </div>
-        <div class="rounded-lg border border-gray-200 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% of Total Capital</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sector</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">% of Total Capital</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <template x-for="(sector, index) in sectorExposure" :key="index">
-                        <tr class="hover:bg-gray-50 cursor-help"
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-help"
                             @mouseenter="showTooltip($event, sector)"
                             @mouseleave="hideTooltip()">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="sector.sector"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100" x-text="sector.sector"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-right">
                                 $<span x-text="sector.amount.toLocaleString(undefined, {maximumFractionDigits: 0})"></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right"
-                                :class="(sector.amount / totalCapital * 100) > 20 ? 'text-red-600 font-semibold' : 'text-gray-900'">
+                                :class="(sector.amount / totalCapital * 100) > 20 ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-gray-900 dark:text-gray-100'">
                                 <span x-text="((sector.amount / totalCapital) * 100).toFixed(1)"></span>%
                             </td>
                         </tr>
@@ -441,9 +441,9 @@
     </div>
 
     <!-- Position Details Card -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Position Details</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Position Details</h3>
             <div class="flex items-center gap-2 cursor-help"
                  @mouseenter="(event) => {
                     const content = `
@@ -467,37 +467,37 @@
                     infoTooltipVisible = true;
                  }"
                  @mouseleave="hideInfoTooltip()">
-                <span class="text-xs font-medium" :class="positionRiskStatusTextColor" x-text="positionRiskStatusText"></span>
+                <span class="text-xs font-medium" :class="positionRiskStatusTextColor.replace('text-red-600', 'text-red-600 dark:text-red-400').replace('text-orange-600', 'text-orange-600 dark:text-orange-400').replace('text-green-600', 'text-green-600 dark:text-green-400')" x-text="positionRiskStatusText"></span>
                 <span class="relative flex h-3 w-3">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" :class="positionPingColor"></span>
                     <span class="relative inline-flex rounded-full h-3 w-3" :class="positionDotColor"></span>
                 </span>
             </div>
         </div>
-        <div class="rounded-lg border border-gray-200 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">% of Total Capital</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Symbol</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">% of Total Capital</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <template x-for="(position, index) in positionDetails" :key="index">
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <a :href="`/stocks/${position.symbol}`"
-                                   class="text-gray-900 hover:text-blue-600 hover:underline"
+                                   class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
                                    x-text="position.symbol"></a>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="position.type"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="position.type"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-right">
                                 $<span x-text="position.amount.toLocaleString(undefined, {maximumFractionDigits: 0})"></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right"
-                                :class="(position.amount / totalCapital * 100) > 10 ? 'text-red-600 font-semibold' : (position.amount / totalCapital * 100) >= 8 ? 'text-orange-600 font-semibold' : 'text-gray-900'">
+                                :class="(position.amount / totalCapital * 100) > 10 ? 'text-red-600 dark:text-red-400 font-semibold' : (position.amount / totalCapital * 100) >= 8 ? 'text-orange-600 dark:text-orange-400 font-semibold' : 'text-gray-900 dark:text-gray-100'">
                                 <span x-text="((position.amount / totalCapital) * 100).toFixed(1)"></span>%
                             </td>
                         </tr>

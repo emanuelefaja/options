@@ -69,14 +69,14 @@
     }
 }">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Option Positions</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Option Positions</h2>
 
         <div class="flex space-x-4">
             <!-- Type Filter Dropdown -->
             <div x-data="{ open: false }" class="relative inline-block text-left">
-                <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <span x-text="typeFilter === 'all' ? 'All Types' : (typeFilter === 'Call' ? 'Calls Only' : 'Puts Only')"></span>
-                    <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="-mr-1 h-5 w-5 text-gray-400 dark:text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
                     </svg>
                 </button>
@@ -88,20 +88,20 @@
                      x-transition:leave="transition ease-in duration-75"
                      x-transition:leave-start="transform opacity-100 scale-100"
                      x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                     class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black dark:ring-gray-700 ring-opacity-5 focus:outline-none">
                     <div class="py-1">
-                        <a @click="typeFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="typeFilter === 'all' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">All Types</a>
-                        <a @click="typeFilter = 'Call'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="typeFilter === 'Call' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Calls Only</a>
-                        <a @click="typeFilter = 'Put'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="typeFilter === 'Put' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Puts Only</a>
+                        <a @click="typeFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="typeFilter === 'all' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">All Types</a>
+                        <a @click="typeFilter = 'Call'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="typeFilter === 'Call' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">Calls Only</a>
+                        <a @click="typeFilter = 'Put'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="typeFilter === 'Put' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">Puts Only</a>
                     </div>
                 </div>
             </div>
 
             <!-- Status Filter Dropdown -->
             <div x-data="{ open: false }" class="relative inline-block text-left">
-                <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <span x-text="statusFilter === 'all' ? 'All Status' : (statusFilter === 'open' ? 'Open Only' : 'Closed Only')"></span>
-                    <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg class="-mr-1 h-5 w-5 text-gray-400 dark:text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
                     </svg>
                 </button>
@@ -113,11 +113,11 @@
                      x-transition:leave="transition ease-in duration-75"
                      x-transition:leave-start="transform opacity-100 scale-100"
                      x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                     class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black dark:ring-gray-700 ring-opacity-5 focus:outline-none">
                     <div class="py-1">
-                        <a @click="statusFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="statusFilter === 'all' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">All Status</a>
-                        <a @click="statusFilter = 'open'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="statusFilter === 'open' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Open Only</a>
-                        <a @click="statusFilter = 'closed'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="statusFilter === 'closed' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Closed Only</a>
+                        <a @click="statusFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="statusFilter === 'all' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">All Status</a>
+                        <a @click="statusFilter = 'open'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="statusFilter === 'open' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">Open Only</a>
+                        <a @click="statusFilter = 'closed'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="statusFilter === 'closed' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">Closed Only</a>
                     </div>
                 </div>
             </div>
@@ -126,107 +126,107 @@
 
     <!-- Stats Grid -->
     <div class="grid grid-cols-4 gap-4">
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Open Positions</p>
-            <p class="text-2xl font-bold text-gray-900">{{.OpenOptionsCount}}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Open Positions</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{.OpenOptionsCount}}</p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Closed Positions</p>
-            <p class="text-2xl font-bold text-gray-900">{{.ClosedOptionsCount}}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Closed Positions</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{.ClosedOptionsCount}}</p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Active Capital</p>
-            <p class="text-2xl font-bold text-gray-900">{{.OptionsActiveCapitalFormatted}}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Capital</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{.OptionsActiveCapitalFormatted}}</p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Net Premiums</p>
-            <p class="text-2xl font-bold text-green-600">{{.TotalPremiumsFormatted}}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Net Premiums</p>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{.TotalPremiumsFormatted}}</p>
         </div>
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                    <th @click="sortData('symbol')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('symbol')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Symbol
                         <span class="ml-1" x-show="sortBy === 'symbol'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('optionType')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('optionType')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Type
                         <span class="ml-1" x-show="sortBy === 'optionType'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('status')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('status')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Status
                         <span class="ml-1" x-show="sortBy === 'status'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('openDate')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('openDate')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Open Date
                         <span class="ml-1" x-show="sortBy === 'openDate'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('expiry')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('expiry')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Expiry
                         <span class="ml-1" x-show="sortBy === 'expiry'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('daysToExpiry')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('daysToExpiry')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         DTE
                         <span class="ml-1" x-show="sortBy === 'daysToExpiry'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('strike')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('strike')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Strike
                         <span class="ml-1" x-show="sortBy === 'strike'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('contracts')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('contracts')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Qty
                         <span class="ml-1" x-show="sortBy === 'contracts'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('netPremium')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('netPremium')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Net Premium
                         <span class="ml-1" x-show="sortBy === 'netPremium'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Capital
                         <span class="ml-1" x-show="sortBy === 'capital'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('percentReturn')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('percentReturn')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Return %
                         <span class="ml-1" x-show="sortBy === 'percentReturn'">
                             <span x-show="sortOrder === 'asc'">↑</span>
                             <span x-show="sortOrder === 'desc'">↓</span>
                         </span>
                     </th>
-                    <th @click="sortData('annualizedReturn')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                    <th @click="sortData('annualizedReturn')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                         Annual %
                         <span class="ml-1" x-show="sortBy === 'annualizedReturn'">
                             <span x-show="sortOrder === 'asc'">↑</span>
@@ -235,45 +235,45 @@
                     </th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <template x-for="position in filteredAndSortedPositions" :key="position.positionId">
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a :href="'/stocks/' + position.symbol" class="text-gray-900 hover:text-blue-600 hover:underline" x-text="position.symbol"></a>
+                            <a :href="'/stocks/' + position.symbol" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline" x-text="position.symbol"></a>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span :class="position.optionType === 'Call' ? 'text-blue-600' : 'text-purple-600'" x-text="position.optionType"></span>
+                            <span :class="position.optionType === 'Call' ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400'" x-text="position.optionType"></span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
                                   :class="{
-                                      'bg-green-100 text-green-800': position.status === 'Open',
-                                      'bg-gray-100 text-gray-800': position.status === 'Expired',
-                                      'bg-blue-100 text-blue-800': position.status === 'Assigned',
-                                      'bg-yellow-100 text-yellow-800': position.status === 'Closed Early',
-                                      'bg-purple-100 text-purple-800': position.status === 'Rolled'
+                                      'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200': position.status === 'Open',
+                                      'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200': position.status === 'Expired',
+                                      'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200': position.status === 'Assigned',
+                                      'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200': position.status === 'Closed Early',
+                                      'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200': position.status === 'Rolled'
                                   }"
                                   x-text="position.status">
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="position.openDate"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="position.expiry"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="position.daysToExpiry"></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$<span x-text="position.strike.toFixed(2)"></span></td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="position.contracts"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400" x-text="position.openDate"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400" x-text="position.expiry"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400" x-text="position.daysToExpiry"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">$<span x-text="position.strike.toFixed(2)"></span></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400" x-text="position.contracts"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
-                            :class="position.netPremium >= 0 ? 'text-green-600' : 'text-red-600'">
+                            :class="position.netPremium >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                             $<span x-text="Math.abs(position.netPremium).toFixed(2)"></span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                             $<span x-text="position.capital.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
-                            :class="position.percentReturn >= 0 ? 'text-green-600' : 'text-red-600'">
+                            :class="position.percentReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                             <span x-text="position.percentReturn.toFixed(2)"></span>%
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
-                            :class="position.annualizedReturn >= 0 ? 'text-green-600' : 'text-red-600'">
+                            :class="position.annualizedReturn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                             <span x-text="position.annualizedReturn.toFixed(0)"></span>%
                         </td>
                     </tr>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Summary Stats -->
-    <div class="bg-gray-50 px-4 py-3 text-sm text-gray-700 border-t">
+    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700">
         <div class="flex justify-between">
             <div>
                 Showing <span class="font-medium" x-text="filteredAndSortedPositions.length"></span> positions
@@ -291,7 +291,7 @@
             <div class="flex space-x-4">
                 <div>
                     Total Net Premium:
-                    <span class="font-medium text-green-600">
+                    <span class="font-medium text-green-600 dark:text-green-400">
                         $<span x-text="filteredAndSortedPositions.reduce((sum, p) => sum + p.netPremium, 0).toFixed(2)"></span>
                     </span>
                 </div>

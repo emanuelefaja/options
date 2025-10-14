@@ -123,66 +123,66 @@
     }
 }">
     <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-900">Stock Positions</h2>
-        
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Stock Positions</h2>
+
         <!-- Status Filter Dropdown -->
         <div x-data="{ open: false }" class="relative inline-block text-left">
-            <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <button @click="open = !open" @click.away="open = false" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
                 <span x-text="statusFilter === 'all' ? 'All Positions' : (statusFilter === 'open' ? 'Open Only' : 'Closed Only')"></span>
-                <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg class="-mr-1 h-5 w-5 text-gray-400 dark:text-gray-500" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
                 </svg>
             </button>
-            
-            <div x-show="open" 
+
+            <div x-show="open"
                  x-transition:enter="transition ease-out duration-100"
                  x-transition:enter-start="transform opacity-0 scale-95"
                  x-transition:enter-end="transform opacity-100 scale-100"
                  x-transition:leave="transition ease-in duration-75"
                  x-transition:leave-start="transform opacity-100 scale-100"
                  x-transition:leave-end="transform opacity-0 scale-95"
-                 class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                 class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black dark:ring-gray-700 ring-opacity-5 focus:outline-none">
                 <div class="py-1">
-                    <a @click="statusFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="statusFilter === 'all' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">All Positions</a>
-                    <a @click="statusFilter = 'open'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="statusFilter === 'open' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Open Only</a>
-                    <a @click="statusFilter = 'closed'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100" :class="statusFilter === 'closed' ? 'bg-gray-100 text-gray-900' : 'text-gray-700'">Closed Only</a>
+                    <a @click="statusFilter = 'all'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="statusFilter === 'all' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">All Positions</a>
+                    <a @click="statusFilter = 'open'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="statusFilter === 'open' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">Open Only</a>
+                    <a @click="statusFilter = 'closed'; open = false" href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700" :class="statusFilter === 'closed' ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'">Closed Only</a>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Summary Cards -->
     <div class="grid grid-cols-5 gap-4">
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Open Positions</p>
-            <p class="text-2xl font-bold text-gray-900" x-text="openPositionsCount"></p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Open Positions</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" x-text="openPositionsCount"></p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Closed Positions</p>
-            <p class="text-2xl font-bold text-gray-900" x-text="closedPositionsCount"></p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Closed Positions</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" x-text="closedPositionsCount"></p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Open Capital</p>
-            <p class="text-2xl font-bold text-blue-600">$<span x-text="totalOpenCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Open Capital</p>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">$<span x-text="totalOpenCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
-            <p class="text-sm font-medium text-gray-600">Unrealized P&L</p>
-            <p class="text-2xl font-bold" :class="unrealizedPL >= 0 ? 'text-green-600' : 'text-red-600'">{{.TotalUnrealizedPLFormatted}}</p>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4" x-data="{ unrealizedPL: {{.TotalUnrealizedPL}} }">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Unrealized P&L</p>
+            <p class="text-2xl font-bold" :class="unrealizedPL >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">{{.TotalUnrealizedPLFormatted}}</p>
         </div>
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <p class="text-sm font-medium text-gray-600">Realized P&L</p>
-            <p class="text-2xl font-bold" :class="totalRealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Realized P&L</p>
+            <p class="text-2xl font-bold" :class="totalRealizedPnL >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                 $<span x-text="Math.abs(totalRealizedPnL).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
             </p>
         </div>
     </div>
     
     <!-- Positions Table -->
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                    <th @click="sortData('symbol')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-20">
+                    <th @click="sortData('symbol')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 w-20">
                         <div class="flex items-center space-x-1">
                             <span>Symbol</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'symbol', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('type')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-20">
+                    <th @click="sortData('type')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 w-20">
                         <div class="flex items-center space-x-1">
                             <span>Status</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'type', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +198,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('shares')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 w-16">
+                    <th @click="sortData('shares')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 w-16">
                         <div class="flex items-center space-x-1">
                             <span>Shares</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'shares', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +206,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('entryDate')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('entryDate')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Entry</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'entryDate', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,7 +214,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('avgCost')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('avgCost')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Avg Cost</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'avgCost', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('capital')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('capital')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Cost Basis</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'capital', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +230,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('currentPrice')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('currentPrice')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Current</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'currentPrice', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +238,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('marketValue')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('marketValue')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Mkt Value</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'marketValue', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +246,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('unrealizedPnL')" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap w-32">
+                    <th @click="sortData('unrealizedPnL')" class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap w-32">
                         <div class="flex items-center space-x-1">
                             <span>Unrealized P&L</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'unrealizedPnL', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,7 +254,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('exitDate')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('exitDate')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Exit</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'exitDate', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,7 +262,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('profitLoss')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('profitLoss')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>P&L</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'profitLoss', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,7 +270,7 @@
                             </svg>
                         </div>
                     </th>
-                    <th @click="sortData('returnPerc')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap">
+                    <th @click="sortData('returnPerc')" class="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 whitespace-nowrap">
                         <div class="flex items-center space-x-1">
                             <span>Return</span>
                             <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'returnPerc', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,50 +280,50 @@
                     </th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 <template x-for="pos in filteredAndSortedPositions" :key="pos.symbol + pos.entryDate + pos.exitDate">
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a :href="'/stocks/' + pos.symbol" class="text-gray-900 hover:text-blue-600 hover:underline" x-text="pos.symbol"></a>
+                            <a :href="'/stocks/' + pos.symbol" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline" x-text="pos.symbol"></a>
                         </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span x-show="pos.type === 'open'" 
-                                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                                     Open
                                 </span>
                                 <span x-show="pos.type === 'closed'" 
-                                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                                     Closed
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.shares"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" x-text="pos.entryDate"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.avgCost"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="pos.capital"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.type === 'open' ? pos.currentPrice : '-'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="pos.type === 'open' ? pos.marketValue : '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="pos.shares"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400" x-text="pos.entryDate"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="pos.avgCost"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100" x-text="pos.capital"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="pos.type === 'open' ? pos.currentPrice : '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="pos.type === 'open' ? pos.marketValue : '-'"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
                                 :class="{
-                                    'text-green-600': pos.type === 'open' && parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) > 0,
-                                    'text-red-600': pos.type === 'open' && parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) < 0,
-                                    'text-gray-500': pos.type === 'closed' || parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) === 0
+                                    'text-green-600 dark:text-green-400':pos.type === 'open' && parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) > 0,
+                                    'text-red-600 dark:text-red-400':pos.type === 'open' && parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) < 0,
+                                    'text-gray-500 dark:text-gray-400':pos.type === 'closed' || parseFloat(pos.unrealizedPnL.replace(/[$,]/g, '')) === 0
                                 }"
                                 x-text="pos.type === 'open' ? pos.unrealizedPnL : '-'">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" x-text="pos.exitDate || '-'"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400" x-text="pos.exitDate || '-'"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" 
                                 :class="{
-                                    'text-green-600': parseFloat(pos.profitLoss.replace(/[$,]/g, '')) > 0,
-                                    'text-red-600': parseFloat(pos.profitLoss.replace(/[$,]/g, '')) < 0,
-                                    'text-gray-500': parseFloat(pos.profitLoss.replace(/[$,]/g, '')) === 0 || pos.type === 'open'
+                                    'text-green-600 dark:text-green-400':parseFloat(pos.profitLoss.replace(/[$,]/g, '')) > 0,
+                                    'text-red-600 dark:text-red-400':parseFloat(pos.profitLoss.replace(/[$,]/g, '')) < 0,
+                                    'text-gray-500 dark:text-gray-400':parseFloat(pos.profitLoss.replace(/[$,]/g, '')) === 0 || pos.type === 'open'
                                 }"
                                 x-text="pos.type === 'open' ? '-' : pos.profitLoss">
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" 
                                 :class="{
-                                    'text-green-600': parseFloat(pos.returnPerc.replace('%', '')) > 0,
-                                    'text-red-600': parseFloat(pos.returnPerc.replace('%', '')) < 0,
-                                    'text-gray-500': parseFloat(pos.returnPerc.replace('%', '')) === 0 || pos.type === 'open'
+                                    'text-green-600 dark:text-green-400':parseFloat(pos.returnPerc.replace('%', '')) > 0,
+                                    'text-red-600 dark:text-red-400':parseFloat(pos.returnPerc.replace('%', '')) < 0,
+                                    'text-gray-500 dark:text-gray-400':parseFloat(pos.returnPerc.replace('%', '')) === 0 || pos.type === 'open'
                                 }"
                                 x-text="pos.type === 'open' ? '-' : pos.returnPerc">
                             </td>
@@ -373,12 +373,12 @@
             });
         }
     }">
-        <h3 class="text-lg font-semibold text-gray-900 mb-3">Summary by Symbol</h3>
-        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Summary by Symbol</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
-                        <th @click="sortData('symbol')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <th @click="sortData('symbol')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                             <div class="flex items-center space-x-1">
                                 <span>Symbol</span>
                                 <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'symbol', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,7 +386,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th @click="sortData('totalPL')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <th @click="sortData('totalPL')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                             <div class="flex items-center space-x-1">
                                 <span>Total P/L</span>
                                 <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'totalPL', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,7 +394,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th @click="sortData('premiums')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <th @click="sortData('premiums')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                             <div class="flex items-center space-x-1">
                                 <span>Premiums Collected</span>
                                 <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'premiums', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -402,7 +402,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th @click="sortData('stockPL')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <th @click="sortData('stockPL')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                             <div class="flex items-center space-x-1">
                                 <span>Stock P/L</span>
                                 <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'stockPL', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -410,7 +410,7 @@
                                 </svg>
                             </div>
                         </th>
-                        <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                        <th @click="sortData('capital')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800">
                             <div class="flex items-center space-x-1">
                                 <span>Total Deployed Capital</span>
                                 <svg class="w-4 h-4" :class="{'opacity-0': sortBy !== 'capital', 'rotate-180': sortOrder === 'desc'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -420,19 +420,19 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     <template x-for="summary in sortedSummaries" :key="summary.symbol">
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a :href="'/stocks/' + summary.symbol" class="text-gray-900 hover:text-blue-600 hover:underline" x-text="summary.symbol"></a>
+                                <a :href="'/stocks/' + summary.symbol" class="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline" x-text="summary.symbol"></a>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
-                                :class="summary.totalPL >= 0 ? 'text-green-600' : 'text-red-600'"
+                                :class="summary.totalPL >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
                                 x-text="summary.totalPLFormatted">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="summary.premiumsFormatted"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="summary.stockPLFormatted"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="summary.capitalFormatted"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="summary.premiumsFormatted"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="summary.stockPLFormatted"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100" x-text="summary.capitalFormatted"></td>
                         </tr>
                     </template>
                 </tbody>

@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}}</title>
-    
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
     <!-- Tailwind CSS 4 Alpha -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -26,13 +27,35 @@
             }
         }
     </script>
-    
+
     <style>
         [x-cloak] { display: none !important; }
     </style>
+
+    <script>
+        // Dark mode initialization - runs before page render
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
 </head>
-<body class="bg-gray-50 text-gray-900">
-    <div x-data="{ sidebarOpen: false }" class="min-h-screen flex">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div x-data="{
+        sidebarOpen: false,
+        darkMode: localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode
+            if (this.darkMode) {
+                document.documentElement.classList.add('dark')
+                localStorage.theme = 'dark'
+            } else {
+                document.documentElement.classList.remove('dark')
+                localStorage.theme = 'light'
+            }
+        }
+    }" class="min-h-screen flex">
         <!-- Sidebar -->
         {{template "sidebar" .}}
         
