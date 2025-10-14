@@ -125,15 +125,12 @@ func CalculateOptionPositions(transactions []OptionTransaction) []OptionPosition
 
 			// Calculate capital requirement
 			if tx.OptionType == "Put" {
-				// Cash-secured put
+				// Cash-secured put - requires capital equal to strike price
 				pos.Capital = tx.Strike * float64(tx.Contracts) * 100
 			} else {
-				// Covered call - use stock price as capital
-				if tx.StockPrice > 0 {
-					pos.Capital = tx.StockPrice * float64(tx.Contracts) * 100
-				} else {
-					pos.Capital = tx.Strike * float64(tx.Contracts) * 100
-				}
+				// Covered call - capital is $0 because it's covered by stock shares
+				// The stock cost basis is counted separately to avoid double-counting
+				pos.Capital = 0
 			}
 
 		case "Buy to Close":

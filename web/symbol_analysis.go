@@ -30,8 +30,8 @@ func CalculateSymbolSummaries() []SymbolSummary {
 		// Add premiums
 		symbolMap[opt.Symbol].PremiumsCollected += opt.NetPremium
 
-		// Track capital
-		if opt.Status == "Open" {
+		// Track capital - only count Puts to avoid double-counting covered calls
+		if opt.Status == "Open" && opt.OptionType == "Put" {
 			symbolMap[opt.Symbol].TotalCapital += opt.Capital
 		}
 	}
@@ -104,7 +104,8 @@ func GetSymbolDetails(symbol string, portfolioTotalPL float64) SymbolDetails {
 		}
 
 		// Track current capital from open positions
-		if opt.Status == "Open" {
+		// Only count Put capital (cash-secured puts) to avoid double-counting covered calls
+		if opt.Status == "Open" && opt.OptionType == "Put" {
 			details.CurrentCapital += opt.Capital
 		}
 	}
