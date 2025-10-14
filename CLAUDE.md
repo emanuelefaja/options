@@ -122,56 +122,56 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 ## Current Portfolio Statistics (as of Day 49)
 
 **Portfolio Overview:**
-- Total Portfolio Value: $113,338
+- Total Portfolio Value: $113,328
 - Total Deposits: $96,009
-- Total Profit: $17,330
-- Portfolio Return: **18.05%**
-- Time-Weighted Return: 18.85% (Ann: **246.96%**)
+- Total Profit: $17,320
+- Portfolio Return: **18.04%**
+- Time-Weighted Return: 18.84% (Ann: **245.73%**)
 - Days Active: 49
 
 **Capital Deployment:**
-- At Risk Capital: $98,068 (86.5% of portfolio)
-- Available Cash (Dry Powder): $15,271
+- At Risk Capital: $92,068 (58.3% of total capital)
+- Available Cash (Dry Powder): $21,261
 - Wise Balance: $44,629
 
 **Profit Breakdown:**
-- Total Premiums Collected: $9,591
+- Total Premiums Collected: $9,581
 - Total Stock Profit: $7,739
 - Unrealized P&L: -$2,119 (-2.2% of at risk capital) ✓ Risk Compliant
 
 **Performance Metrics:**
-- Premium Per Day: $277
-- Daily Theta: $325
-- Avg Return Per Option: 1.85%
-- Weekly Return Rate: 11.19% (+$10,971) ✓ On Track
+- Premium Per Day: $275
+- Daily Theta: $321
+- Avg Return Per Option: 1.84%
+- Weekly Return Rate: 11.91% (+$10,961) ✓ On Track
 
 **Trade Statistics:**
-- Number of Option Trades: 63
+- Number of Option Trades: 64
 - Number of Stock Trades: 29
-- Total Number of Trades: 92
+- Total Number of Trades: 93
 - Largest Premium: $1,821
 - Smallest Premium: $12
-- Average Premium: $152
+- Average Premium: $150
 
 **Risk Metrics:**
 - VIX: 21.66
-- Largest Position: SHOP Put at $15,000 (13.2%) ⚠
-- Top 3 Positions: SHOP, HOOD, HIMS (all >10%)
+- Largest Position: SHOP Put at $15,000 (9.5%) ✓ Compliant
+- Top 3 Positions: SHOP, HOOD, HIMS (all <10%) ✓ Compliant
 
 **Sector Exposure:**
-- Technology: **28.6%** (increased after INOD addition)
-- Financial Services: 20.2%
-- Healthcare: 17.2%
-- Consumer Defensive: 7.7%
-- Industrials: 5.5%
-- Energy: 4.2%
-- Consumer Cyclical: 3.2%
+- Technology: **20.5%** (improved diversification)
+- Financial Services: 16.2%
+- Healthcare: 12.3%
+- Industrials: 3.9%
+- Energy: 3.0%
+- Consumer Cyclical: 2.3%
 
 **Strategy Status:**
 - Testing period complete (50+ trades)
 - Now scaling and optimizing strategy
-- TWR annualized at 247% - exceeding 52% annual target
-- Managing tech sector concentration (28.6% - approaching 40% limit)
+- TWR annualized at 246% - exceeding 52% annual target
+- Tech sector concentration improved to 20.5% (well under 40% limit)
+- All positions now compliant with 10% single-position limit
 
 ## Trade Decision Framework
 
