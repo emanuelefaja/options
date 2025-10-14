@@ -13,6 +13,11 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - `air` - Run with hot reload using Air (.air.toml configured)
 - `go build -o mnmlsm` - Build the binary
 
+### Analytics
+- `go run cmd/stats/main.go` - CLI tool to view portfolio stats without running web server
+  - Shows: Portfolio Overview, Analytics Metrics, Risk Metrics, Sector Exposure, Position Details
+  - Useful for quick portfolio checks and understanding current state
+
 ### Testing & Build
 - `go build` - Compile check
 - No test framework currently configured
@@ -114,41 +119,59 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - No problem with getting assigned, we will just buy back the stock and sell again.
 - I am Panama permanent foreign resident, so I pay 0% tax on foreign sourced income including capital gains and option premiums. US does NOT tax me on this.
 
-## Current Portfolio Statistics (as of Day 45)
+## Current Portfolio Statistics (as of Day 49)
 
 **Portfolio Overview:**
-- Total Portfolio Value: $110,387
+- Total Portfolio Value: $113,338
 - Total Deposits: $96,009
-- Total Profit: $14,379
-- Portfolio Return: **14.98%**
-- Days Active: 45
-- IBKR Value: $108,362
+- Total Profit: $17,330
+- Portfolio Return: **18.05%**
+- Time-Weighted Return: 18.85% (Ann: **246.96%**)
+- Days Active: 49
 
 **Capital Deployment:**
-- Total Active Capital: $64,218
-- Cumulative Capital Deployed: $434,608
+- At Risk Capital: $98,068 (86.5% of portfolio)
+- Available Cash (Dry Powder): $15,271
+- Wise Balance: $44,629
 
 **Profit Breakdown:**
-- Total Premiums Collected: $6,640
+- Total Premiums Collected: $9,591
 - Total Stock Profit: $7,739
-- Unrealized P&L: -$2,026
+- Unrealized P&L: -$2,119 (-2.2% of at risk capital) ✓ Risk Compliant
 
 **Performance Metrics:**
-- Premium Per Day: $217
-- Daily Theta: $154
-- Avg Return Per Option: 1.71%
+- Premium Per Day: $277
+- Daily Theta: $325
+- Avg Return Per Option: 1.85%
+- Weekly Return Rate: 11.19% (+$10,971) ✓ On Track
 
 **Trade Statistics:**
-- Number of Option Trades: 50
-- Number of Stock Trades: 28
-- Total Number of Trades: 78
-- Largest Premium: $459
+- Number of Option Trades: 63
+- Number of Stock Trades: 29
+- Total Number of Trades: 92
+- Largest Premium: $1,821
 - Smallest Premium: $12
-- Average Premium: $133
+- Average Premium: $152
 
-**Testing Status:**
-- Currently at 50 option trades
-- Target: 50 trades to refine strategy (testing period complete - now evaluating results)
+**Risk Metrics:**
+- VIX: 21.66
+- Largest Position: SHOP Put at $15,000 (13.2%) ⚠
+- Top 3 Positions: SHOP, HOOD, HIMS (all >10%)
+
+**Sector Exposure:**
+- Technology: **28.6%** (increased after INOD addition)
+- Financial Services: 20.2%
+- Healthcare: 17.2%
+- Consumer Defensive: 7.7%
+- Industrials: 5.5%
+- Energy: 4.2%
+- Consumer Cyclical: 3.2%
+
+**Strategy Status:**
+- Testing period complete (50+ trades)
+- Now scaling and optimizing strategy
+- TWR annualized at 247% - exceeding 52% annual target
+- Managing tech sector concentration (28.6% - approaching 40% limit)
 
 ## Trade Decision Framework
 
