@@ -45,8 +45,8 @@ func main() {
 
 	vix := web.LoadVIX("data/vix.csv")
 
-	// Calculate total capital at risk (includes deposits)
-	totalCapital := analytics.TotalDeposits + analytics.TotalPremiums + analytics.TotalStockProfitLoss
+	// Calculate total capital same as web app: ActiveCapital + DryPowder + WiseBalance
+	totalCapital := cashPosition.ActiveCapital + cashPosition.DryPowder + cashPosition.WiseBalance
 	capitalUtilization := 0.0
 	if totalCapital > 0 {
 		capitalUtilization = (cashPosition.ActiveCapital / totalCapital) * 100
