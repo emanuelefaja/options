@@ -13,10 +13,26 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - `air` - Run with hot reload using Air (.air.toml configured)
 - `go build -o mnmlsm` - Build the binary
 
-### Analytics
+### Analytics & Tools
 - `go run cmd/stats/main.go` - CLI tool to view portfolio stats without running web server
   - Shows: Portfolio Overview, Analytics Metrics, Risk Metrics, Sector Exposure, Position Details
   - Useful for quick portfolio checks and understanding current state
+
+- `go run cmd/ibkr-quote/main.go --symbol TSLA` - Get real-time stock quotes from IBKR
+  - Requires IBKR Client Portal Gateway running on https://localhost:5001
+  - Supports JSON output: `--format json`
+  - Premium scanning: `--premium-scan --right P --min-return 100 --max-dte 4`
+
+- `go run cmd/update-universe/main.go` - Update universe.csv with live prices from IBKR
+  - Uses 5 concurrent goroutines for fast parallel updates
+  - Updates ~56 stocks in ~12 seconds
+  - Requires IBKR Client Portal Gateway running
+
+### IBKR Gateway
+- `cd gateway && ./start.sh` - Start IBKR Client Portal Gateway
+  - Gateway runs on https://localhost:5001
+  - Must authenticate via web browser on first start
+  - Required for live market data and options scanning
 
 ### Testing & Build
 - `go build` - Compile check
@@ -26,51 +42,63 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 
 ```
 .
-├── .air.toml
-├── .claude
-│   └── settings.local.json
-├── .DS_Store
-├── .gitignore
+├── analysis              # Options scanning engine
+│   ├── scanner.go       # Premium opportunity scanner
+│   └── types.go         # Scanner data structures
 ├── CLAUDE.md
-├── components
+├── cmd                  # CLI tools
+│   ├── ibkr-quote       # Real-time stock quotes
+│   │   └── main.go
+│   ├── stats            # Portfolio statistics CLI
+│   │   └── main.go
+│   └── update-universe  # Update universe.csv with live prices
+│       └── main.go
+├── components           # HTML partials
 │   ├── header.html
 │   └── sidebar.html
-├── data
-│   ├── .DS_Store
-│   ├── options_transactions.csv
-│   ├── stock_prices.csv
-│   ├── stocks_transactions.csv
-│   ├── transactions.csv
-│   ├── vix.csv
-│   └── wise.csv
-├── figure
+├── data                 # CSV data files (database)
+│   ├── options_transactions.csv   # Options trade history
+│   ├── stocks_transactions.csv    # Stock buy/sell transactions
+│   ├── transactions.csv           # Portfolio deposits/withdrawals
+│   ├── universe.csv               # Stock universe with prices & sectors
+│   ├── vix.csv                    # VIX historical data
+│   └── wise.csv                   # Savings account balance history
+├── gateway              # IBKR Client Portal Gateway
+│   ├── clientportal.gw  # Gateway installation
+│   ├── README.md
+│   └── start.sh         # Gateway startup script
 ├── go.mod
-├── layouts
-│   └── main.html
-├── main.go
-├── mnmlsm
-├── pages
-│   ├── analytics.html
-│   ├── home.html
-│   ├── options.html
-│   ├── rules.html
+├── ibkr                 # IBKR API client
+│   ├── client.go        # HTTP client & base API calls
+│   ├── options.go       # Options-specific API calls
+│   ├── quotes.go        # Stock quotes API
+│   └── types.go         # API data structures
+├── layouts              # HTML layout templates
+│   └── main.html        # Base template with Alpine.js
+├── main.go              # HTTP server & routes
+├── mnmlsm               # Compiled binary
+├── pages                # HTML page templates
+│   ├── analytics.html   # Portfolio analytics dashboard
+│   ├── home.html        # Options trades overview
+│   ├── options.html     # Options positions table
+│   ├── risk.html        # Risk management dashboard
+│   ├── rules.html       # Trading rules & strategy
 │   └── stocks
-│       ├── detail.html
-│       └── index.html
+│       ├── detail.html  # Individual stock detail page
+│       └── index.html   # Stock positions overview
 ├── plan.md
 ├── scripts
 ├── static
-├── tmp
-│   ├── build-errors.log
-│   └── main
-└── web
-    ├── analytics.go
-    ├── options_transactions.go
-    ├── options.go
-    ├── stocks.go
-    ├── symbol_analysis.go
-    ├── transactions.go
-    └── types.go
+└── web                  # Backend logic
+    ├── analytics.go            # Portfolio metrics & calculations
+    ├── handlers.go             # HTTP route handlers
+    ├── options_transactions.go # Options transaction processing
+    ├── options.go              # Options display logic (legacy)
+    ├── stocks.go               # Stock position tracking (FIFO)
+    ├── symbol_analysis.go      # Stock detail page logic
+    ├── transactions.go         # Portfolio deposits/withdrawals
+    ├── types.go                # Core data structures
+    └── weekly_performance.go   # Weekly performance calculations
 ```
 
 ## Architecture
@@ -79,36 +107,109 @@ A Go-based web application for tracking and analyzing portfolio performance incl
 - **main.go**: HTTP server setup and route handlers
   - `/` - Home page with options trades
   - `/stocks` - Stock positions (open and closed)
-  - `/analytics` - Portfolio analytics and metrics
+  - `/stocks/:symbol` - Individual stock detail page
+  - `/analytics` - Portfolio analytics dashboard
+  - `/risk` - Risk management dashboard
+  - `/rules` - Trading rules & strategy reference
 
 ### Data Layer (`web/` package)
+- **handlers.go**: HTTP route handlers for all pages
 - **types.go**: Core data structures (PageData, shared types)
-- **options.go**: Options trading logic (Trade struct, CSV loading)
+- **options.go**: Options trading logic (legacy, Trade struct)
+- **options_transactions.go**: Options transaction processing
+  - Groups transactions into positions
+  - Calculates net premiums, returns, and Greeks
 - **stocks.go**: Stock position management with FIFO lot tracking
   - Handles both open and closed positions
-  - Calculates P&L based on stock_transactions.csv
-- **analytics.go**: Portfolio metrics calculations
-- **transactions.go**: Portfolio funding transactions
+  - Calculates realized & unrealized P&L
+- **analytics.go**: Portfolio metrics and calculations
+  - Time-weighted return (TWR)
+  - Sector exposure analysis
+  - Position risk calculations
+  - Daily returns aggregation
+- **weekly_performance.go**: Weekly return tracking
+- **symbol_analysis.go**: Individual stock analysis page logic
+- **transactions.go**: Portfolio deposits/withdrawals
 - **Formatting utilities**: Currency and percentage formatting
 
+### IBKR Integration (`ibkr/` package)
+- **client.go**: Base HTTP client with TLS configuration
+  - Handles authentication and API communication
+  - Market data snapshot requests
+- **quotes.go**: Stock quote fetching
+  - GetQuote() - Single stock quote
+  - GetQuotes() - Batch quote fetching
+- **options.go**: Options chain and pricing
+  - SearchUnderlying() - Find option contract IDs
+  - GetStrikes() - Available strike prices
+  - GetContractInfo() - Option contract details
+  - GetOptionPricing() - Pricing & Greeks
+- **types.go**: API data structures
+
+### Options Scanner (`analysis/` package)
+- **scanner.go**: Premium opportunity scanner
+  - Scans options chains for high-yield trades
+  - Filters by annualized return, DTE, strike range
+  - Returns sorted list of qualified contracts
+- **types.go**: Scanner result structures
+
 ### Data Files (`data/`)
-- `options.csv` - Options trades history
-- `stocks.csv` - Stock positions (legacy)
-- `stocks_transactions.csv` - Buy/sell transactions for lot tracking
-- `transactions.csv` - Portfolio deposits/withdrawals
+- **options_transactions.csv** - Options trade history (sell/buy transactions)
+- **stocks_transactions.csv** - Stock buy/sell transactions for FIFO tracking
+- **transactions.csv** - Portfolio deposits/withdrawals
+- **universe.csv** - Stock universe with live prices & sector mappings (Ticker,Name,Price,Sector)
+- **vix.csv** - VIX historical data for volatility tracking
+- **wise.csv** - Monthly savings account balance history
 
 ### Templates
-- **layouts/main.html** - Base template with Alpine.js setup
+- **layouts/main.html** - Base template with Alpine.js, Tailwind CSS, Chart.js
 - **components/** - Reusable partials (sidebar, header)
-- **pages/** - Page-specific templates (index, stocks, analytics)
+- **pages/** - Page-specific templates
+  - home.html - Options trades overview
+  - options.html - Options positions table
+  - stocks/index.html - Stock positions
+  - stocks/detail.html - Individual stock analysis
+  - analytics.html - Portfolio analytics dashboard
+  - risk.html - Risk management dashboard
+  - rules.html - Trading rules reference
 
 ## Key Implementation Details
 
-- Stock positions use FIFO lot tracking for accurate P&L
+### Trading System
+- **FIFO lot tracking**: Stock positions track cost basis using first-in-first-out
+- **Options position grouping**: Transactions grouped into positions (open/expired/rolled)
+- **Net premium calculation**: Accounts for collected premiums, buybacks, and commissions
+- **Sector diversification**: universe.csv maps stocks to sectors for risk tracking
+
+### IBKR Integration
+- **Client Portal Gateway**: REST API proxy to Interactive Brokers
+- **Real-time quotes**: Live market data via GetQuote()
+- **Options scanning**: Search chains for premium opportunities
+- **Concurrent updates**: 5 goroutines update universe.csv in parallel (~12s for 56 stocks)
+- **Field mappings**: API returns fields at root level (not nested)
+  - Field 31 = Last Price
+  - Field 84 = Bid
+  - Field 86 = Ask (NOT 85!)
+  - Field 87_raw = Volume
+
+### Data Architecture
+- **CSV as database**: No external DB, all data in CSV files
+- **Transaction-based**: All trades stored as transactions, positions calculated on load
+- **Immutable history**: CSVs are append-only, never edit historical data
+- **Daily snapshots**: wise.csv tracks monthly net worth snapshots
+
+### Frontend
+- **Alpine.js**: Reactive UI components and state management
+- **Chart.js**: Portfolio performance charts and visualizations
+- **Tailwind CSS**: Utility-first styling
+- **Server-side rendering**: Go templates with JSON data injection
+- **Real-time status indicators**: Animated ping dots for risk compliance
+
+### Performance
 - All monetary values stored as floats, formatted for display
-- CSV files serve as the database (no external DB dependencies)
 - Template functions handle conditional styling (positive/negative values)
-- Portfolio totals calculated across options premiums and stock positions
+- Portfolio totals calculated on page load (no caching)
+- Sector exposure and risk metrics computed from transaction history
 
 
 # Trade Strategy: Premium Harvesting via Covered Calls
