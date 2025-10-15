@@ -1,0 +1,33 @@
+Symbol,Name,Price,Sector,PositionCost,PositionSizePercent,SectorExposure,SectorPercent,ExistingStockPosition,ExistingPutPosition,ExistingCapital
+AAL,American Airlines,12.47,Industrials,1247.00,4.74,7472.51,4.74,true,false,6225.51
+SOFI,SoFi Technologies,28.04,Financial Services,2804.00,8.72,28354.00,17.97,true,true,10950.00
+MARA,Marathon Digital,22.84,Technology,2284.00,1.45,12184.00,7.72,false,false,0.00
+RIOT,Riot Platforms,22.07,Technology,2207.00,1.40,12107.00,7.67,false,false,0.00
+UPST,Upstart Holdings,51.22,Financial Services,5122.00,3.25,30672.00,19.44,false,false,0.00
+RBLX,Roblox Corporation,138.12,Technology,13812.00,8.75,23712.00,15.03,false,false,0.00
+BYND,Beyond Meat,0.68,Consumer Defensive,68.00,0.04,68.00,0.04,false,false,0.00
+OPEN,Opendoor Technologies,7.39,Real Estate,739.00,0.47,739.00,0.47,false,false,0.00
+ROKU,Roku Inc,98.76,Technology,9876.00,6.26,19776.00,12.53,false,false,0.00
+NIO,NIO Inc,6.84,Consumer Cyclical,684.00,0.43,4334.00,2.75,false,false,0.00
+ARKK,ARK Innovation ETF,52.30,ETF,5230.00,3.31,5230.00,3.31,false,false,0.00
+MRNA,Moderna Inc,27.71,Healthcare,2771.00,1.76,14371.00,9.11,false,false,0.00
+SNAP,Snap Inc,7.90,Technology,790.00,0.50,10690.00,6.77,false,false,0.00
+XOM,Exxon Mobil,111.75,Energy,11175.00,7.08,15917.00,10.09,false,false,0.00
+OXY,Occidental Petroleum,41.92,Energy,4192.00,5.66,8934.00,5.66,true,false,4742.00
+BAC,Bank of America,52.32,Financial Services,5232.00,3.32,30782.00,19.51,false,false,0.00
+TGT,Target Corporation,90.81,Consumer Defensive,9081.00,5.75,9081.00,5.75,false,false,0.00
+F,Ford Motor,11.73,Consumer Cyclical,1173.00,2.20,4823.00,3.06,false,true,2300.00
+AA,Alcoa Corporation,36.48,Basic Materials,3648.00,2.31,3648.00,2.31,false,false,0.00
+CVX,Chevron Corporation,152.30,Energy,15230.00,9.65,19972.00,12.66,false,false,0.00
+WMT,Walmart Inc,92.50,Consumer Defensive,9250.00,5.86,9250.00,5.86,false,false,0.00
+KO,Coca-Cola Company,63.80,Consumer Defensive,6380.00,4.04,6380.00,4.04,false,false,0.00
+PFE,Pfizer Inc,25.40,Healthcare,2540.00,1.61,14140.00,8.96,false,false,0.00
+T,AT&T Inc,22.15,Communication Services,2215.00,1.40,2215.00,1.40,false,false,0.00
+VZ,Verizon Communications,41.30,Communication Services,4130.00,2.62,4130.00,2.62,false,false,0.00
+DKNG,DraftKings Inc,42.80,Consumer Cyclical,4280.00,2.71,7930.00,5.03,false,false,0.00
+PLTR,Palantir Technologies,42.50,Technology,4250.00,2.69,14150.00,8.97,false,false,0.00
+RIVN,Rivian Automotive,13.08,Consumer Cyclical,1308.00,1.68,4958.00,3.14,true,false,1350.00
+MU,Micron Technology,98.50,Technology,9850.00,6.24,19750.00,12.52,false,false,0.00
+SHOP,Shopify Inc,108.50,Technology,10850.00,6.88,20750.00,13.15,false,false,0.00
+CVS,CVS Health,58.30,Healthcare,5830.00,3.69,17430.00,11.05,false,false,0.00
+INOD,Innodata Inc,24.60,Technology,2460.00,1.56,12360.00,7.83,false,false,0.00
