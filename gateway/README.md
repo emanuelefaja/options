@@ -7,6 +7,15 @@ The IBKR Client Portal Gateway is a local API proxy that allows programmatic acc
 - Java Runtime Environment (JRE) 8 or higher
 - Active Interactive Brokers account
 
+## Installation
+
+**Note**: The gateway binary is NOT included in this repository. Download it separately:
+
+1. Download from IBKR: https://www.interactivebrokers.com/en/trading/ib-api.php
+2. Look for "Client Portal API Gateway"
+3. Extract the ZIP file contents into `gateway/clientportal.gw/`
+4. Verify structure: You should have `gateway/clientportal.gw/bin/run.sh`
+
 ## How to Start
 
 ```bash
