@@ -15,6 +15,7 @@ tmp/
 *.so
 *.dylib
 mnmlsm
+/ibkr-quote
 
 # Test coverage
 *.out
