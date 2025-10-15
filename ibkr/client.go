@@ -79,6 +79,11 @@ func (c *Client) GetMarketData(conids []int) ([]MarketDataResponse, error) {
 	url := fmt.Sprintf("%s/iserver/marketdata/snapshot?conids=%s&fields=%s",
 		c.baseURL, conidParam, fields)
 
+	// Preflight request to initialize market data stream
+	c.httpClient.Get(url)
+	time.Sleep(500 * time.Millisecond)
+
+	// Actual request
 	resp, err := c.httpClient.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("fetching market data: %w", err)
