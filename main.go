@@ -35,8 +35,7 @@ func main() {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
-	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(nil, nil, transactions)
+	common := loadCommonData()
 
 	// Calculate stock performance metrics
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
@@ -47,29 +46,15 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	optionPerformance := web.CalculateOptionPerformance(optionTransactions)
 
 	// Calculate cash position
-	cashPosition := web.CalculateCashPosition(analytics)
+	cashPosition := web.CalculateCashPosition(common.analytics)
 	cashPositionJSON := "[]"
 	if jsonData, err := json.Marshal(cashPosition); err == nil {
 		cashPositionJSON = string(jsonData)
 	}
 
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
-	vix := web.LoadVIX("data/vix.csv")
-
-	renderPage(w, "home", web.PageData{
+	pageData := web.PageData{
 		Title:       "Home - mnmlsm",
 		CurrentPage: "home",
-		// Portfolio values for header
-		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:                       totalUnrealizedPL,
-		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
-		VIX:                                     vix,
-		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
 		// Stock performance metrics
 		StockPerformance: stockPerformance,
 		// Options performance metrics
@@ -77,53 +62,34 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		// Cash position data
 		CashPosition:     cashPosition,
 		CashPositionJSON: cashPositionJSON,
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
-	})
+	}
+
+	enrichPageData(&pageData, common)
+	renderPage(w, "home", pageData)
 }
 
 func handleOptions(w http.ResponseWriter, r *http.Request) {
+	common := loadCommonData()
+
 	// Load option positions from new transaction system
 	optionTransactions := web.LoadOptionTransactions("data/options_transactions.csv")
 	optionPositions := web.CalculateOptionPositions(optionTransactions)
 
-	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(nil, nil, transactions)
-
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
-	vix := web.LoadVIX("data/vix.csv")
-
-	renderPage(w, "options", web.PageData{
+	pageData := web.PageData{
 		Title:           "Options - mnmlsm",
 		CurrentPage:     "options",
 		OptionPositions: optionPositions,
 		// Options page specific metrics
-		OpenOptionsCount:     analytics.OpenOptionsCount,
-		ClosedOptionsCount:   analytics.ClosedOptionsCount,
-		OptionsActiveCapital: analytics.OptionsActiveCapital,
-		TotalPremiums:        analytics.TotalPremiums,
-		OptionsActiveCapitalFormatted: web.FormatCurrency(analytics.OptionsActiveCapital),
-		TotalPremiumsFormatted:        web.FormatCurrency(analytics.TotalPremiums),
-		// Portfolio values for header
-		TotalPortfolioValue:          analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:            totalUnrealizedPL,
-		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
-		VIX:                          vix,
-		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
-	})
+		OpenOptionsCount:              common.analytics.OpenOptionsCount,
+		ClosedOptionsCount:            common.analytics.ClosedOptionsCount,
+		OptionsActiveCapital:          common.analytics.OptionsActiveCapital,
+		TotalPremiums:                 common.analytics.TotalPremiums,
+		OptionsActiveCapitalFormatted: web.FormatCurrency(common.analytics.OptionsActiveCapital),
+		TotalPremiumsFormatted:        web.FormatCurrency(common.analytics.TotalPremiums),
+	}
+
+	enrichPageData(&pageData, common)
+	renderPage(w, "options", pageData)
 }
 
 func handleStocks(w http.ResponseWriter, r *http.Request) {
@@ -132,6 +98,8 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
+	common := loadCommonData()
 
 	// Load stock positions from transaction system
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
@@ -149,38 +117,19 @@ func handleStocks(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
-
-	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(nil, nil, transactions)
-
 	// Load symbol summaries
 	symbolSummaries := web.CalculateSymbolSummaries()
-	vix := web.LoadVIX("data/vix.csv")
 
-	renderPage(w, "stocks/index", web.PageData{
+	pageData := web.PageData{
 		Title:           "Stocks - mnmlsm",
 		CurrentPage:     "stocks",
 		Stocks:          currentStocks,
 		ClosedStocks:    closedStocks,
 		SymbolSummaries: symbolSummaries,
-		// Portfolio values for header
-		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:                       totalUnrealizedPL,
-		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
-		VIX:                                     vix,
-		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
-	})
+	}
+
+	enrichPageData(&pageData, common)
+	renderPage(w, "stocks/index", pageData)
 }
 
 func handleStockPages(w http.ResponseWriter, r *http.Request) {
@@ -192,12 +141,10 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load analytics for portfolio-wide metrics
-	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(nil, nil, transactions)
+	common := loadCommonData()
 
 	// Get symbol-specific data
-	symbolDetails := web.GetSymbolDetails(symbol, analytics.TotalPortfolioProfit)
+	symbolDetails := web.GetSymbolDetails(symbol, common.analytics.TotalPortfolioProfit)
 	symbolStocks := web.GetStockPositionsBySymbol(symbol)
 	symbolOptions := web.GetOptionPositionsBySymbol(symbol)
 
@@ -207,41 +154,24 @@ func handleStockPages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
-	vix := web.LoadVIX("data/vix.csv")
+	pageData := web.PageData{
+		Title:         symbol + " - Stock Detail - mnmlsm",
+		CurrentPage:   "stocks",
+		Symbol:        symbol,
+		SymbolDetails: symbolDetails,
+		SymbolStocks:  symbolStocks,
+		SymbolOptions: symbolOptions,
+	}
 
-	renderPage(w, "stocks/detail", web.PageData{
-		Title:          symbol + " - Stock Detail - mnmlsm",
-		CurrentPage:    "stocks",
-		Symbol:         symbol,
-		SymbolDetails:  symbolDetails,
-		SymbolStocks:   symbolStocks,
-		SymbolOptions:  symbolOptions,
-		// Portfolio values for header
-		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:                       totalUnrealizedPL,
-		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
-		VIX:                                     vix,
-		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
-	})
+	enrichPageData(&pageData, common)
+	renderPage(w, "stocks/detail", pageData)
 }
 
 func handleAnalytics(w http.ResponseWriter, r *http.Request) {
-	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(nil, nil, transactions)
+	common := loadCommonData()
 
 	// Calculate net worth data
-	netWorthData := web.CalculateNetWorth(analytics.TotalPortfolioValue)
+	netWorthData := web.CalculateNetWorth(common.analytics.TotalPortfolioValue)
 	netWorthJSON := "[]"
 	var totalNetWorth float64
 	if len(netWorthData) > 0 {
@@ -252,73 +182,56 @@ func handleAnalytics(w http.ResponseWriter, r *http.Request) {
 		totalNetWorth = netWorthData[len(netWorthData)-1].TotalNetWorth
 	}
 
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
-	vix := web.LoadVIX("data/vix.csv")
-
-	renderPage(w, "analytics", web.PageData{
+	pageData := web.PageData{
 		Title:              "Analytics - Options Tracker",
 		CurrentPage:        "analytics",
-		TotalPremiums:      analytics.TotalPremiums,
-		TotalCapital:       analytics.TotalCapital,
-		TotalActiveCapital: analytics.TotalActiveCapital,
-		PremiumPerDay:      analytics.PremiumPerDay,
-		AvgReturnPerTrade:  analytics.AvgReturnPerTrade,
-		LargestPremium:     analytics.LargestPremium,
-		SmallestPremium:    analytics.SmallestPremium,
-		AveragePremium:     analytics.AveragePremium,
-		OptionTradesCount:  analytics.OptionTradesCount,
-		StockTradesCount:   analytics.StockTradesCount,
-		TotalTradesCount:   analytics.TotalTradesCount,
-		DaysSinceStart:     analytics.DaysSinceStart,
-		TotalPremiumsFormatted:      web.FormatCurrency(analytics.TotalPremiums),
-		TotalCapitalFormatted:       web.FormatCurrency(analytics.TotalCapital),
-		TotalActiveCapitalFormatted: web.FormatCurrency(analytics.TotalActiveCapital),
-		PremiumPerDayFormatted:      web.FormatCurrency(analytics.PremiumPerDay),
-		AvgReturnPerTradeFormatted:  web.FormatPercentage(analytics.AvgReturnPerTrade),
-		LargestPremiumFormatted:     web.FormatCurrency(analytics.LargestPremium),
-		SmallestPremiumFormatted:    web.FormatCurrency(analytics.SmallestPremium),
-		AveragePremiumFormatted:     web.FormatCurrency(analytics.AveragePremium),
-		// Portfolio values for header
-		TotalPortfolioValue:          analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:            totalUnrealizedPL,
-		TotalStockProfit:             analytics.TotalStockProfitLoss,
-		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
-		TotalStockProfitFormatted:    web.FormatCurrency(analytics.TotalStockProfitLoss),
-		TotalDepositsFormatted:       web.FormatCurrency(analytics.TotalDeposits),
-		DailyTheta:                   analytics.DailyTheta,
-		DailyThetaFormatted:          web.FormatCurrency(analytics.DailyTheta),
-		VIX:                          vix,
-		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
+		TotalPremiums:      common.analytics.TotalPremiums,
+		TotalCapital:       common.analytics.TotalCapital,
+		TotalActiveCapital: common.analytics.TotalActiveCapital,
+		PremiumPerDay:      common.analytics.PremiumPerDay,
+		AvgReturnPerTrade:  common.analytics.AvgReturnPerTrade,
+		LargestPremium:     common.analytics.LargestPremium,
+		SmallestPremium:    common.analytics.SmallestPremium,
+		AveragePremium:     common.analytics.AveragePremium,
+		OptionTradesCount:  common.analytics.OptionTradesCount,
+		StockTradesCount:   common.analytics.StockTradesCount,
+		TotalTradesCount:   common.analytics.TotalTradesCount,
+		DaysSinceStart:     common.analytics.DaysSinceStart,
+		TotalPremiumsFormatted:      web.FormatCurrency(common.analytics.TotalPremiums),
+		TotalCapitalFormatted:       web.FormatCurrency(common.analytics.TotalCapital),
+		TotalActiveCapitalFormatted: web.FormatCurrency(common.analytics.TotalActiveCapital),
+		PremiumPerDayFormatted:      web.FormatCurrency(common.analytics.PremiumPerDay),
+		AvgReturnPerTradeFormatted:  web.FormatPercentage(common.analytics.AvgReturnPerTrade),
+		LargestPremiumFormatted:     web.FormatCurrency(common.analytics.LargestPremium),
+		SmallestPremiumFormatted:    web.FormatCurrency(common.analytics.SmallestPremium),
+		AveragePremiumFormatted:     web.FormatCurrency(common.analytics.AveragePremium),
+		TotalStockProfit:            common.analytics.TotalStockProfitLoss,
+		TotalStockProfitFormatted:   web.FormatCurrency(common.analytics.TotalStockProfitLoss),
+		TotalDepositsFormatted:      web.FormatCurrency(common.analytics.TotalDeposits),
+		DailyTheta:                  common.analytics.DailyTheta,
+		DailyThetaFormatted:         web.FormatCurrency(common.analytics.DailyTheta),
 		// Daily returns data
-		DailyReturns:     analytics.DailyReturns,
-		DailyReturnsJSON: analytics.DailyReturnsJSON,
+		DailyReturns:     common.analytics.DailyReturns,
+		DailyReturnsJSON: common.analytics.DailyReturnsJSON,
 		// Net worth data
-		NetWorthData:          netWorthData,
-		NetWorthDataJSON:      netWorthJSON,
-		TotalNetWorth:         totalNetWorth,
+		NetWorthData:           netWorthData,
+		NetWorthDataJSON:       netWorthJSON,
+		TotalNetWorth:          totalNetWorth,
 		TotalNetWorthFormatted: web.FormatCurrency(totalNetWorth),
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
 		// Projected $1M data
-		ProjectedMillionDateFormatted: analytics.ProjectedMillionDateFormatted,
-		DaysToMillion:                 analytics.DaysToMillion,
-	})
+		ProjectedMillionDateFormatted: common.analytics.ProjectedMillionDateFormatted,
+		DaysToMillion:                 common.analytics.DaysToMillion,
+	}
+
+	enrichPageData(&pageData, common)
+	renderPage(w, "analytics", pageData)
 }
 
 func handleRisk(w http.ResponseWriter, r *http.Request) {
-	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
-	analytics := web.CalculateAnalytics(nil, nil, transactions)
+	common := loadCommonData()
 
 	// Calculate cash position for risk metrics
-	cashPosition := web.CalculateCashPosition(analytics)
+	cashPosition := web.CalculateCashPosition(common.analytics)
 	cashPositionJSON := "[]"
 	if jsonData, err := json.Marshal(cashPosition); err == nil {
 		cashPositionJSON = string(jsonData)
@@ -338,10 +251,7 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		positionDetailsJSON = string(jsonData)
 	}
 
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
-	vix := web.LoadVIX("data/vix.csv")
-
-	renderPage(w, "risk", web.PageData{
+	pageData := web.PageData{
 		Title:       "Risk - mnmlsm",
 		CurrentPage: "risk",
 		// Cash position data for risk page
@@ -354,57 +264,81 @@ func handleRisk(w http.ResponseWriter, r *http.Request) {
 		PositionDetails:     positionDetails,
 		PositionDetailsJSON: positionDetailsJSON,
 		// Analytics for additional metrics
-		TotalActiveCapital:              analytics.TotalActiveCapital,
-		TotalActiveCapitalFormatted:     web.FormatCurrency(analytics.TotalActiveCapital),
+		TotalActiveCapital:          common.analytics.TotalActiveCapital,
+		TotalActiveCapitalFormatted: web.FormatCurrency(common.analytics.TotalActiveCapital),
 		// Daily returns data for client-side weekly calculation
-		DailyReturns:     analytics.DailyReturns,
-		DailyReturnsJSON: analytics.DailyReturnsJSON,
-		// Portfolio values for header
-		TotalPortfolioValue:                     analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:                    analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage:          analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:                       totalUnrealizedPL,
-		TotalPortfolioValueFormatted:            web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted:           web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:              web.FormatCurrency(totalUnrealizedPL),
-		VIX:                                     vix,
-		VIXFormatted:                            fmt.Sprintf("%.2f", vix),
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
-	})
+		DailyReturns:     common.analytics.DailyReturns,
+		DailyReturnsJSON: common.analytics.DailyReturnsJSON,
+	}
+
+	enrichPageData(&pageData, common)
+	renderPage(w, "risk", pageData)
 }
 
 func handleRules(w http.ResponseWriter, r *http.Request) {
+	common := loadCommonData()
+
+	pageData := web.PageData{
+		Title:       "Rules - mnmlsm",
+		CurrentPage: "rules",
+	}
+
+	enrichPageData(&pageData, common)
+	renderPage(w, "rules", pageData)
+}
+
+// commonData holds data shared across all pages (header, portfolio metrics, etc.)
+type commonData struct {
+	analytics         web.Analytics
+	totalUnrealizedPL float64
+	vix               float64
+}
+
+// loadCommonData loads all shared data that appears on every page
+func loadCommonData() commonData {
 	transactions := web.LoadTransactionsFromCSV("data/transactions.csv")
 	analytics := web.CalculateAnalytics(nil, nil, transactions)
 
-	totalUnrealizedPL := calculateTotalUnrealizedPL()
+	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
+	stockPrices := web.LoadStockPrices("data/stock_prices.csv")
+	positions := web.CalculateAllPositions(stockTransactions, stockPrices)
+
+	totalUnrealizedPL := 0.0
+	for _, pos := range positions {
+		if pos.Type == "open" {
+			totalUnrealizedPL += pos.UnrealizedPnL
+		}
+	}
+
 	vix := web.LoadVIX("data/vix.csv")
 
-	renderPage(w, "rules", web.PageData{
-		Title:       "Rules - mnmlsm",
-		CurrentPage: "rules",
-		// Portfolio values for header
-		TotalPortfolioValue:          analytics.TotalPortfolioValue,
-		TotalPortfolioProfit:         analytics.TotalPortfolioProfit,
-		TotalPortfolioProfitPercentage: analytics.TotalPortfolioProfitPercentage,
-		TotalUnrealizedPL:            totalUnrealizedPL,
-		TotalPortfolioValueFormatted:  web.FormatCurrency(analytics.TotalPortfolioValue),
-		TotalPortfolioProfitFormatted: web.FormatCurrency(analytics.TotalPortfolioProfit),
-		TotalPortfolioProfitPercentageFormatted: web.FormatPercentage(analytics.TotalPortfolioProfitPercentage),
-		TotalUnrealizedPLFormatted:   web.FormatCurrency(totalUnrealizedPL),
-		VIX:                          vix,
-		VIXFormatted:                 fmt.Sprintf("%.2f", vix),
-		// Time-Weighted Return data
-		TimeWeightedReturn:                   analytics.TimeWeightedReturn,
-		TimeWeightedReturnAnnualized:         analytics.TimeWeightedReturnAnnualized,
-		TimeWeightedReturnFormatted:          web.FormatPercentage(analytics.TimeWeightedReturn),
-		TimeWeightedReturnAnnualizedFormatted: web.FormatPercentage(analytics.TimeWeightedReturnAnnualized),
-	})
+	return commonData{
+		analytics:         analytics,
+		totalUnrealizedPL: totalUnrealizedPL,
+		vix:               vix,
+	}
+}
+
+// enrichPageData adds common portfolio/header data to PageData
+func enrichPageData(data *web.PageData, common commonData) {
+	data.TotalPortfolioValue = common.analytics.TotalPortfolioValue
+	data.TotalPortfolioProfit = common.analytics.TotalPortfolioProfit
+	data.TotalPortfolioProfitPercentage = common.analytics.TotalPortfolioProfitPercentage
+	data.TotalUnrealizedPL = common.totalUnrealizedPL
+	data.VIX = common.vix
+
+	// Formatted versions
+	data.TotalPortfolioValueFormatted = web.FormatCurrency(common.analytics.TotalPortfolioValue)
+	data.TotalPortfolioProfitFormatted = web.FormatCurrency(common.analytics.TotalPortfolioProfit)
+	data.TotalPortfolioProfitPercentageFormatted = web.FormatPercentage(common.analytics.TotalPortfolioProfitPercentage)
+	data.TotalUnrealizedPLFormatted = web.FormatCurrency(common.totalUnrealizedPL)
+	data.VIXFormatted = fmt.Sprintf("%.2f", common.vix)
+
+	// Time-Weighted Return
+	data.TimeWeightedReturn = common.analytics.TimeWeightedReturn
+	data.TimeWeightedReturnAnnualized = common.analytics.TimeWeightedReturnAnnualized
+	data.TimeWeightedReturnFormatted = web.FormatPercentage(common.analytics.TimeWeightedReturn)
+	data.TimeWeightedReturnAnnualizedFormatted = web.FormatPercentage(common.analytics.TimeWeightedReturnAnnualized)
 }
 
 func calculateTotalUnrealizedPL() float64 {
