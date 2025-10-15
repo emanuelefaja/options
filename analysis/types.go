@@ -35,8 +35,13 @@ type OptionContract struct {
 
 	// Calculated metrics
 	DTE              int     // Days to expiration
-	Premium          float64 // Dollar premium
-	PremiumPercent   float64 // Premium as % of strike
-	AnnualizedReturn float64 // Annualized return %
+	Premium          float64 // Dollar premium (total)
+	IntrinsicValue   float64 // Intrinsic value (ITM amount)
+	ExtrinsicValue   float64 // Extrinsic value (time premium)
+	PremiumPercent   float64 // Premium as % of strike (based on extrinsic)
+	AnnualizedReturn float64 // Annualized return % (based on extrinsic)
 	CapitalRequired  float64 // Capital required for cash-secured put/covered call
+	POP              float64 // Probability of Profit (1 - |Delta|) as percentage
+	Efficiency       float64 // Risk-adjusted return: AnnualizedReturn / (1 - POP)
+	IsITM            bool    // Whether option is in-the-money
 }

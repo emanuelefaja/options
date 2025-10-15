@@ -96,17 +96,46 @@ func (s *Scanner) ScanPremiums(params ScanParams) ([]OptionContract, error) {
 				}
 			}
 
-			// Calculate metrics using per-share pricing
-			premiumPerShare := midPrice
-			premiumPercent := (premiumPerShare / strike) * 100
+			// Calculate intrinsic and extrinsic value
+			var intrinsicValue float64
+			var isITM bool
+
+			if params.Right == "P" {
+				// Put: intrinsic = max(0, strike - stock price)
+				intrinsicValue = math.Max(0, strike-currentPrice)
+				isITM = strike > currentPrice
+			} else {
+				// Call: intrinsic = max(0, stock price - strike)
+				intrinsicValue = math.Max(0, currentPrice-strike)
+				isITM = currentPrice > strike
+			}
+
+			// Extrinsic value (time premium) = total premium - intrinsic
+			extrinsicValue := math.Max(0, midPrice-intrinsicValue)
+
+			// Calculate metrics using EXTRINSIC VALUE (time premium only)
+			// This represents the actual return on your capital, not just ITM movement
+			premiumPercent := (extrinsicValue / strike) * 100
 			annualizedReturn := (premiumPercent / float64(dte)) * 365
 
 			// Total premium for 100 shares (for display)
-			totalPremium := premiumPerShare * 100
+			totalPremium := midPrice * 100
+			totalExtrinsic := extrinsicValue * 100
+			totalIntrinsic := intrinsicValue * 100
 
-			// Filter by minimum return
+			// Filter by minimum return (based on extrinsic value)
 			if annualizedReturn < params.MinReturn {
 				continue
+			}
+
+			// Calculate Probability of Profit (1 - |Delta|)
+			pop := (1 - math.Abs(pricing.Delta)) * 100
+
+			// Calculate Efficiency (risk-adjusted return)
+			// Efficiency = AnnualizedReturn / (1 - POP)
+			efficiency := 0.0
+			if pop < 100 {
+				efficiency = annualizedReturn / (1 - (pop / 100))
 			}
 
 			// Build OptionContract
@@ -127,10 +156,15 @@ func (s *Scanner) ScanPremiums(params ScanParams) ([]OptionContract, error) {
 				Vega:             pricing.Vega,
 				ImpliedVol:       pricing.ImpliedVol,
 				DTE:              dte,
-				Premium:          totalPremium, // Total for 100 shares
-				PremiumPercent:   premiumPercent,
-				AnnualizedReturn: annualizedReturn,
-				CapitalRequired:  strike * 100, // For cash-secured put
+				Premium:          totalPremium,    // Total for 100 shares
+				IntrinsicValue:   totalIntrinsic,  // Intrinsic for 100 shares
+				ExtrinsicValue:   totalExtrinsic,  // Extrinsic for 100 shares
+				PremiumPercent:   premiumPercent,  // Based on extrinsic
+				AnnualizedReturn: annualizedReturn, // Based on extrinsic
+				CapitalRequired:  strike * 100,     // For cash-secured put
+				POP:              pop,
+				Efficiency:       efficiency,
+				IsITM:            isITM,
 			}
 
 			qualifyingContracts = append(qualifyingContracts, optContract)

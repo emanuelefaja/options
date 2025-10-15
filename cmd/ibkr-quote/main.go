@@ -152,21 +152,28 @@ func printPremiumTable(contracts []analysis.OptionContract) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
 	fmt.Fprintf(w, "\n✅ Found %d qualifying contracts:\n\n", len(contracts))
-	fmt.Fprintln(w, "STRIKE\tEXPIRY\tDTE\tPREMIUM\tPREM%\tANNUALIZED\tDELTA\tCAPITAL")
-	fmt.Fprintln(w, strings.Repeat("-", 90))
+	fmt.Fprintln(w, "STRIKE\tEXPIRY\tDTE\tEXTRINSIC\tANN%\tPOP\tEFFICIENCY\tITM\tDELTA\tCAPITAL")
+	fmt.Fprintln(w, strings.Repeat("-", 120))
 
 	for _, c := range contracts {
 		// Parse expiry date for display
 		expiryDate, _ := time.Parse("20060102", c.MaturityDate)
 		expiryStr := expiryDate.Format("Jan 02")
 
-		fmt.Fprintf(w, "$%.2f\t%s\t%dd\t$%.0f\t%.2f%%\t%.0f%%\t%.3f\t$%.0f\n",
+		itmStr := "OTM"
+		if c.IsITM {
+			itmStr = "ITM"
+		}
+
+		fmt.Fprintf(w, "$%.2f\t%s\t%dd\t$%.0f\t%.0f%%\t%.1f%%\t%.0f\t%s\t%.3f\t$%.0f\n",
 			c.Strike,
 			expiryStr,
 			c.DTE,
-			c.Premium,
-			c.PremiumPercent,
+			c.ExtrinsicValue,
 			c.AnnualizedReturn,
+			c.POP,
+			c.Efficiency,
+			itmStr,
 			c.Delta,
 			c.CapitalRequired,
 		)
@@ -187,8 +194,8 @@ func savePremiumsToCSV(contracts []analysis.OptionContract, filename string) err
 
 	// Write header
 	header := []string{
-		"Symbol", "Strike", "Expiry", "DTE", "Premium",
-		"Premium%", "Annualized%", "Delta", "Gamma", "Theta",
+		"Symbol", "Strike", "Expiry", "DTE", "Premium", "Intrinsic", "Extrinsic",
+		"Premium%", "Annualized%", "POP%", "Efficiency", "ITM", "Delta", "Gamma", "Theta",
 		"Vega", "IV", "Bid", "Ask", "Capital", "ConID",
 	}
 	if err := writer.Write(header); err != nil {
@@ -197,14 +204,24 @@ func savePremiumsToCSV(contracts []analysis.OptionContract, filename string) err
 
 	// Write rows
 	for _, c := range contracts {
+		itmStr := "false"
+		if c.IsITM {
+			itmStr = "true"
+		}
+
 		row := []string{
 			c.Symbol,
 			fmt.Sprintf("%.2f", c.Strike),
 			c.MaturityDate,
 			fmt.Sprintf("%d", c.DTE),
 			fmt.Sprintf("%.2f", c.Premium),
+			fmt.Sprintf("%.2f", c.IntrinsicValue),
+			fmt.Sprintf("%.2f", c.ExtrinsicValue),
 			fmt.Sprintf("%.2f", c.PremiumPercent),
 			fmt.Sprintf("%.2f", c.AnnualizedReturn),
+			fmt.Sprintf("%.2f", c.POP),
+			fmt.Sprintf("%.2f", c.Efficiency),
+			itmStr,
 			fmt.Sprintf("%.4f", c.Delta),
 			fmt.Sprintf("%.4f", c.Gamma),
 			fmt.Sprintf("%.4f", c.Theta),
