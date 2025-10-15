@@ -33,9 +33,12 @@ type Section struct {
 }
 
 // MarketDataResponse represents raw market data from IBKR
+// Note: Field data comes at the root level, not nested in a "fields" object
 type MarketDataResponse struct {
-	ConID  int                    `json:"conid"`
-	Fields map[string]interface{} `json:"fields"`
+	ConID int `json:"conid"`
+	// All other fields are market data fields (31, 84, 85, etc.) at root level
+	// We'll unmarshal this as a generic map to handle all fields
+	Fields map[string]interface{} `json:"-"` // Skip this in JSON unmarshaling
 }
 
 // SecDefSearchResponse represents security definition search response for options

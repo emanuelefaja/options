@@ -72,16 +72,17 @@ func parseQuote(symbol string, data MarketDataResponse) (*Quote, error) {
 		Symbol: symbol,
 	}
 
-	// Field mappings from IBKR API:
+	// Field mappings from IBKR API (verified from actual responses):
 	// 31 = Last Price
 	// 84 = Bid
-	// 85 = Ask
-	// 86 = Ask Size
+	// 85 = Ask Size (not Ask!)
+	// 86 = Ask (not Ask Size!)
 	// 88 = Bid Size
-	// 87 = Volume
+	// 87 = Volume (formatted string like "65.7M")
+	// 87_raw = Volume (raw number)
 	// 7295 = Previous Close
 	// 7296 = Change
-	// 7741 = % Change
+	// 7762 = Total Volume
 
 	if val, ok := fields["31"]; ok {
 		quote.Price = parseFloat(val)
@@ -89,10 +90,14 @@ func parseQuote(symbol string, data MarketDataResponse) (*Quote, error) {
 	if val, ok := fields["84"]; ok {
 		quote.Bid = parseFloat(val)
 	}
-	if val, ok := fields["85"]; ok {
+	if val, ok := fields["86"]; ok {
+		// Field 86 is Ask, not 85!
 		quote.Ask = parseFloat(val)
 	}
-	if val, ok := fields["87"]; ok {
+	// Try 87_raw first (raw number), fall back to 7762 (total volume)
+	if val, ok := fields["87_raw"]; ok {
+		quote.Volume = parseInt(val)
+	} else if val, ok := fields["7762"]; ok {
 		quote.Volume = parseInt(val)
 	}
 	if val, ok := fields["7295"]; ok {
@@ -100,9 +105,6 @@ func parseQuote(symbol string, data MarketDataResponse) (*Quote, error) {
 	}
 	if val, ok := fields["7296"]; ok {
 		quote.Change = parseFloat(val)
-	}
-	if val, ok := fields["7741"]; ok {
-		quote.ChangePerc = parseFloat(val)
 	}
 
 	// Calculate change/changePerc if not provided

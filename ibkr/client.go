@@ -95,9 +95,30 @@ func (c *Client) GetMarketData(conids []int) ([]MarketDataResponse, error) {
 		return nil, fmt.Errorf("reading response: %w", err)
 	}
 
-	var data []MarketDataResponse
-	if err := json.Unmarshal(body, &data); err != nil {
+	// First unmarshal into a slice of maps since fields are at root level
+	var rawData []map[string]interface{}
+	if err := json.Unmarshal(body, &rawData); err != nil {
 		return nil, fmt.Errorf("parsing market data: %w", err)
+	}
+
+	// Convert to MarketDataResponse structs
+	data := make([]MarketDataResponse, 0, len(rawData))
+	for _, raw := range rawData {
+		response := MarketDataResponse{
+			Fields: make(map[string]interface{}),
+		}
+
+		// Extract conid and all other fields
+		for key, value := range raw {
+			if key == "conid" {
+				response.ConID = parseInt(value)
+			} else {
+				// Store all other fields (market data) in Fields map
+				response.Fields[key] = value
+			}
+		}
+
+		data = append(data, response)
 	}
 
 	return data, nil
