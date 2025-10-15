@@ -118,9 +118,9 @@ func (c *Client) GetContractInfo(conid int, month, strike, right string) ([]Cont
 // GetOptionPricing fetches bid/ask and greeks for an option contract
 func (c *Client) GetOptionPricing(conid int) (*OptionPricing, error) {
 	// Request fields:
-	// 84 = Bid, 85 = Ask, 86 = Bid Size, 88 = Ask Size
+	// 84 = Bid, 86 = Ask (NOT 85!), 88 = Ask Size
 	// 31 = Last, 7283 = Implied Vol, 7308 = Delta
-	fields := "31,84,85,86,88,7283,7308"
+	fields := "31,84,86,88,7283,7308"
 	url := fmt.Sprintf("%s/iserver/marketdata/snapshot?conids=%d&fields=%s",
 		c.baseURL, conid, fields)
 
@@ -152,16 +152,61 @@ func (c *Client) GetOptionPricing(conid int) (*OptionPricing, error) {
 	item := data[0]
 	pricing := &OptionPricing{}
 
-	pricing.Bid = parseFieldValue(item["84"])
-	pricing.Ask = parseFieldValue(item["85"])
-	pricing.LastPrice = parseFieldValue(item["31"])
-	pricing.ImpliedVol = parseFieldValue(item["7283"])
-	pricing.Delta = parseFieldValue(item["7308"])
+	pricing.Bid = parseOptionPrice(item["84"])
+	pricing.Ask = parseOptionPrice(item["86"])
+	pricing.LastPrice = parseOptionPrice(item["31"])
+	pricing.ImpliedVol = parseOptionPrice(item["7283"])
+	pricing.Delta = parseOptionPrice(item["7308"])
 
 	return pricing, nil
 }
 
-// parseFieldValue extracts float value from various field formats
+// parseOptionPrice extracts float value from option pricing fields
+// IBKR returns option prices in TWO different formats:
+// - Values < 1.0: Already in dollars per share (e.g., 0.12 = $0.12/share)
+// - Values >= 1.0: In cents (e.g., 945 = $9.45/share, "6,773" = $67.73/share)
+func parseOptionPrice(field interface{}) float64 {
+	if field == nil {
+		return 0
+	}
+
+	switch val := field.(type) {
+	case float64:
+		// For float64 values, we can't determine format from the value itself
+		// Assume values < 10 are already in dollars (since options rarely cost < $0.10/share when reported as cents)
+		// This is a reasonable heuristic since most option prices are between $0.01 and $10 per share
+		if val >= 10.0 {
+			return val / 100
+		}
+		return val
+	case string:
+		// Remove commas from the string (e.g., "6,773" -> "6773")
+		cleaned := strings.ReplaceAll(val, ",", "")
+
+		// Remove any 'C' prefix that sometimes appears
+		cleaned = strings.TrimPrefix(cleaned, "C")
+
+		var f float64
+		fmt.Sscanf(cleaned, "%f", &f)
+
+		// Check if the cleaned string contains a decimal point
+		// If it has a decimal point (e.g., "1.23", "4.90"), it's already in dollars - use as-is
+		// If it's an integer string (e.g., "132", "945"), it's in cents - divide by 100
+		if strings.Contains(cleaned, ".") {
+			return f
+		}
+		return f / 100
+	case map[string]interface{}:
+		if v, ok := val["v"]; ok {
+			return parseOptionPrice(v)
+		}
+	}
+
+	return 0
+}
+
+// parseFieldValue extracts float value from stock price fields
+// Stock prices are already in dollars (e.g., 28.03 = $28.03)
 func parseFieldValue(field interface{}) float64 {
 	if field == nil {
 		return 0
@@ -171,8 +216,11 @@ func parseFieldValue(field interface{}) float64 {
 	case float64:
 		return val
 	case string:
+		// Remove commas from the string
+		cleaned := strings.ReplaceAll(val, ",", "")
+
 		var f float64
-		fmt.Sscanf(val, "%f", &f)
+		fmt.Sscanf(cleaned, "%f", &f)
 		return f
 	case map[string]interface{}:
 		if v, ok := val["v"]; ok {

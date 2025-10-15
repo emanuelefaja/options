@@ -96,10 +96,13 @@ func (s *Scanner) ScanPremiums(params ScanParams) ([]OptionContract, error) {
 				}
 			}
 
-			// Calculate metrics
-			premium := midPrice * 100 // Price × 100 shares
-			premiumPercent := (premium / (strike * 100)) * 100
-			annualizedReturn := CalculateAnnualizedReturn(premium, strike*100, dte)
+			// Calculate metrics using per-share pricing
+			premiumPerShare := midPrice
+			premiumPercent := (premiumPerShare / strike) * 100
+			annualizedReturn := (premiumPercent / float64(dte)) * 365
+
+			// Total premium for 100 shares (for display)
+			totalPremium := premiumPerShare * 100
 
 			// Filter by minimum return
 			if annualizedReturn < params.MinReturn {
@@ -124,7 +127,7 @@ func (s *Scanner) ScanPremiums(params ScanParams) ([]OptionContract, error) {
 				Vega:             pricing.Vega,
 				ImpliedVol:       pricing.ImpliedVol,
 				DTE:              dte,
-				Premium:          premium,
+				Premium:          totalPremium, // Total for 100 shares
 				PremiumPercent:   premiumPercent,
 				AnnualizedReturn: annualizedReturn,
 				CapitalRequired:  strike * 100, // For cash-secured put
