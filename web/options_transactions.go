@@ -94,6 +94,10 @@ func LoadOptionTransactions(filename string) []OptionTransaction {
 }
 
 func CalculateOptionPositions(transactions []OptionTransaction) []OptionPosition {
+	// Load stock transactions to get cost basis for covered calls
+	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
+	stockCostBasis := calculateStockCostBasisAtDate(stockTransactions)
+
 	positionMap := make(map[string]*OptionPosition)
 
 	for _, tx := range transactions {
@@ -128,9 +132,15 @@ func CalculateOptionPositions(transactions []OptionTransaction) []OptionPosition
 				// Cash-secured put - requires capital equal to strike price
 				pos.Capital = tx.Strike * float64(tx.Contracts) * 100
 			} else {
-				// Covered call - capital is $0 because it's covered by stock shares
-				// The stock cost basis is counted separately to avoid double-counting
-				pos.Capital = 0
+				// Covered call - use actual stock cost basis for display/metrics
+				// This allows proper calculation of returns on covered calls
+				// Note: In analytics, we only count Put capital in TotalActiveCapital to avoid double-counting
+				if costBasis, exists := stockCostBasis[tx.Symbol]; exists {
+					pos.Capital = costBasis * float64(tx.Contracts) * 100
+				} else {
+					// Fallback: use stock price at time of trade
+					pos.Capital = tx.StockPrice * float64(tx.Contracts) * 100
+				}
 			}
 
 		case "Buy to Close":
@@ -224,4 +234,73 @@ func (p OptionPosition) FormatPercentReturn() string {
 
 func (p OptionPosition) FormatAnnualizedReturn() string {
 	return FormatPercentage(p.AnnualizedReturn)
+}
+
+// calculateStockCostBasisAtDate calculates the average cost basis per share for each symbol
+// based on current holdings (using FIFO lot tracking)
+func calculateStockCostBasisAtDate(transactions []StockTransaction) map[string]float64 {
+	symbolLots := make(map[string][]Lot)
+
+	// Process transactions to build current holdings
+	for _, tx := range transactions {
+		if tx.Type == "Buy" {
+			lot := Lot{
+				Date:      tx.Date,
+				Shares:    tx.Shares,
+				Price:     tx.Price,
+				CostBasis: tx.Amount + tx.Commission,
+			}
+			symbolLots[tx.Symbol] = append(symbolLots[tx.Symbol], lot)
+
+		} else if tx.Type == "Sell" {
+			lots := symbolLots[tx.Symbol]
+			remainingToSell := tx.Shares
+			var newLots []Lot
+
+			for _, lot := range lots {
+				if remainingToSell <= 0 {
+					newLots = append(newLots, lot)
+					continue
+				}
+
+				if lot.Shares <= remainingToSell {
+					// Entire lot is sold
+					remainingToSell -= lot.Shares
+				} else {
+					// Partial lot sold
+					shareFraction := remainingToSell / lot.Shares
+					costBasisFraction := lot.CostBasis * shareFraction
+
+					lot.Shares -= remainingToSell
+					lot.CostBasis -= costBasisFraction
+					newLots = append(newLots, lot)
+					remainingToSell = 0
+				}
+			}
+
+			symbolLots[tx.Symbol] = newLots
+		}
+	}
+
+	// Calculate average cost basis per share for each symbol
+	costBasisMap := make(map[string]float64)
+	for symbol, lots := range symbolLots {
+		if len(lots) == 0 {
+			continue
+		}
+
+		totalShares := 0.0
+		totalCostBasis := 0.0
+
+		for _, lot := range lots {
+			totalShares += lot.Shares
+			totalCostBasis += lot.CostBasis
+		}
+
+		if totalShares > 0 {
+			costBasisMap[symbol] = totalCostBasis / totalShares
+		}
+	}
+
+	return costBasisMap
 }
