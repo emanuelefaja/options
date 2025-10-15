@@ -1,36 +1,36 @@
 Ticker,Name,Price,IV,Sector
-AAL,American Airlines,11.73,65.5,Industrials
-AMD,Advanced Micro Devices,142.30,58.2,Technology
-SOFI,SoFi Technologies,27.21,85.4,Financial Services
-MARA,Marathon Digital,18.45,125.3,Technology
-RIOT,Riot Platforms,12.80,118.7,Technology
-CVNA,Carvana,165.50,95.2,Consumer Cyclical
-HOOD,Robinhood Markets,32.15,78.6,Financial Services
-COIN,Coinbase Global,215.40,98.5,Technology
-UPST,Upstart Holdings,52.30,112.8,Financial Services
-AFRM,Affirm Holdings,48.70,88.3,Financial Services
-RBLX,Roblox Corporation,49.25,72.1,Technology
-BYND,Beyond Meat,6.80,95.4,Consumer Defensive
-OPEN,Opendoor Technologies,2.15,108.6,Real Estate
-TSLA,Tesla Inc,242.80,52.4,Consumer Cyclical
-NVDA,NVIDIA Corporation,128.50,48.5,Technology
-META,Meta Platforms,585.20,42.8,Technology
-NFLX,Netflix Inc,720.40,38.6,Communication Services
-SQ,Block Inc,76.50,68.9,Financial Services
-PYPL,PayPal Holdings,82.30,52.7,Financial Services
-ROKU,Roku Inc,78.40,75.3,Technology
-NIO,NIO Inc,4.85,88.2,Consumer Cyclical
+AAL,American Airlines,12.47,65.5,Industrials
+AMD,Advanced Micro Devices,237.07,58.2,Technology
+SOFI,SoFi Technologies,28.04,85.4,Financial Services
+MARA,Marathon Digital,22.84,125.3,Technology
+RIOT,Riot Platforms,22.07,118.7,Technology
+CVNA,Carvana,357.11,95.2,Consumer Cyclical
+HOOD,Robinhood Markets,134.18,78.6,Financial Services
+COIN,Coinbase Global,336.53,98.5,Technology
+UPST,Upstart Holdings,51.22,112.8,Financial Services
+AFRM,Affirm Holdings,72.87,88.3,Financial Services
+RBLX,Roblox Corporation,138.12,72.1,Technology
+BYND,Beyond Meat,0.68,95.4,Consumer Defensive
+OPEN,Opendoor Technologies,7.39,108.6,Real Estate
+TSLA,Tesla Inc,433.72,52.4,Consumer Cyclical
+NVDA,NVIDIA Corporation,179.43,48.5,Technology
+META,Meta Platforms,717.14,42.8,Technology
+NFLX,Netflix Inc,1203.02,38.6,Communication Services
+SQ,Block Inc,1405.50,68.9,Financial Services
+PYPL,PayPal Holdings,68.00,52.7,Financial Services
+ROKU,Roku Inc,98.76,75.3,Technology
+NIO,NIO Inc,6.84,88.2,Consumer Cyclical
 ARKK,ARK Innovation ETF,52.30,45.0,ETF
-UBER,Uber Technologies,94.02,54.8,Technology
-MRNA,Moderna Inc,42.60,85.5,Healthcare
-SNAP,Snap Inc,11.20,82.4,Technology
-XOM,Exxon Mobil,115.40,28.5,Energy
-OXY,Occidental Petroleum,42.51,45.2,Energy
-BAC,Bank of America,42.80,35.8,Financial Services
-TGT,Target Corporation,148.20,32.4,Consumer Defensive
-F,Ford Motor,10.85,62.5,Consumer Cyclical
-AA,Alcoa Corporation,38.70,55.8,Basic Materials
-WFC,Wells Fargo,58.45,34.2,Financial Services
+UBER,Uber Technologies,94.51,54.8,Technology
+MRNA,Moderna Inc,27.71,85.5,Healthcare
+SNAP,Snap Inc,7.90,82.4,Technology
+XOM,Exxon Mobil,111.75,28.5,Energy
+OXY,Occidental Petroleum,41.92,45.2,Energy
+BAC,Bank of America,52.32,35.8,Financial Services
+TGT,Target Corporation,90.81,32.4,Consumer Defensive
+F,Ford Motor,11.73,62.5,Consumer Cyclical
+AA,Alcoa Corporation,36.48,55.8,Basic Materials
+WFC,Wells Fargo,86.14,34.2,Financial Services
 CVX,Chevron Corporation,152.30,26.8,Energy
 WMT,Walmart Inc,92.50,22.5,Consumer Defensive
 KO,Coca-Cola Company,63.80,18.2,Consumer Defensive
