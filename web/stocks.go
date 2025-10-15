@@ -121,7 +121,7 @@ func LoadStockPrices(filename string) map[string]float64 {
 	}
 
 	prices := make(map[string]float64)
-	// universe.csv format: Ticker,Name,Price,IV,Sector
+	// universe.csv format: Ticker,Name,Price,Sector
 	for i, record := range records {
 		if i == 0 {
 			continue

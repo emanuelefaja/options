@@ -676,13 +676,13 @@ func LoadSectorMapping(filePath string) map[string]string {
 	}
 
 	// Skip header and build mapping
-	// universe.csv format: Ticker,Name,Price,IV,Sector
+	// universe.csv format: Ticker,Name,Price,Sector
 	for i, record := range records {
-		if i == 0 || len(record) < 5 {
+		if i == 0 || len(record) < 4 {
 			continue
 		}
 		symbol := record[0]
-		sector := record[4] // Sector is in column 4 (index 4)
+		sector := record[3] // Sector is in column 3 (index 3)
 		sectorMap[symbol] = sector
 	}
 

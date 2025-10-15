@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"math"
 	"mnmlsm/ibkr"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -14,8 +14,14 @@ type UniverseStock struct {
 	Ticker string
 	Name   string
 	Price  float64
-	IV     float64
 	Sector string
+}
+
+type updateResult struct {
+	index   int
+	price   float64
+	success bool
+	err     error
 }
 
 func main() {
@@ -33,46 +39,74 @@ func main() {
 	// Create IBKR client
 	client := ibkr.NewClient()
 
-	// Update each stock
+	// Use goroutines to parallelize updates
+	const workers = 5 // Run 5 concurrent requests
+	results := make(chan updateResult, len(stocks))
+	jobs := make(chan int, len(stocks))
+	var wg sync.WaitGroup
+
+	// Start worker goroutines
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range jobs {
+				result := updateResult{index: i}
+
+				// Get stock price
+				quote, err := client.GetQuote(stocks[i].Ticker)
+				if err != nil {
+					result.err = err
+					result.success = false
+					results <- result
+					continue
+				}
+
+				// Check if price is valid
+				if quote.Price == 0 {
+					result.err = fmt.Errorf("got invalid price ($0.00)")
+					result.success = false
+					results <- result
+					continue
+				}
+
+				result.price = quote.Price
+				result.success = true
+				results <- result
+
+				// Rate limiting per worker
+				time.Sleep(200 * time.Millisecond)
+			}
+		}()
+	}
+
+	// Send jobs to workers
+	for i := range stocks {
+		jobs <- i
+	}
+	close(jobs)
+
+	// Wait for all workers to finish
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Process results and print progress
 	successCount := 0
 	errorCount := 0
-
-	for i := range stocks {
+	for result := range results {
+		i := result.index
 		fmt.Printf("[%d/%d] Updating %s (%s)...", i+1, len(stocks), stocks[i].Ticker, stocks[i].Name)
 
-		// Get stock price
-		quote, err := client.GetQuote(stocks[i].Ticker)
-		if err != nil {
-			fmt.Printf(" ❌ Failed to get quote: %v\n", err)
-			errorCount++
-			time.Sleep(500 * time.Millisecond)
-			continue
-		}
-
-		// Check if price is valid
-		if quote.Price == 0 {
-			fmt.Printf(" ❌ Got invalid price ($0.00) - is IBKR gateway running?\n")
-			errorCount++
-			time.Sleep(500 * time.Millisecond)
-			continue
-		}
-
-		stocks[i].Price = quote.Price
-
-		// Get IV from ATM options (front month)
-		iv, err := getImpliedVolatility(client, stocks[i].Ticker, quote.Price)
-		if err != nil {
-			fmt.Printf(" ⚠️  Price updated ($%.2f), but IV fetch failed: %v\n", quote.Price, err)
-			// Still count as partial success - we got the price
+		if result.success {
+			stocks[i].Price = result.price
+			fmt.Printf(" ✅ Price: $%.2f\n", result.price)
 			successCount++
 		} else {
-			stocks[i].IV = iv
-			fmt.Printf(" ✅ Price: $%.2f, IV: %.1f%%\n", quote.Price, iv)
-			successCount++
+			fmt.Printf(" ❌ Failed: %v\n", result.err)
+			errorCount++
 		}
-
-		// Rate limiting - be nice to the API
-		time.Sleep(1 * time.Second)
 	}
 
 	fmt.Printf("\n📈 Update complete: %d succeeded, %d failed\n\n", successCount, errorCount)
@@ -106,19 +140,17 @@ func readUniverse(filename string) ([]UniverseStock, error) {
 		if i == 0 {
 			continue
 		}
-		if len(record) < 5 {
+		if len(record) < 4 {
 			continue
 		}
 
 		price, _ := strconv.ParseFloat(record[2], 64)
-		iv, _ := strconv.ParseFloat(record[3], 64)
 
 		stock := UniverseStock{
 			Ticker: record[0],
 			Name:   record[1],
 			Price:  price,
-			IV:     iv,
-			Sector: record[4],
+			Sector: record[3],
 		}
 		stocks = append(stocks, stock)
 	}
@@ -137,7 +169,7 @@ func writeUniverse(filename string, stocks []UniverseStock) error {
 	defer writer.Flush()
 
 	// Write header
-	header := []string{"Ticker", "Name", "Price", "IV", "Sector"}
+	header := []string{"Ticker", "Name", "Price", "Sector"}
 	if err := writer.Write(header); err != nil {
 		return err
 	}
@@ -148,7 +180,6 @@ func writeUniverse(filename string, stocks []UniverseStock) error {
 			stock.Ticker,
 			stock.Name,
 			fmt.Sprintf("%.2f", stock.Price),
-			fmt.Sprintf("%.1f", stock.IV),
 			stock.Sector,
 		}
 		if err := writer.Write(row); err != nil {
@@ -157,84 +188,4 @@ func writeUniverse(filename string, stocks []UniverseStock) error {
 	}
 
 	return nil
-}
-
-// getImpliedVolatility fetches the implied volatility from ATM options
-func getImpliedVolatility(client *ibkr.Client, symbol string, currentPrice float64) (float64, error) {
-	// Search for the underlying and get front month
-	conID, months, err := client.SearchUnderlying(symbol, "NASDAQ")
-	if err != nil {
-		// Try NYSE if NASDAQ fails
-		conID, months, err = client.SearchUnderlying(symbol, "NYSE")
-		if err != nil {
-			return 0, fmt.Errorf("underlying not found: %w", err)
-		}
-	}
-
-	if len(months) == 0 {
-		return 0, fmt.Errorf("no option months available")
-	}
-
-	// Use front month
-	month := months[0]
-
-	// Get strikes near current price (±2% range)
-	strikeRange := currentPrice * 0.02
-	strikes, err := client.GetStrikes(conID, month, currentPrice, strikeRange)
-	if err != nil {
-		return 0, fmt.Errorf("getting strikes: %w", err)
-	}
-
-	if len(strikes) == 0 {
-		return 0, fmt.Errorf("no strikes found")
-	}
-
-	// Find the ATM strike (closest to current price)
-	atmStrike := strikes[0]
-	minDiff := math.Abs(strikes[0] - currentPrice)
-	for _, strike := range strikes {
-		diff := math.Abs(strike - currentPrice)
-		if diff < minDiff {
-			minDiff = diff
-			atmStrike = strike
-		}
-	}
-
-	// Get both call and put IV for ATM strike
-	strikeStr := fmt.Sprintf("%.2f", atmStrike)
-	var ivValues []float64
-
-	// Try to get call IV
-	callContracts, err := client.GetContractInfo(conID, month, strikeStr, "C")
-	if err == nil && len(callContracts) > 0 {
-		// Get pricing for first call contract
-		pricing, err := client.GetOptionPricing(callContracts[0].ConID)
-		if err == nil && pricing.ImpliedVol > 0 {
-			ivValues = append(ivValues, pricing.ImpliedVol)
-		}
-		time.Sleep(300 * time.Millisecond)
-	}
-
-	// Try to get put IV
-	putContracts, err := client.GetContractInfo(conID, month, strikeStr, "P")
-	if err == nil && len(putContracts) > 0 {
-		// Get pricing for first put contract
-		pricing, err := client.GetOptionPricing(putContracts[0].ConID)
-		if err == nil && pricing.ImpliedVol > 0 {
-			ivValues = append(ivValues, pricing.ImpliedVol)
-		}
-	}
-
-	if len(ivValues) == 0 {
-		return 0, fmt.Errorf("no valid IV data")
-	}
-
-	// Average the IVs
-	avgIV := 0.0
-	for _, iv := range ivValues {
-		avgIV += iv
-	}
-	avgIV = avgIV / float64(len(ivValues))
-
-	return avgIV, nil
 }
