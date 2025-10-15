@@ -114,3 +114,6 @@ Date,Action,Symbol,OptionType,Strike,Expiry,Contracts,Premium,StockPrice,Commiss
 2025-10-14,Sell to Open,INOD,Put,75.00,2025-10-17,1,210.00,77.31,0.00,P63,CSP on INOD; 349% annualized; 3-day expiry; AI data services company; earnings Oct 30 after expiry; chose $75 strike (3% OTM) over $77 ATM to manage tech sector concentration (now 28.6%); 5.8% downside cushion to break-even at $72.90
 2025-10-14,Sell to Open,SOFI,Put,27.00,2025-10-17,1,50.00,27.56,0.00,P64,CSP on SOFI; 225% annualized; 3-day expiry; doubling down on best performer (17 prior trades with 179% avg annualized); SOFI has generated $1252 in premiums (7.4% of total portfolio P/L); increases SOFI exposure to 6.9% and Financial Services sector to 16.2%; both under limits
 2025-10-14,Buy to Close,TGT,Put,87.00,2025-10-17,1,-60.00,89.08,0.00,P49,Closed at 58% profit; exiting TGT position - down-trending stock that doesn't fit strategy of only trading stocks with upward momentum
+2025-10-15,Buy to Close,INOD,Put,75.00,2025-10-17,1,-50.00,,0.00,P63,Closed at 76% profit; captured $160 profit with 2 days remaining
+2025-10-15,Buy to Close,CVS,Put,79.00,2025-10-17,1,-25.00,,0.00,P57,Closed at 75% profit; captured $75 profit with 2 days remaining
+2025-10-15,Buy to Close,SHOP,Put,150.00,2025-10-17,1,-79.00,,0.00,P56,Closed at 72% profit; captured $203 profit with 2 days remaining
