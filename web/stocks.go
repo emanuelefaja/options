@@ -121,13 +121,14 @@ func LoadStockPrices(filename string) map[string]float64 {
 	}
 
 	prices := make(map[string]float64)
+	// universe.csv format: Ticker,Name,Price,IV,Sector
 	for i, record := range records {
 		if i == 0 {
 			continue
 		}
-		if len(record) >= 2 {
+		if len(record) >= 3 {
 			ticker := record[0]
-			price, _ := strconv.ParseFloat(record[1], 64)
+			price, _ := strconv.ParseFloat(record[2], 64) // Price is in column 2 (index 2)
 			prices[ticker] = price
 		}
 	}
@@ -350,7 +351,7 @@ func PositionsToStocks(positions []Position) []Stock {
 
 func LoadStocksWithPositions(filename string) []Stock {
 	transactionsFile := strings.Replace(filename, "stocks.csv", "stocks_transactions.csv", 1)
-	pricesFile := strings.Replace(filename, "stocks.csv", "stock_prices.csv", 1)
+	pricesFile := strings.Replace(filename, "stocks.csv", "universe.csv", 1)
 
 	transactions := LoadStockTransactions(transactionsFile)
 	stockPrices := LoadStockPrices(pricesFile)

@@ -1,0 +1,57 @@
+Ticker,Name,Price,IV,Sector
+AAL,American Airlines,11.73,65.5,Industrials
+AMD,Advanced Micro Devices,142.30,58.2,Technology
+SOFI,SoFi Technologies,27.21,85.4,Financial Services
+MARA,Marathon Digital,18.45,125.3,Technology
+RIOT,Riot Platforms,12.80,118.7,Technology
+CVNA,Carvana,165.50,95.2,Consumer Cyclical
+HOOD,Robinhood Markets,32.15,78.6,Financial Services
+COIN,Coinbase Global,215.40,98.5,Technology
+UPST,Upstart Holdings,52.30,112.8,Financial Services
+AFRM,Affirm Holdings,48.70,88.3,Financial Services
+RBLX,Roblox Corporation,49.25,72.1,Technology
+BYND,Beyond Meat,6.80,95.4,Consumer Defensive
+OPEN,Opendoor Technologies,2.15,108.6,Real Estate
+TSLA,Tesla Inc,242.80,52.4,Consumer Cyclical
+NVDA,NVIDIA Corporation,128.50,48.5,Technology
+META,Meta Platforms,585.20,42.8,Technology
+NFLX,Netflix Inc,720.40,38.6,Communication Services
+SQ,Block Inc,76.50,68.9,Financial Services
+PYPL,PayPal Holdings,82.30,52.7,Financial Services
+ROKU,Roku Inc,78.40,75.3,Technology
+NIO,NIO Inc,4.85,88.2,Consumer Cyclical
+ARKK,ARK Innovation ETF,52.30,45.0,ETF
+UBER,Uber Technologies,94.02,54.8,Technology
+MRNA,Moderna Inc,42.60,85.5,Healthcare
+SNAP,Snap Inc,11.20,82.4,Technology
+XOM,Exxon Mobil,115.40,28.5,Energy
+OXY,Occidental Petroleum,42.51,45.2,Energy
+BAC,Bank of America,42.80,35.8,Financial Services
+TGT,Target Corporation,148.20,32.4,Consumer Defensive
+F,Ford Motor,10.85,62.5,Consumer Cyclical
+AA,Alcoa Corporation,38.70,55.8,Basic Materials
+WFC,Wells Fargo,58.45,34.2,Financial Services
+CVX,Chevron Corporation,152.30,26.8,Energy
+WMT,Walmart Inc,92.50,22.5,Consumer Defensive
+KO,Coca-Cola Company,63.80,18.2,Consumer Defensive
+PFE,Pfizer Inc,25.40,38.6,Healthcare
+T,AT&T Inc,22.15,28.4,Communication Services
+VZ,Verizon Communications,41.30,24.6,Communication Services
+GE,GE Aerospace,178.50,35.8,Industrials
+DKNG,DraftKings Inc,42.80,72.6,Consumer Cyclical
+JPM,JPMorgan Chase,225.40,28.5,Financial Services
+PLTR,Palantir Technologies,42.50,65.8,Technology
+HIMS,Hims & Hers Health,54.80,88.5,Healthcare
+IBKR,Interactive Brokers,145.60,32.4,Financial Services
+RIVN,Rivian Automotive,13.08,92.8,Consumer Cyclical
+MU,Micron Technology,98.50,62.5,Technology
+VOO,Vanguard S&P 500 ETF,520.80,12.5,ETF
+VEA,Vanguard FTSE Developed,52.40,15.2,ETF
+VWO,Vanguard FTSE Emerging,44.30,18.6,ETF
+VNQ,Vanguard Real Estate ETF,85.20,22.8,ETF
+VB,Vanguard Small-Cap ETF,242.50,28.5,ETF
+ASEA,Global X FTSE Southeast Asia,18.40,35.2,Other
+ROLR,High Tide Inc,2.85,95.4,Other
+SHOP,Shopify Inc,108.50,62.8,Technology
+CVS,CVS Health,58.30,42.5,Healthcare
+INOD,Innodata Inc,24.60,78.2,Technology

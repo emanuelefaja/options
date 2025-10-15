@@ -16,7 +16,7 @@ func main() {
 
 	// Calculate unrealized P&L
 	stockTransactions := web.LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := web.LoadStockPrices("data/stock_prices.csv")
+	stockPrices := web.LoadStockPrices("data/universe.csv")
 	positions := web.CalculateAllPositions(stockTransactions, stockPrices)
 
 	totalUnrealizedPL := 0.0

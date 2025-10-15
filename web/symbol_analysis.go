@@ -13,7 +13,7 @@ func CalculateSymbolSummaries() []SymbolSummary {
 
 	// Load stock positions
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	stockPositions := CalculateAllPositions(stockTransactions, stockPrices)
 
 	// Group by symbol
@@ -78,7 +78,7 @@ func CalculateSymbolSummaries() []SymbolSummary {
 func GetSymbolDetails(symbol string, portfolioTotalPL float64) SymbolDetails {
 	// Load all positions
 	optionPositions := GetOptionPositionsBySymbol(symbol)
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	stockPositions := CalculateAllPositions(LoadStockTransactions("data/stocks_transactions.csv"), stockPrices)
 
 	details := SymbolDetails{
@@ -153,7 +153,7 @@ func GetSymbolDetails(symbol string, portfolioTotalPL float64) SymbolDetails {
 // GetStockPositionsBySymbol returns all stock positions (open + closed) for a symbol
 func GetStockPositionsBySymbol(symbol string) []Stock {
 	transactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	positions := CalculateAllPositions(transactions, stockPrices)
 	stocks := PositionsToStocks(positions)
 

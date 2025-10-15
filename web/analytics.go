@@ -192,7 +192,7 @@ func CalculateAnalytics(trades []Trade, stocks []Stock, transactions []Transacti
 	// Calculate total stock profit/loss from all positions
 	// Load stock transactions to get closed positions and open positions' cost basis
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	if len(stockTransactions) > 0 {
 		positions := CalculateAllPositions(stockTransactions, stockPrices)
 		openStockCount := 0
@@ -328,7 +328,7 @@ func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransaction
 	}
 
 	// Process stock transactions for realized gains
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	positions := CalculateAllPositions(stockTransactions, stockPrices)
 	for _, pos := range positions {
 		if pos.Type == "closed" {
@@ -378,7 +378,7 @@ func CalculateDailyReturnsNew(optionPositions []OptionPosition, stockTransaction
 }
 
 func CalculateStockPerformance(stockTransactions []StockTransaction) StockPerformance {
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	positions := CalculateAllPositions(stockTransactions, stockPrices)
 
 	var perf StockPerformance
@@ -659,7 +659,7 @@ func LoadVIX(filePath string) float64 {
 	return 0.0
 }
 
-// LoadSectorMapping loads the sector mapping from sectors.csv
+// LoadSectorMapping loads the sector mapping from universe.csv
 func LoadSectorMapping(filePath string) map[string]string {
 	sectorMap := make(map[string]string)
 
@@ -676,12 +676,13 @@ func LoadSectorMapping(filePath string) map[string]string {
 	}
 
 	// Skip header and build mapping
+	// universe.csv format: Ticker,Name,Price,IV,Sector
 	for i, record := range records {
-		if i == 0 || len(record) < 2 {
+		if i == 0 || len(record) < 5 {
 			continue
 		}
 		symbol := record[0]
-		sector := record[1]
+		sector := record[4] // Sector is in column 4 (index 4)
 		sectorMap[symbol] = sector
 	}
 
@@ -692,12 +693,12 @@ func LoadSectorMapping(filePath string) map[string]string {
 // Only counts: open stock positions + open PUT options (cash-secured puts)
 // Does NOT count call options (those are covered calls on stocks we already own)
 func CalculateSectorExposure() []SectorExposure {
-	sectorMap := LoadSectorMapping("data/sectors.csv")
+	sectorMap := LoadSectorMapping("data/universe.csv")
 	sectorData := make(map[string]*SectorExposure)
 
 	// 1. Get open stock positions
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	positions := CalculateAllPositions(stockTransactions, stockPrices)
 
 	for _, pos := range positions {
@@ -783,7 +784,7 @@ func CalculatePositionDetails() []PositionDetail {
 
 	// 1. Load open stock positions
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	positions := CalculateAllPositions(stockTransactions, stockPrices)
 
 	// 2. Load open option positions

@@ -82,7 +82,7 @@ func HandleStocks(w http.ResponseWriter, r *http.Request) {
 
 	// Load stock positions from transaction system
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	stockPositions := CalculateAllPositions(stockTransactions, stockPrices)
 	allStocks := PositionsToStocks(stockPositions)
 
@@ -283,7 +283,7 @@ func loadCommonData() commonData {
 	analytics := CalculateAnalytics(nil, nil, transactions)
 
 	stockTransactions := LoadStockTransactions("data/stocks_transactions.csv")
-	stockPrices := LoadStockPrices("data/stock_prices.csv")
+	stockPrices := LoadStockPrices("data/universe.csv")
 	positions := CalculateAllPositions(stockTransactions, stockPrices)
 
 	totalUnrealizedPL := 0.0
