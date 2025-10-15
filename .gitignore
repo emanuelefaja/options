@@ -36,3 +36,4 @@ coverage.html
 # IBKR Gateway (third-party binary, should be downloaded separately)
 gateway/clientportal.gw/
 !gateway/clientportal.gw/.gitkeep
+/build
