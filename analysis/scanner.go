@@ -1,9 +1,13 @@
 package analysis
 
 import (
+	"encoding/csv"
 	"fmt"
 	"math"
 	"mnmlsm/ibkr"
+	"os"
+	"sort"
+	"strconv"
 	"time"
 )
 
@@ -60,7 +64,7 @@ func (s *Scanner) ScanPremiums(params ScanParams) ([]OptionContract, error) {
 		}
 
 		// Rate limiting
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond) // 50 req/s rate limit (60 max)
 
 		// Process each contract (usually multiple expiries per strike/month)
 		for _, contract := range contracts {
@@ -79,7 +83,7 @@ func (s *Scanner) ScanPremiums(params ScanParams) ([]OptionContract, error) {
 			}
 
 			// Rate limiting
-			time.Sleep(200 * time.Millisecond)
+			time.Sleep(20 * time.Millisecond) // 50 req/s rate limit (60 max)
 
 			// Skip if no valid bid or ask
 			if pricing.Bid <= 0 && pricing.Ask <= 0 {
@@ -271,4 +275,399 @@ func getThirdFriday(monthDate time.Time) time.Time {
 
 	// Add two weeks to get third Friday
 	return current.AddDate(0, 0, 14)
+}
+
+// ScanAllStocks scans all stocks from solar-system.csv and saves to options-chain.csv
+func (s *Scanner) ScanAllStocks(params BatchScanParams) error {
+	// Load stocks from solar-system.csv
+	stocks, err := loadSolarSystem(params.SolarSystemCSV)
+	if err != nil {
+		return fmt.Errorf("loading solar-system.csv: %w", err)
+	}
+
+	// Initialize output CSV
+	if err := initializeCSV(params.OutputCSV); err != nil {
+		return fmt.Errorf("initializing CSV: %w", err)
+	}
+
+	fmt.Printf("🪐 Scanning %d stocks from solar-system.csv\n", len(stocks))
+	fmt.Printf("   Right: %s, Min Return: %.0f%%, Expiries: %d\n\n", params.Right, params.MinReturn, params.NumExpiries)
+
+	totalContracts := 0
+	successCount := 0
+	failedStocks := []string{}
+
+	for i, stock := range stocks {
+		fmt.Printf("[%d/%d] Processing %s...\n", i+1, len(stocks), stock.Symbol)
+
+		// Scan this stock
+		contracts, err := s.scanStockMultiExpiry(stock, params)
+		if err != nil {
+			fmt.Printf("   ❌ Error: %v\n", err)
+			failedStocks = append(failedStocks, fmt.Sprintf("%s: %v", stock.Symbol, err))
+			continue
+		}
+
+		// Save all contracts to CSV
+		for _, contract := range contracts {
+			if err := appendContractToCSV(contract, params.OutputCSV); err != nil {
+				return fmt.Errorf("appending to CSV: %w", err)
+			}
+			totalContracts++
+		}
+
+		fmt.Printf("   ✅ Found %d contracts\n\n", len(contracts))
+		successCount++
+	}
+
+	// Summary
+	fmt.Printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+	fmt.Printf("✨ Scan Complete!\n")
+	fmt.Printf("   Success: %d/%d stocks\n", successCount, len(stocks))
+	fmt.Printf("   Total Contracts: %d\n", totalContracts)
+	fmt.Printf("   Saved to: %s\n", params.OutputCSV)
+
+	if len(failedStocks) > 0 {
+		fmt.Printf("\n❌ Failed stocks:\n")
+		for _, failure := range failedStocks {
+			fmt.Printf("   %s\n", failure)
+		}
+	}
+
+	return nil
+}
+
+// scanStockMultiExpiry scans one stock across multiple expiries
+func (s *Scanner) scanStockMultiExpiry(stock SolarSystemStock, params BatchScanParams) ([]OptionContract, error) {
+	// Get underlying and option months
+	// Use NASDAQ as default exchange (matches ibkr-quote behavior)
+	conID, months, err := s.client.SearchUnderlying(stock.Symbol, "NASDAQ")
+	if err != nil {
+		return nil, fmt.Errorf("searching underlying: %w", err)
+	}
+
+	// Get current stock price
+	currentPrice, err := s.client.GetLastPrice(conID)
+	if err != nil {
+		return nil, fmt.Errorf("getting price: %w", err)
+	}
+
+	fmt.Printf("   Price: $%.2f\n", currentPrice)
+
+	// Get next N Friday expiries
+	targetExpiries := getNextFridayExpiries(months, params.NumExpiries)
+	if len(targetExpiries) == 0 {
+		return nil, fmt.Errorf("no valid expiries found")
+	}
+
+	fmt.Printf("   Expiries: %s\n", formatExpiries(targetExpiries))
+
+	var allContracts []OptionContract
+
+	// Scan each expiry
+	for _, month := range targetExpiries {
+		// Get strikes
+		strikes, err := s.client.GetStrikes(conID, month, currentPrice, params.StrikeRange)
+		if err != nil {
+			fmt.Printf("   ⚠️  Skipping %s: %v\n", month, err)
+			continue
+		}
+
+		expiryContracts := 0
+
+		// Process each strike
+		for _, strike := range strikes {
+			strikeStr := fmt.Sprintf("%.2f", strike)
+
+			// Get contract info
+			contracts, err := s.client.GetContractInfo(conID, month, strikeStr, params.Right)
+			if err != nil {
+				continue
+			}
+
+			time.Sleep(20 * time.Millisecond) // 50 req/s rate limit (60 max)
+
+			// Process each contract
+			for _, contract := range contracts {
+				dte := CalculateDaysToExpiry(contract.MaturityDate)
+
+				// Get pricing
+				pricing, err := s.client.GetOptionPricing(contract.ConID)
+				if err != nil {
+					continue
+				}
+
+				time.Sleep(20 * time.Millisecond) // 50 req/s rate limit (60 max)
+
+				// Skip if no valid bid or ask
+				if pricing.Bid <= 0 && pricing.Ask <= 0 {
+					continue
+				}
+
+				// Calculate mid price
+				midPrice := pricing.Bid
+				if pricing.Ask > 0 {
+					if pricing.Bid > 0 {
+						midPrice = (pricing.Bid + pricing.Ask) / 2
+					} else {
+						midPrice = pricing.Ask
+					}
+				}
+
+				// Calculate intrinsic and extrinsic value
+				var intrinsicValue float64
+				var isITM bool
+
+				if params.Right == "P" {
+					intrinsicValue = math.Max(0, strike-currentPrice)
+					isITM = strike > currentPrice
+				} else {
+					intrinsicValue = math.Max(0, currentPrice-strike)
+					isITM = currentPrice > strike
+				}
+
+				extrinsicValue := math.Max(0, midPrice-intrinsicValue)
+
+				// Calculate metrics
+				premiumPercent := (extrinsicValue / strike) * 100
+				annualizedReturn := (premiumPercent / float64(dte)) * 365
+
+				// Filter by minimum return
+				if annualizedReturn < params.MinReturn {
+					continue
+				}
+
+				totalPremium := midPrice * 100
+				totalExtrinsic := extrinsicValue * 100
+				totalIntrinsic := intrinsicValue * 100
+
+				// Calculate POP and Efficiency
+				pop := (1 - math.Abs(pricing.Delta)) * 100
+				efficiency := 0.0
+				if pop < 100 {
+					efficiency = annualizedReturn / (1 - (pop / 100))
+				}
+
+				// Build contract
+				optContract := OptionContract{
+					Symbol:           stock.Symbol,
+					Strike:           strike,
+					Right:            params.Right,
+					MaturityDate:     contract.MaturityDate,
+					ConID:            contract.ConID,
+					UnderlyingConID:  conID,
+					Bid:              pricing.Bid,
+					Ask:              pricing.Ask,
+					MidPrice:         midPrice,
+					UnderlyingPrice:  currentPrice,
+					Delta:            pricing.Delta,
+					Gamma:            pricing.Gamma,
+					Theta:            pricing.Theta,
+					Vega:             pricing.Vega,
+					ImpliedVol:       pricing.ImpliedVol,
+					DTE:              dte,
+					Premium:          totalPremium,
+					IntrinsicValue:   totalIntrinsic,
+					ExtrinsicValue:   totalExtrinsic,
+					PremiumPercent:   premiumPercent,
+					AnnualizedReturn: annualizedReturn,
+					CapitalRequired:  strike * 100,
+					POP:              pop,
+					Efficiency:       efficiency,
+					IsITM:            isITM,
+				}
+
+				allContracts = append(allContracts, optContract)
+				expiryContracts++
+
+				// Progress feedback
+				itmStr := "OTM"
+				if isITM {
+					itmStr = "ITM"
+				}
+				fmt.Printf("      $%.2f (%s, %dd): $%.0f → %.0f%% ann\n",
+					strike, itmStr, dte, totalExtrinsic, annualizedReturn)
+			}
+		}
+
+		if expiryContracts > 0 {
+			fmt.Printf("   📅 %s: %d contracts\n", month, expiryContracts)
+		}
+	}
+
+	return allContracts, nil
+}
+
+// getNextFridayExpiries returns the next N Friday expiries from available months
+func getNextFridayExpiries(months []string, count int) []string {
+	type expiryDate struct {
+		month string
+		date  time.Time
+	}
+
+	now := time.Now()
+	var expiries []expiryDate
+
+	for _, month := range months {
+		monthDate, err := parseMonthString(month)
+		if err != nil {
+			continue
+		}
+
+		expiry := getThirdFriday(monthDate)
+
+		// Only include future expiries
+		if expiry.After(now) {
+			expiries = append(expiries, expiryDate{
+				month: month,
+				date:  expiry,
+			})
+		}
+	}
+
+	// Sort by date ascending
+	sort.Slice(expiries, func(i, j int) bool {
+		return expiries[i].date.Before(expiries[j].date)
+	})
+
+	// Take first N
+	result := []string{}
+	for i := 0; i < count && i < len(expiries); i++ {
+		result = append(result, expiries[i].month)
+	}
+
+	return result
+}
+
+// formatExpiries formats expiry months for display
+func formatExpiries(months []string) string {
+	if len(months) == 0 {
+		return "none"
+	}
+
+	result := ""
+	for i, month := range months {
+		if i > 0 {
+			result += ", "
+		}
+		// Parse and format nicely
+		monthDate, err := parseMonthString(month)
+		if err == nil {
+			expiry := getThirdFriday(monthDate)
+			result += expiry.Format("Jan 2")
+		} else {
+			result += month
+		}
+	}
+	return result
+}
+
+// SolarSystemStock represents a stock from solar-system.csv
+type SolarSystemStock struct {
+	Symbol string
+	Price  float64
+}
+
+// loadSolarSystem loads stocks from solar-system.csv
+func loadSolarSystem(filepath string) ([]SolarSystemStock, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var stocks []SolarSystemStock
+	for i, record := range records {
+		if i == 0 || len(record) < 3 {
+			continue // Skip header
+		}
+
+		price, err := strconv.ParseFloat(record[2], 64)
+		if err != nil {
+			continue
+		}
+
+		stocks = append(stocks, SolarSystemStock{
+			Symbol: record[0],
+			Price:  price,
+		})
+	}
+
+	return stocks, nil
+}
+
+// initializeCSV creates the CSV file with header row
+func initializeCSV(filepath string) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	header := []string{
+		"Symbol", "Strike", "Right", "MaturityDate", "DTE",
+		"Premium", "IntrinsicValue", "ExtrinsicValue",
+		"PremiumPercent", "AnnualizedReturn", "POP", "Efficiency",
+		"ITM", "Delta", "Gamma", "Theta", "Vega", "ImpliedVol",
+		"Bid", "Ask", "MidPrice", "UnderlyingPrice",
+		"CapitalRequired", "ConID", "UnderlyingConID",
+	}
+
+	return writer.Write(header)
+}
+
+// appendContractToCSV appends one contract to the CSV file
+func appendContractToCSV(contract OptionContract, filepath string) error {
+	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	itmStr := "false"
+	if contract.IsITM {
+		itmStr = "true"
+	}
+
+	row := []string{
+		contract.Symbol,
+		fmt.Sprintf("%.2f", contract.Strike),
+		contract.Right,
+		contract.MaturityDate,
+		fmt.Sprintf("%d", contract.DTE),
+		fmt.Sprintf("%.2f", contract.Premium),
+		fmt.Sprintf("%.2f", contract.IntrinsicValue),
+		fmt.Sprintf("%.2f", contract.ExtrinsicValue),
+		fmt.Sprintf("%.2f", contract.PremiumPercent),
+		fmt.Sprintf("%.2f", contract.AnnualizedReturn),
+		fmt.Sprintf("%.2f", contract.POP),
+		fmt.Sprintf("%.2f", contract.Efficiency),
+		itmStr,
+		fmt.Sprintf("%.4f", contract.Delta),
+		fmt.Sprintf("%.4f", contract.Gamma),
+		fmt.Sprintf("%.4f", contract.Theta),
+		fmt.Sprintf("%.4f", contract.Vega),
+		fmt.Sprintf("%.4f", contract.ImpliedVol),
+		fmt.Sprintf("%.2f", contract.Bid),
+		fmt.Sprintf("%.2f", contract.Ask),
+		fmt.Sprintf("%.2f", contract.MidPrice),
+		fmt.Sprintf("%.2f", contract.UnderlyingPrice),
+		fmt.Sprintf("%.2f", contract.CapitalRequired),
+		fmt.Sprintf("%d", contract.ConID),
+		fmt.Sprintf("%d", contract.UnderlyingConID),
+	}
+
+	return writer.Write(row)
 }

@@ -10,6 +10,16 @@ type ScanParams struct {
 	MaxDTE      int     // Maximum days to expiration
 }
 
+// BatchScanParams defines parameters for batch scanning multiple stocks
+type BatchScanParams struct {
+	SolarSystemCSV string  // Path to solar-system.csv
+	OutputCSV      string  // Path to options-chain.csv
+	Right          string  // "C" for calls, "P" for puts
+	MinReturn      float64 // Minimum annualized return percentage
+	StrikeRange    float64 // Strike price range around current price (e.g., 0.1 = 10%)
+	NumExpiries    int     // Number of Friday expiries to scan (e.g., 2)
+}
+
 // OptionContract represents an option contract with calculated metrics
 type OptionContract struct {
 	// Contract details
